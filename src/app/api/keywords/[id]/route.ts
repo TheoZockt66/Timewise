@@ -19,7 +19,7 @@ export async function PUT(
   const { id } = context.params;
   const body = await request.json();
 
-  const result = await updateKeyword(id, body);
+  const result = await updateKeyword({ id, data: body });
 
   return NextResponse.json(result);
 }
