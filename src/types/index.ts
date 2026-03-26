@@ -46,6 +46,24 @@ export interface GoalKeyword {
   keyword_id: string;
 }
 
+// ─── Auth Types ───
+
+// Antwort-Typ für Login und Registrierung
+export interface AuthResponse {
+  user: User;
+  session: {
+    access_token: string;
+    refresh_token: string;
+    expires_at: number; // Unix-Timestamp in Sekunden
+  };
+}
+
+// Eingabe-Typ für Login und Registrierung
+export interface AuthCredentials {
+  email: string;
+  password: string;
+}
+
 // ─── API Types (erweiterte Antworten mit berechneten Feldern) ───
 
 export interface ApiResponse<T> {
