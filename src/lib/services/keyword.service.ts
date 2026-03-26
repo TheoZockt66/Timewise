@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import { validateKeyword } from "@/lib/validators/keyword.validator";
 
 export async function deleteKeyword(id: string) {
   const supabase = await createClient();
@@ -22,6 +23,17 @@ export async function updateKeyword(
     description?: string;
   }
 ) {
+  const validation = validateKeyword(data);
+
+  if (!validation.valid) {
+    return {
+      data: null,
+      error: {
+        message: validation.error,
+      },
+    };
+  }
+
   const supabase = await createClient();
 
   const { data: updatedKeyword, error } = await supabase
