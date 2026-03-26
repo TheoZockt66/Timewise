@@ -4,50 +4,44 @@
 
 @layer base {
   :root {
-    /* shadcn/ui CSS-Variablen – Light Mode */
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
-    --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    /* Timewise Farbschema – Primär (Lila) als Hauptfarbe */
+    --background: 0 0% 100%;           /* #FFFFFF */
+    --foreground: 240 33% 14%;         /* #1A1A2E – Text Primary */
+    --card: 0 0% 100%;                 /* #FFFFFF */
+    --card-foreground: 240 33% 14%;    /* #1A1A2E */
     --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
-    --radius: 0.5rem;
-  }
+    --popover-foreground: 240 33% 14%;
+    --primary: 270 100% 48%;           /* #7700F4 – Primär Lila */
+    --primary-foreground: 0 0% 100%;   /* Weiss auf Lila */
+    --secondary: 270 100% 94%;         /* #EDD9FE – Helles Lila */
+    --secondary-foreground: 270 100% 35%; /* #5500B0 – Dunkles Lila */
+    --muted: 270 40% 96%;              /* Heller Lila-Ton */
+    --muted-foreground: 220 9% 46%;    /* #6B7280 – Text Secondary */
+    --accent: 168 100% 38%;            /* #00C2A8 – Akzent Türkis */
+    --accent-foreground: 0 0% 100%;    /* Weiss auf Türkis */
+    --destructive: 0 84% 60%;          /* #EF4444 – Error */
+    --destructive-foreground: 0 0% 100%;
+    --border: 220 13% 91%;             /* #E5E7EB */
+    --input: 220 13% 91%;              /* #E5E7EB */
+    --ring: 270 100% 48%;              /* #7700F4 – Focus Ring */
+    --radius: 0.75rem;
 
-  .dark {
-    /* shadcn/ui CSS-Variablen – Dark Mode */
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
-    --primary: 210 40% 98%;
-    --primary-foreground: 222.2 47.4% 11.2%;
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 212.7 26.8% 83.9%;
+    /* Timewise-spezifische Farben als Custom Properties */
+    --tw-primary-50: #EDD9FE;
+    --tw-primary-100: #C98BFB;
+    --tw-primary-200: #9B3FF7;
+    --tw-primary-300: #7700F4;
+    --tw-primary-400: #5500B0;
+    --tw-accent-50: #CCFAF4;
+    --tw-accent-100: #99E8DE;
+    --tw-accent-200: #33CDB7;
+    --tw-accent-300: #00C2A8;
+    --tw-accent-400: #00957F;
+    --tw-success: #22C55E;
+    --tw-warning: #F59E0B;
+    --tw-error: #EF4444;
+    --tw-info: #3B82F6;
+    --tw-surface: #F7F4FF;
   }
 }
 
@@ -57,5 +51,11 @@
   }
   body {
     @apply bg-background text-foreground;
+    /* Mindestens 16px Fließtext gemäß UI-Anforderungen */
+    font-size: 16px;
+  }
+  /* Überschriften mindestens 20px gemäß UI-Anforderungen */
+  h1, h2, h3 {
+    font-size: 1.25rem;
   }
 }
