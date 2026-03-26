@@ -10,12 +10,53 @@ type Keyword = {
 
 export default function Home() {
   const [keywords, setKeywords] = useState<Keyword[]>([]);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editLabel, setEditLabel] = useState("");
 
+  /*
   useEffect(() => {
     fetch("/api/keywords")
       .then((res) => res.json())
       .then((data) => setKeywords(data.data || []));
   }, []);
+  */
+
+  useEffect(() => {
+    setKeywords([
+      { id: "1", label: "Mathe", color: "#7700F4" },
+      { id: "2", label: "BWL", color: "#00AAFF" },
+    ]);
+  }, []);
+
+  const handleDelete = async (id: string) => {
+    await fetch(`/api/keywords/${id}`, {
+      method: "DELETE",
+    });
+
+    // Liste neu laden
+    setKeywords((prev) => prev.filter((k) => k.id !== id));
+  };
+
+  const handleUpdate = async (id: string) => {
+    await fetch(`/api/keywords/${id}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        label: editLabel,
+      }),
+    });
+
+    // UI aktualisieren
+    setKeywords((prev) =>
+      prev.map((k) =>
+        k.id === id ? { ...k, label: editLabel } : k
+      )
+    );
+
+    setEditingId(null);
+  };
 
   return (
     <main className="p-6">
@@ -32,12 +73,49 @@ export default function Home() {
               key={k.id}
               className="p-3 border rounded flex justify-between items-center"
             >
-              <span className="text-base">{k.label}</span>
+              <div className="flex items-center gap-2">
+                <div
+                  className="w-4 h-4 rounded"
+                  style={{ backgroundColor: k.color }}
+                />
+                {editingId === k.id ? (
+                  <input
+                    value={editLabel}
+                    onChange={(e) => setEditLabel(e.target.value)}
+                    className="border px-2 py-1 text-base"
+                  />
+                ) : (
+                  <span className="text-base">{k.label}</span>
+                )}
+              </div>
 
-              <div
-                className="w-4 h-4 rounded"
-                style={{ backgroundColor: k.color }}
-              />
+              <div className="flex gap-2">
+                {editingId === k.id ? (
+                  <button
+                    onClick={() => handleUpdate(k.id)}
+                    className="min-w-[44px] min-h-[44px] border rounded text-sm"
+                  >
+                    Speichern
+                  </button>
+                ) : (
+                  <button
+                    onClick={() => {
+                      setEditingId(k.id);
+                      setEditLabel(k.label);
+                    }}
+                    className="min-w-[44px] min-h-[44px] border rounded text-sm"
+                  >
+                    Bearbeiten
+                  </button>
+                )}
+
+                <button
+                  onClick={() => handleDelete(k.id)}
+                  className="min-w-[44px] min-h-[44px] border rounded text-sm text-red-500"
+                >
+                  Löschen
+                </button>
+              </div>
             </li>
           ))}
         </ul>
