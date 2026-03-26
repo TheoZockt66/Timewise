@@ -11,6 +11,10 @@ const config: Config = {
   theme: {
     extend: {
       // CSS-Variablen für shadcn/ui Theming
+      fontFamily: {
+      sans: ["var(--font-atkinson)"],
+      },
+      
       colors: {
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
