@@ -12,6 +12,7 @@ export default function Home() {
   const [keywords, setKeywords] = useState<Keyword[]>([]);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editLabel, setEditLabel] = useState("");
+  const [editColor, setEditColor] = useState("");
 
   /*
   useEffect(() => {
@@ -45,13 +46,16 @@ export default function Home() {
       },
       body: JSON.stringify({
         label: editLabel,
+        color: editColor,
       }),
     });
 
     // UI aktualisieren
     setKeywords((prev) =>
       prev.map((k) =>
-        k.id === id ? { ...k, label: editLabel } : k
+        k.id === id
+          ? { ...k, label: editLabel, color: editColor }
+          : k
       )
     );
 
@@ -74,18 +78,29 @@ export default function Home() {
               className="p-3 border rounded flex justify-between items-center"
             >
               <div className="flex items-center gap-2">
-                <div
-                  className="w-4 h-4 rounded"
-                  style={{ backgroundColor: k.color }}
-                />
                 {editingId === k.id ? (
-                  <input
-                    value={editLabel}
-                    onChange={(e) => setEditLabel(e.target.value)}
-                    className="border px-2 py-1 text-base"
-                  />
+                  <div className="flex items-center gap-2">
+                    <input
+                      value={editLabel}
+                      onChange={(e) => setEditLabel(e.target.value)}
+                      className="border px-2 py-1 text-base"
+                    />
+
+                    <input
+                      type="color"
+                      value={editColor}
+                      onChange={(e) => setEditColor(e.target.value)}
+                      className="w-10 h-10"
+                    />
+                  </div>
                 ) : (
-                  <span className="text-base">{k.label}</span>
+                  <>
+                    <div
+                      className="w-4 h-4 rounded"
+                      style={{ backgroundColor: k.color }}
+                    />
+                    <span className="text-base">{k.label}</span>
+                  </>
                 )}
               </div>
 
@@ -102,6 +117,7 @@ export default function Home() {
                     onClick={() => {
                       setEditingId(k.id);
                       setEditLabel(k.label);
+                      setEditColor(k.color);
                     }}
                     className="min-w-[44px] min-h-[44px] border rounded text-sm"
                   >
