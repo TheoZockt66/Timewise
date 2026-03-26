@@ -3,9 +3,9 @@ import { deleteKeyword, updateKeyword } from "@/lib/services/keyword.service";
 
 export async function DELETE(
   request: Request,
-  { params }: { params: { id: string } }
+  context: { params: { id: string } }
 ) {
-  const { id } = params;
+  const { id } = context.params;
 
   const result = await deleteKeyword(id);
 
@@ -14,9 +14,9 @@ export async function DELETE(
 
 export async function PUT(
   request: Request,
-  { params }: { params: { id: string } }
+  context: { params: { id: string } }
 ) {
-  const { id } = params;
+  const { id } = context.params;
   const body = await request.json();
 
   const result = await updateKeyword(id, body);
