@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Eye, EyeOff, Mail, Lock } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -8,6 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { AuthLogo } from "@/components/auth/AuthLogo";
+import type { ApiResponse, AuthResponse } from "@/types";
 
 /**
  * LoginPage – Anmeldeseite für bestehende Benutzer.
@@ -21,10 +23,11 @@ import { AuthLogo } from "@/components/auth/AuthLogo";
  * - Login-Button
  * - Link zur Registrierung
  *
- * Nur Frontend – kein API-Call, wird in M1 Auth angebunden.
  * Anforderungsbezug: F1 (Login), F2 (JWT-Session), C1 (Datenschutz)
  */
 export default function LoginPage() {
+  const router = useRouter();
+
   // State für Formularfelder
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -32,16 +35,52 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   // "Angemeldet bleiben"-Status
   const [rememberMe, setRememberMe] = useState(false);
+  // Fehlermeldung vom Server oder Netzwerkfehler
+  const [error, setError] = useState("");
+  // Ladezustand – verhindert doppeltes Absenden
+  const [isLoading, setIsLoading] = useState(false);
 
   /**
-   * handleSubmit – Formular-Submit-Handler.
-   * Verhindert Standard-Browser-Verhalten.
-   * TODO: API-Anbindung in M1 Auth implementieren.
+   * handleSubmit – Sendet Login-Daten an die API.
+   * Bei Erfolg: Weiterleitung zum Kalender (Dashboard).
+   * Bei Fehler: Fehlermeldung anzeigen (Fehlergrund + Korrekturhinweis).
    */
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Platzhalter – wird durch Supabase Auth Login ersetzt
-    console.log("Login:", { email, rememberMe });
+    setError("");
+    setIsLoading(true);
+
+    try {
+      // API-Call an den Login-Endpunkt
+      const response = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      });
+
+      const result: ApiResponse<AuthResponse> = await response.json();
+
+      if (!response.ok || result.error) {
+        // Fehlermeldung vom Server anzeigen (generisch gegen User-Enumeration)
+        setError(
+          result.error?.message ||
+            "Anmeldung fehlgeschlagen. Bitte versuche es erneut."
+        );
+        return;
+      }
+
+      // Erfolg: Weiterleitung zum Dashboard
+      // router.refresh() aktualisiert die Server-Komponenten mit der neuen Session
+      router.refresh();
+      router.push("/calendar");
+    } catch {
+      // Netzwerkfehler (z.B. Server nicht erreichbar)
+      setError(
+        "Verbindung zum Server fehlgeschlagen. Bitte prüfe deine Internetverbindung."
+      );
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -56,6 +95,13 @@ export default function LoginPage() {
           Melde dich an, um deine Lernzeiten zu verwalten.
         </p>
       </div>
+
+      {/* Fehlermeldung – zeigt Fehlergrund + Korrekturhinweis (UI-Anforderung) */}
+      {error && (
+        <div className="rounded-lg border border-destructive/30 bg-destructive/10 p-3 text-sm text-destructive">
+          {error}
+        </div>
+      )}
 
       {/* Formular */}
       <form onSubmit={handleSubmit} className="flex flex-col gap-5">
@@ -132,8 +178,12 @@ export default function LoginPage() {
         </div>
 
         {/* Login-Button – min. 44x44px gemäß UI-Anforderungen */}
-        <Button type="submit" className="h-12 w-full text-base font-semibold">
-          Login
+        <Button
+          type="submit"
+          className="h-12 w-full text-base font-semibold"
+          disabled={isLoading}
+        >
+          {isLoading ? "Wird angemeldet..." : "Login"}
         </Button>
       </form>
 

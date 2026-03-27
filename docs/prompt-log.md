@@ -2,6 +2,40 @@
 
 ---
 
+Eintrag Nr.: 4
+Datum: 2026-03-27
+Prompt: Bitte schreibe nun die Verbindung zwischen Frontend und den API sodass die Anmeldung funktioniert und das erst mal wenn ich die Seite öffnen will geguckt wird ob ich angemeldet bin
+Aktion: GEÄNDERT
+Datei / Komponente: Auth-Frontend ↔ API Anbindung (M1) — 4 Dateien
+Schnittstelle: |
+  LoginPage: fetch POST /api/auth/login → ApiResponse<AuthResponse> → redirect /calendar
+  RegisterPage: fetch POST /api/auth/register → ApiResponse<AuthResponse> → redirect /calendar
+  ResetPasswordPage: fetch POST /api/auth/reset → ApiResponse<{ success }> → Bestätigungs-Zustand
+  updateSession(): Middleware erweitert um Route-Protection (redirect-Logik)
+Beschreibung: |
+  Verbindung der Auth-Frontend-Seiten mit den bestehenden API-Endpunkten.
+
+  Geänderte Dateien:
+  - src/lib/supabase/middleware.ts (Route-Protection: unauthentifiziert → /login, authentifiziert auf Auth-Seiten → /calendar)
+  - src/app/(auth)/login/page.tsx (API-Anbindung: fetch /api/auth/login, Fehleranzeige, Ladezustand)
+  - src/app/(auth)/register/page.tsx (API-Anbindung: fetch /api/auth/register, Fehleranzeige, Ladezustand)
+  - src/app/(auth)/reset-password/page.tsx (API-Anbindung: fetch /api/auth/reset, Fehleranzeige, Ladezustand)
+
+  Middleware-Logik:
+  - PUBLIC_ROUTES: /login, /register, /reset-password (ohne Auth erreichbar)
+  - API-Routen (/api/*) werden nicht redirected — geben selbst 401 zurück
+  - Nicht eingeloggt + geschützte Route → redirect /login
+  - Eingeloggt + Auth-Seite → redirect /calendar
+
+  Sicherheit:
+  - Kein direkter Supabase-Client im Frontend (Schichtenarchitektur eingehalten)
+  - Reset-Password zeigt immer Bestätigung (User-Enumeration-Schutz)
+  - Login zeigt generische Fehlermeldung (User-Enumeration-Schutz)
+  - Ladezustand verhindert doppeltes Absenden
+  - Netzwerkfehler werden separat abgefangen und angezeigt
+
+---
+
 Eintrag Nr.: 3
 Datum: 2026-03-26
 Prompt: Baue einmal die LoginPage und Reset-Passwort-Page und Registrierpage, orientiere dich an diesem Design. Nutze aber unsere Farben sowie unser Logo. Erst mal nur Frontendseitig.

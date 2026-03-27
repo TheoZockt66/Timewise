@@ -1,12 +1,14 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Eye, EyeOff, Mail, Lock, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { AuthLogo } from "@/components/auth/AuthLogo";
+import type { ApiResponse, AuthResponse } from "@/types";
 
 // Minimale Passwortlänge als benannte Konstante (kein Magic Number)
 const MIN_PASSWORD_LENGTH = 8;
@@ -15,14 +17,15 @@ const MIN_PASSWORD_LENGTH = 8;
  * RegisterPage – Registrierungsseite für neue Benutzer.
  *
  * Aufbau analog zur LoginPage, erweitert um:
- * - Name-Feld (optional, für personalisierte Ansprache)
  * - Passwort-Bestätigung mit Client-seitiger Validierung
  * - Hinweis auf Passwortanforderungen
  *
- * Nur Frontend – kein API-Call, wird in M1 Auth angebunden.
+ * Bei Erfolg: Weiterleitung zum Kalender (Dashboard).
  * Anforderungsbezug: F1 (Registrierung), C1 (Datenschutz), C2 (Passwort-Sicherheit)
  */
 export default function RegisterPage() {
+  const router = useRouter();
+
   // State für Formularfelder
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -30,15 +33,18 @@ export default function RegisterPage() {
   // Toggle für Passwort-Sichtbarkeit (beide Felder unabhängig)
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  // Client-seitige Fehlermeldung
+  // Fehlermeldung (Client-Validierung oder Server-Antwort)
   const [error, setError] = useState("");
+  // Ladezustand – verhindert doppeltes Absenden
+  const [isLoading, setIsLoading] = useState(false);
 
   /**
-   * handleSubmit – Validiert das Formular client-seitig.
-   * Prüft Passwort-Übereinstimmung und Mindestlänge.
-   * TODO: API-Anbindung in M1 Auth implementieren.
+   * handleSubmit – Validiert client-seitig und sendet Daten an die API.
+   * Client-Validierung: Passwort-Übereinstimmung und Mindestlänge.
+   * Server-Validierung: E-Mail-Format, Duplikate, Passwort-Policy.
+   * Bei Erfolg: Weiterleitung zum Dashboard.
    */
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     // Fehlermeldung zurücksetzen
     setError("");
@@ -55,8 +61,39 @@ export default function RegisterPage() {
       return;
     }
 
-    // Platzhalter – wird durch Supabase Auth Register ersetzt
-    console.log("Register:", { email });
+    setIsLoading(true);
+
+    try {
+      // API-Call an den Register-Endpunkt
+      const response = await fetch("/api/auth/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      });
+
+      const result: ApiResponse<AuthResponse> = await response.json();
+
+      if (!response.ok || result.error) {
+        // Server-Fehlermeldung anzeigen (z.B. "E-Mail bereits vergeben")
+        setError(
+          result.error?.message ||
+            "Registrierung fehlgeschlagen. Bitte versuche es erneut."
+        );
+        return;
+      }
+
+      // Erfolg: Weiterleitung zum Dashboard
+      // router.refresh() aktualisiert die Server-Komponenten mit der neuen Session
+      router.refresh();
+      router.push("/calendar");
+    } catch {
+      // Netzwerkfehler (z.B. Server nicht erreichbar)
+      setError(
+        "Verbindung zum Server fehlgeschlagen. Bitte prüfe deine Internetverbindung."
+      );
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -158,8 +195,12 @@ export default function RegisterPage() {
         </div>
 
         {/* Registrieren-Button – min. 44x44px gemäß UI-Anforderungen */}
-        <Button type="submit" className="h-12 w-full text-base font-semibold">
-          Registrieren
+        <Button
+          type="submit"
+          className="h-12 w-full text-base font-semibold"
+          disabled={isLoading}
+        >
+          {isLoading ? "Wird registriert..." : "Registrieren"}
         </Button>
       </form>
 

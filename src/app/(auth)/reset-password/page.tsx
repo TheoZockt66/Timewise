@@ -18,7 +18,9 @@ import { AuthLogo } from "@/components/auth/AuthLogo";
  * State Pattern: Die Komponente wechselt zwischen Formular- und
  * Bestätigungs-Zustand basierend auf `isSubmitted`.
  *
- * Nur Frontend – kein API-Call, wird in M1 Auth angebunden.
+ * Sicherheit: Die API gibt IMMER Erfolg zurück (auch bei unbekannter E-Mail),
+ * um User-Enumeration zu verhindern. Deshalb zeigen wir immer die Bestätigung.
+ *
  * Anforderungsbezug: F5 (Passwort zurücksetzen)
  */
 export default function ResetPasswordPage() {
@@ -26,17 +28,46 @@ export default function ResetPasswordPage() {
   const [email, setEmail] = useState("");
   // Zustandswechsel: Formular → Bestätigung
   const [isSubmitted, setIsSubmitted] = useState(false);
+  // Fehlermeldung (nur bei Netzwerkfehler — API gibt immer 200 zurück)
+  const [error, setError] = useState("");
+  // Ladezustand – verhindert doppeltes Absenden
+  const [isLoading, setIsLoading] = useState(false);
 
   /**
-   * handleSubmit – Verarbeitet die Reset-Anfrage.
-   * TODO: API-Anbindung in M1 Auth implementieren.
+   * handleSubmit – Sendet die Reset-Anfrage an die API.
+   * Die API gibt aus Sicherheitsgründen immer Erfolg zurück,
+   * daher wechseln wir bei 200 direkt zur Bestätigung.
+   * Nur bei Netzwerkfehlern zeigen wir eine Fehlermeldung.
    */
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Platzhalter – wird durch Supabase Auth Reset ersetzt
-    console.log("Reset password for:", email);
-    // Wechsel zum Bestätigungs-Zustand
-    setIsSubmitted(true);
+    setError("");
+    setIsLoading(true);
+
+    try {
+      // API-Call an den Reset-Endpunkt
+      const response = await fetch("/api/auth/reset", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+      });
+
+      if (!response.ok) {
+        // Sollte nur bei Server-Fehler (500) passieren, nicht bei unbekannter E-Mail
+        setError("Anfrage fehlgeschlagen. Bitte versuche es erneut.");
+        return;
+      }
+
+      // Wechsel zum Bestätigungs-Zustand
+      setIsSubmitted(true);
+    } catch {
+      // Netzwerkfehler (z.B. Server nicht erreichbar)
+      setError(
+        "Verbindung zum Server fehlgeschlagen. Bitte prüfe deine Internetverbindung."
+      );
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -96,6 +127,13 @@ export default function ResetPasswordPage() {
             </p>
           </div>
 
+          {/* Fehlermeldung – nur bei Netzwerk-/Serverfehler */}
+          {error && (
+            <div className="rounded-lg border border-destructive/30 bg-destructive/10 p-3 text-sm text-destructive">
+              {error}
+            </div>
+          )}
+
           {/* Formular */}
           <form onSubmit={handleSubmit} className="flex flex-col gap-5">
             {/* E-Mail-Feld */}
@@ -117,8 +155,12 @@ export default function ResetPasswordPage() {
             </div>
 
             {/* Submit-Button – min. 44x44px gemäß UI-Anforderungen */}
-            <Button type="submit" className="h-12 w-full text-base font-semibold">
-              Link senden
+            <Button
+              type="submit"
+              className="h-12 w-full text-base font-semibold"
+              disabled={isLoading}
+            >
+              {isLoading ? "Wird gesendet..." : "Link senden"}
             </Button>
           </form>
 
