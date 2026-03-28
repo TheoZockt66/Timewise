@@ -70,11 +70,17 @@ export async function updateKeyword(
 
   const supabase = await createClient();
 
+  console.log("UPDATE:", id, data);
+
   const { data: updatedKeyword, error } = await supabase
     .from("keywords")
-    .update(data)
+    .update({
+      label: data.label,
+      color: data.color,
+    })
     .eq("id", id)
-    .select();
+    .select()
+    .single();
 
   return {
     data: updatedKeyword,
