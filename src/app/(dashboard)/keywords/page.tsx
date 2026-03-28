@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { useToast } from "@/hooks/use-toast";
 
 type Keyword = {
   id: string;
@@ -18,6 +19,7 @@ export default function Home() {
   const [editColor, setEditColor] = useState("");
   const [newLabel, setNewLabel] = useState("");
   const [newColor, setNewColor] = useState("#000000");
+  const { toast } = useToast();
 
   useEffect(() => {
     fetch("/api/keywords")
@@ -26,6 +28,14 @@ export default function Home() {
   }, []);
 
   const handleCreate = async () => {
+    if (!newLabel.trim()) {
+      toast({
+        title: "Fehler",
+        description: "Bitte gib einen Namen ein",
+      });
+
+      return;
+    }
     const res = await fetch("/api/keywords", {
       method: "POST",
       headers: {
@@ -45,20 +55,42 @@ export default function Home() {
       const refreshedData = await refreshed.json();
 
       setKeywords(refreshedData.data || []);
+
+      toast({
+        title: "Erfolg",
+        description: "Keyword erfolgreich erstellt",
+        duration: 3000,
+      });
+
+      setNewLabel("");
+      setNewColor("#000000");
     }
   };
 
   const handleDelete = async (id: string) => {
-    await fetch(`/api/keywords/${id}`, {
+    const res = await fetch(`/api/keywords/${id}`, {
       method: "DELETE",
     });
 
-    // Liste neu laden
-    setKeywords((prev) => prev.filter((k) => k.id !== id));
+    const result = await res.json();
+
+    if (!result.error) {
+      setKeywords((prev) => prev.filter((k) => k.id !== id));
+
+      toast({
+        title: "Erfolg",
+        description: "Keyword gelöscht",
+      });
+    } else {
+      toast({
+        title: "Fehler",
+        description: "Keyword konnte nicht gelöscht werden",
+      });
+    }
   };
 
   const handleUpdate = async (id: string) => {
-    await fetch(`/api/keywords/${id}`, {
+    const res = await fetch(`/api/keywords/${id}`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
@@ -69,16 +101,29 @@ export default function Home() {
       }),
     });
 
-    // UI aktualisieren
-    setKeywords((prev) =>
-      prev.map((k) =>
-        k.id === id
-          ? { ...k, label: editLabel, color: editColor }
-          : k
-      )
-    );
+    const result = await res.json();
 
-    setEditingId(null);
+    if (!result.error) {
+      setKeywords((prev) =>
+        prev.map((k) =>
+          k.id === id
+            ? { ...k, label: editLabel, color: editColor }
+            : k
+        )
+      );
+
+      setEditingId(null);
+
+      toast({
+        title: "Erfolg",
+        description: "Keyword gespeichert",
+      });
+    } else {
+      toast({
+        title: "Fehler",
+        description: "Keyword konnte nicht gespeichert werden",
+      });
+    }
   };
 
   return (
@@ -113,7 +158,11 @@ export default function Home() {
                 />
               </div>
 
-              <Button onClick={handleCreate} className="min-h-11">
+              <Button
+                onClick={handleCreate}
+                className="min-h-11"
+                disabled={!newLabel.trim()}
+              >
                 Hinzufügen
               </Button>
             </div>

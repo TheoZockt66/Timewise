@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 // import { Inter } from "next/font/google";
 import "./globals.css";
 import { Atkinson_Hyperlegible } from "next/font/google";
+import { Toaster } from "@/components/ui/toaster";
 
 const atkinson = Atkinson_Hyperlegible({
   subsets: ["latin"],
@@ -32,6 +33,7 @@ export default function RootLayout({
     <html lang="de" suppressHydrationWarning>
       <body className={atkinson.className}>
         {children}
+        <Toaster />
       </body>
     </html>
   );
