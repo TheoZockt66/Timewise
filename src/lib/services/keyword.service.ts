@@ -38,8 +38,7 @@ export async function createKeyword(data: {
     .insert({
       label: data.label,
       color: data.color,
-      //user_id: data.user_id,
-      user_id: "00000000-0000-0000-0000-000000000000",
+      user_id: data.user_id,
     })
     .select()
     .single();
