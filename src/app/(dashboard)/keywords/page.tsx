@@ -13,21 +13,37 @@ export default function Home() {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editLabel, setEditLabel] = useState("");
   const [editColor, setEditColor] = useState("");
+  const [newLabel, setNewLabel] = useState("");
+  const [newColor, setNewColor] = useState("#000000");
 
-  /*
   useEffect(() => {
     fetch("/api/keywords")
       .then((res) => res.json())
       .then((data) => setKeywords(data.data || []));
   }, []);
-  */
 
-  useEffect(() => {
-    setKeywords([
-      { id: "1", label: "Mathe", color: "#7700F4" },
-      { id: "2", label: "BWL", color: "#00AAFF" },
-    ]);
-  }, []);
+  const handleCreate = async () => {
+    const res = await fetch("/api/keywords", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        label: newLabel,
+        color: newColor,
+      }),
+    });
+
+    const result = await res.json();
+    console.log("RESULT:", result);
+
+    if (!result.error) {
+      const refreshed = await fetch("/api/keywords");
+      const refreshedData = await refreshed.json();
+
+      setKeywords(refreshedData.data || []);
+    }
+  };
 
   const handleDelete = async (id: string) => {
     await fetch(`/api/keywords/${id}`, {
@@ -65,6 +81,28 @@ export default function Home() {
   return (
     <main className="p-6">
       <h1 className="text-xl font-bold mb-4">Meine Keywords</h1>
+
+      <div className="mb-4 flex gap-2 items-center">
+        <input
+          value={newLabel}
+          onChange={(e) => setNewLabel(e.target.value)}
+          placeholder="Neues Keyword"
+          className="border px-2 py-1"
+        />
+
+        <input
+          type="color"
+          value={newColor}
+          onChange={(e) => setNewColor(e.target.value)}
+        />
+
+        <button
+          onClick={handleCreate}
+          className="min-w-[44px] min-h-[44px] border rounded"
+        >
+          Hinzufügen
+        </button>
+      </div>
 
       {keywords.length === 0 ? (
         <p className="text-base text-gray-500">

@@ -15,6 +15,41 @@ export async function deleteKeyword(id: string) {
   };
 }
 
+export async function createKeyword(data: {
+  label?: string;
+  color?: string;
+  user_id: string;
+}) {
+  const validation = validateKeyword(data);
+
+  if (!validation.valid) {
+    return {
+      data: null,
+      error: {
+        message: validation.error,
+      },
+    };
+  }
+
+  const supabase = await createClient();
+
+  const { data: newKeyword, error } = await supabase
+    .from("keywords")
+    .insert({
+      label: data.label,
+      color: data.color,
+      //user_id: data.user_id,
+      user_id: "00000000-0000-0000-0000-000000000000",
+    })
+    .select()
+    .single();
+
+  return {
+    data: newKeyword,
+    error,
+  };
+}
+
 export async function updateKeyword(
   id: string,
   data: {
