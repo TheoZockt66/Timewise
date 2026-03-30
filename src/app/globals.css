@@ -45,6 +45,7 @@
   }
 }
 
+
 @layer base {
   * {
     @apply border-border;
@@ -58,4 +59,28 @@
   h1, h2, h3 {
     font-size: 1.25rem;
   }
+}
+/* --- Timewise Kalender Design Overrides (Verknüpft mit Basis-Variablen) --- */
+:root {
+  /* Buttons nutzen jetzt die fest definierten HEX-Variablen */
+  --fc-button-bg-color: var(--tw-primary-300);
+  --fc-button-border-color: var(--tw-primary-300);
+  --fc-button-text-color: #ffffff;
+  
+  /* Hover/Active States nutzen das dunklere Lila */
+  --fc-button-hover-bg-color: var(--tw-primary-400);
+  --fc-button-hover-border-color: var(--tw-primary-400);
+  --fc-button-active-bg-color: var(--tw-primary-400);
+  --fc-button-active-border-color: var(--tw-primary-400);
+
+  /* Hintergrund für den heutigen Tag (Surface) */
+  --fc-today-bg-color: var(--tw-surface);
+
+  --fc-border-color: hsl(var(--border));
+  --fc-neutral-text-color: hsl(var(--foreground));
+}
+
+/* Kalender Überschrift an die globale Textfarbe anpassen */
+.fc-toolbar-title {
+  color: hsl(var(--foreground)) !important;
 }
