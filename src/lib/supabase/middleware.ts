@@ -14,7 +14,7 @@ const API_PREFIX = "/api/";
  * Logik:
  * 1. Session-Token erneuern (JWT Refresh)
  * 2. Prüfen ob der User eingeloggt ist
- * 3. Unauthentifizierte User → /login (außer auf öffentlichen Routen)
+ * 3. Unauthentifizierte User → / (außer auf öffentlichen Routen)
  * 4. Authentifizierte User auf Auth-Seiten → /calendar
  *
  * Warum Middleware?
@@ -76,10 +76,10 @@ export async function updateSession(request: NextRequest) {
   }
 
   if (user && isPublicRoute) {
-    // Eingeloggt + auf Auth-Seite → weiter zu /calendar (Dashboard)
-    const calendarUrl = request.nextUrl.clone();
-    calendarUrl.pathname = "/calendar";
-    return NextResponse.redirect(calendarUrl);
+    // Eingeloggt + auf Auth-Seite → weiter zur Startseite
+    const homeUrl = request.nextUrl.clone();
+    homeUrl.pathname = "/";
+    return NextResponse.redirect(homeUrl);
   }
 
   return supabaseResponse;

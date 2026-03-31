@@ -69,11 +69,10 @@ export default function LoginPage() {
         return;
       }
 
-      // Erfolg: Weiterleitung zum Dashboard
+      // Erfolg: Weiterleitung zur Startseite
       // router.refresh() aktualisiert die Server-Komponenten mit der neuen Session
       router.refresh();
-      //router.push("/calendar");
-      router.push("/keywords");
+      router.push("/");
     } catch {
       // Netzwerkfehler (z.B. Server nicht erreichbar)
       setError(

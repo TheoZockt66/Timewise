@@ -144,18 +144,11 @@ timewise/
 ## Datenbankschema (Single Source of Truth)
 
 ```sql
--- Users (wird von Supabase Auth verwaltet, nicht manuell erstellen)
-CREATE TABLE users (
-    id          UUID PRIMARY KEY,
-    email       VARCHAR NOT NULL UNIQUE,
-    password_hash VARCHAR NOT NULL,
-    created_at  TIMESTAMP NOT NULL DEFAULT now()
-);
-
 -- Events
+-- user_id referenziert auth.users(id) — verwaltet von Supabase Auth
 CREATE TABLE events (
     id          UUID PRIMARY KEY,
-    user_id     UUID NOT NULL REFERENCES users(id),
+    user_id     UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
     label       VARCHAR,
     description VARCHAR,
     start_time  TIMESTAMP NOT NULL,
@@ -166,7 +159,7 @@ CREATE TABLE events (
 -- Goals
 CREATE TABLE goals (
     id                UUID PRIMARY KEY,
-    user_id           UUID NOT NULL REFERENCES users(id),
+    user_id           UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
     label             VARCHAR,
     description       VARCHAR,
     start_time        TIMESTAMP,
@@ -178,7 +171,7 @@ CREATE TABLE goals (
 -- Keywords
 CREATE TABLE keywords (
     id          UUID PRIMARY KEY,
-    user_id     UUID NOT NULL REFERENCES users(id),
+    user_id     UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
     label       VARCHAR NOT NULL,
     description VARCHAR,
     created_at  TIMESTAMP NOT NULL DEFAULT now(),
@@ -187,20 +180,20 @@ CREATE TABLE keywords (
 
 -- Event ↔ Keywords (m:n)
 CREATE TABLE event_keywords (
-    event_id    UUID NOT NULL REFERENCES events(id),
-    keyword_id  UUID NOT NULL REFERENCES keywords(id),
+    event_id    UUID NOT NULL REFERENCES events(id) ON DELETE CASCADE,
+    keyword_id  UUID NOT NULL REFERENCES keywords(id) ON DELETE CASCADE,
     PRIMARY KEY (event_id, keyword_id)
 );
 
 -- Goal ↔ Keywords (m:n)
 CREATE TABLE goal_keywords (
-    goal_id     UUID NOT NULL REFERENCES goals(id),
-    keyword_id  UUID NOT NULL REFERENCES keywords(id),
+    goal_id     UUID NOT NULL REFERENCES goals(id) ON DELETE CASCADE,
+    keyword_id  UUID NOT NULL REFERENCES keywords(id) ON DELETE CASCADE,
     PRIMARY KEY (goal_id, keyword_id)
 );
 ```
 
-**Hinweis:** Die `users`-Tabelle wird von Supabase Auth automatisch verwaltet. Das Schema oben zeigt die logische Struktur — in der Praxis liegt die Tabelle im `auth`-Schema von Supabase.
+**Hinweis:** Es gibt keine eigene `users`-Tabelle. User werden ausschließlich über **Supabase Auth** (`auth.users`) verwaltet. Alle `user_id`-Felder referenzieren direkt `auth.users(id)`.
 
 ## TypeScript Interfaces
 

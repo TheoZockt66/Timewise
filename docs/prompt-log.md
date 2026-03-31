@@ -2,6 +2,33 @@
 
 ---
 
+Eintrag Nr.: 5
+Datum: 2026-03-31
+Prompt: erstelle eine startseite auf der man zu allen seiten kommt orientiere dich beim design an der login page
+Aktion: GEÄNDERT
+Datei / Komponente: src/app/page.tsx, src/lib/supabase/middleware.ts
+Schnittstelle: |
+  StartPage: keine Props – statische Navigationsseite
+  NavCard: { href, icon, title, description, variant? } → JSX.Element
+Beschreibung: |
+  Startseite als öffentlich zugängliche Landing Page mit Split-Layout analog zur Login-Seite.
+
+  Geänderte Dateien:
+  - src/app/page.tsx (Startseite mit Navigationskarten zu allen Seiten)
+  - src/lib/supabase/middleware.ts (PUBLIC_ROUTES: "/" hinzugefügt)
+
+  Design:
+  - Gleiches Split-Layout wie AuthLayout (weiß links, lila rechts mit Illustration)
+  - AuthIllustration wiederverwendet (DRY)
+  - NavCard-Komponente für einheitliche Darstellung der Navigationskarten
+  - Zwei Abschnitte: "Konto" (Login, Registrieren) und "Dashboard" (Kalender, Keywords, Statistiken, Ziele)
+  - Primary-Variant für Login-Button (lila Karte als Haupt-CTA)
+
+  Middleware:
+  - "/" zu PUBLIC_ROUTES hinzugefügt, damit die Startseite ohne Login erreichbar ist
+
+---
+
 Eintrag Nr.: 4
 Datum: 2026-03-27
 Prompt: Bitte schreibe nun die Verbindung zwischen Frontend und den API sodass die Anmeldung funktioniert und das erst mal wenn ich die Seite öffnen will geguckt wird ob ich angemeldet bin

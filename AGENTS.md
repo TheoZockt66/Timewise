@@ -72,58 +72,76 @@ timewise/
 │   ├── app/
 │   │   ├── globals.css                 ✅
 │   │   ├── layout.tsx                  ✅ Root-Layout
-│   │   ├── page.tsx                    ✅ Startseite
-│   │   ├── (auth)/                     📁 Auth-Seiten (eigenes Layout, kein Sidebar)
-│   │   │   ├── layout.tsx
-│   │   │   ├── login/page.tsx
-│   │   │   ├── register/page.tsx
-│   │   │   └── reset-password/page.tsx
-│   │   ├── (dashboard)/                📁 Geschützte Seiten (Sidebar + Navigation)
-│   │   │   ├── layout.tsx
-│   │   │   ├── calendar/page.tsx
-│   │   │   ├── keywords/page.tsx
-│   │   │   ├── stats/page.tsx
-│   │   │   └── goals/page.tsx
-│   │   └── api/                        📁 API-Endpunkte
-│   │       ├── auth/callback/route.ts
+│   │   ├── page.tsx                    ✅ Startseite (Platzhalter)
+│   │   ├── (auth)/                     ✅ Auth-Seiten (eigenes Layout, kein Sidebar)
+│   │   │   ├── layout.tsx              ✅
+│   │   │   ├── login/page.tsx          ✅
+│   │   │   ├── register/page.tsx       ✅
+│   │   │   └── reset-password/page.tsx ✅
+│   │   ├── (dashboard)/                Geschützte Seiten (Sidebar + Navigation)
+│   │   │   ├── layout.tsx              📁
+│   │   │   ├── calendar/
+│   │   │   │   ├── page.tsx            ✅
+│   │   │   │   └── CalendarView.tsx    ✅
+│   │   │   ├── keywords/page.tsx       ✅
+│   │   │   ├── stats/page.tsx          📁
+│   │   │   └── goals/page.tsx          📁
+│   │   └── api/                        API-Endpunkte
+│   │       ├── auth/
+│   │       │   ├── callback/route.ts   ✅
+│   │       │   ├── login/route.ts      ✅
+│   │       │   ├── logout/route.ts     ✅
+│   │       │   ├── register/route.ts   ✅
+│   │       │   └── reset/route.ts      ✅
 │   │       ├── keywords/
-│   │       │   ├── route.ts            # GET all, POST create
-│   │       │   └── [id]/route.ts       # GET, PUT, DELETE
+│   │       │   ├── route.ts            ✅ GET all, POST create
+│   │       │   └── [id]/route.ts       ✅ GET, PUT, DELETE
 │   │       ├── events/
-│   │       │   ├── route.ts            # GET (gefiltert), POST
-│   │       │   ├── [id]/route.ts       # GET, PUT, DELETE
-│   │       │   └── aggregate/route.ts  # GET aggregierte Lernzeiten
+│   │       │   ├── route.ts            📁 GET (gefiltert), POST
+│   │       │   ├── [id]/route.ts       📁 GET, PUT, DELETE
+│   │       │   └── aggregate/route.ts  📁 GET aggregierte Lernzeiten
 │   │       └── goals/
-│   │           ├── route.ts
-│   │           └── [id]/route.ts
+│   │           ├── route.ts            📁
+│   │           └── [id]/route.ts       📁
 │   ├── components/
 │   │   ├── ui/                         ✅ shadcn/ui Komponenten
-│   │   │   └── button.tsx              ✅
-│   │   ├── auth/                       📁 LoginForm, RegisterForm, AuthGuard
+│   │   │   ├── button.tsx              ✅
+│   │   │   ├── card.tsx                ✅
+│   │   │   ├── checkbox.tsx            ✅
+│   │   │   ├── input.tsx               ✅
+│   │   │   ├── label.tsx               ✅
+│   │   │   ├── toast.tsx               ✅
+│   │   │   └── toaster.tsx             ✅
+│   │   ├── auth/                       ✅
+│   │   │   ├── AuthIllustration.tsx    ✅
+│   │   │   └── AuthLogo.tsx            ✅
+│   │   ├── EventForm.tsx               ✅ Platzhalter (wird zu components/events/ verschoben)
 │   │   ├── keywords/                   📁 KeywordList, KeywordForm, KeywordBadge, ColorPicker, KeywordSelect
-│   │   ├── events/                     📁 EventForm, EventCard, TimeRangePicker, OverlapWarning
-│   │   ├── calendar/                   📁 CalendarView, CalendarToolbar, CalendarEvent
+│   │   ├── events/                     📁 EventCard, TimeRangePicker, OverlapWarning
+│   │   ├── calendar/                   📁 CalendarToolbar, CalendarEvent
 │   │   ├── stats/                      📁 StatsOverview, KeywordBarChart, TimelineLineChart, StatsFilterBar
 │   │   └── goals/                      📁 GoalList, GoalForm, GoalCard, GoalProgressBar
-│   ├── hooks/                          📁
-│   │   ├── useCalendar.ts
-│   │   ├── useStats.ts
-│   │   └── useGoals.ts
+│   ├── hooks/
+│   │   ├── use-toast.ts                ✅
+│   │   ├── useCalendar.ts              ✅
+│   │   ├── useStats.ts                 📁
+│   │   └── useGoals.ts                 📁
 │   ├── lib/
 │   │   ├── supabase/
-│   │   │   ├── client.ts              ✅ Browser Supabase Client
-│   │   │   ├── server.ts             ✅ Server Supabase Client
-│   │   │   └── middleware.ts          ✅ Session Refresh
+│   │   │   ├── client.ts               ✅ Browser Supabase Client
+│   │   │   ├── server.ts               ✅ Server Supabase Client
+│   │   │   └── middleware.ts           ✅ Session Refresh
 │   │   ├── utils.ts                    ✅ Hilfsfunktionen
-│   │   ├── types/
-│   │   │   └── index.ts               ✅ Shared Interfaces
-│   │   ├── services/                   📁
-│   │   │   ├── auth.service.ts
-│   │   │   ├── keyword.service.ts
-│   │   │   ├── event.service.ts        # CRUD + Overlap-Check + Aggregation
-│   │   │   └── goal.service.ts         # CRUD + Fortschrittsberechnung
-│   │   └── validators/                 📁
-│   │       └── event.validator.ts      # Zeitvalidierung, Overlap-Logik
+│   │   ├── services/
+│   │   │   ├── auth.service.ts         ✅
+│   │   │   ├── keyword.service.ts      ✅
+│   │   │   ├── event.service.ts        📁 CRUD + Overlap-Check + Aggregation
+│   │   │   └── goal.service.ts         📁 CRUD + Fortschrittsberechnung
+│   │   └── validators/
+│   │       ├── keyword.validator.ts    ✅
+│   │       └── event.validator.ts      📁 Zeitvalidierung, Overlap-Logik
+│   ├── types/
+│   │   └── index.ts                    ✅ Shared Interfaces
 │   └── middleware.ts                   ✅ Next.js Route Protection
 ├── docs/
 │   └── prompt-log.md                   ✅ KI-Prompt-Dokumentation
@@ -144,18 +162,11 @@ timewise/
 ## Datenbankschema (Single Source of Truth)
 
 ```sql
--- Users (wird von Supabase Auth verwaltet, nicht manuell erstellen)
-CREATE TABLE users (
-    id          UUID PRIMARY KEY,
-    email       VARCHAR NOT NULL UNIQUE,
-    password_hash VARCHAR NOT NULL,
-    created_at  TIMESTAMP NOT NULL DEFAULT now()
-);
-
 -- Events
+-- user_id referenziert auth.users(id) — verwaltet von Supabase Auth
 CREATE TABLE events (
     id          UUID PRIMARY KEY,
-    user_id     UUID NOT NULL REFERENCES users(id),
+    user_id     UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
     label       VARCHAR,
     description VARCHAR,
     start_time  TIMESTAMP NOT NULL,
@@ -166,7 +177,7 @@ CREATE TABLE events (
 -- Goals
 CREATE TABLE goals (
     id                UUID PRIMARY KEY,
-    user_id           UUID NOT NULL REFERENCES users(id),
+    user_id           UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
     label             VARCHAR,
     description       VARCHAR,
     start_time        TIMESTAMP,
@@ -178,7 +189,7 @@ CREATE TABLE goals (
 -- Keywords
 CREATE TABLE keywords (
     id          UUID PRIMARY KEY,
-    user_id     UUID NOT NULL REFERENCES users(id),
+    user_id     UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
     label       VARCHAR NOT NULL,
     description VARCHAR,
     created_at  TIMESTAMP NOT NULL DEFAULT now(),
@@ -187,20 +198,20 @@ CREATE TABLE keywords (
 
 -- Event ↔ Keywords (m:n)
 CREATE TABLE event_keywords (
-    event_id    UUID NOT NULL REFERENCES events(id),
-    keyword_id  UUID NOT NULL REFERENCES keywords(id),
+    event_id    UUID NOT NULL REFERENCES events(id) ON DELETE CASCADE,
+    keyword_id  UUID NOT NULL REFERENCES keywords(id) ON DELETE CASCADE,
     PRIMARY KEY (event_id, keyword_id)
 );
 
 -- Goal ↔ Keywords (m:n)
 CREATE TABLE goal_keywords (
-    goal_id     UUID NOT NULL REFERENCES goals(id),
-    keyword_id  UUID NOT NULL REFERENCES keywords(id),
+    goal_id     UUID NOT NULL REFERENCES goals(id) ON DELETE CASCADE,
+    keyword_id  UUID NOT NULL REFERENCES keywords(id) ON DELETE CASCADE,
     PRIMARY KEY (goal_id, keyword_id)
 );
 ```
 
-**Hinweis:** Die `users`-Tabelle wird von Supabase Auth automatisch verwaltet. Das Schema oben zeigt die logische Struktur — in der Praxis liegt die Tabelle im `auth`-Schema von Supabase.
+**Hinweis:** Es gibt keine eigene `users`-Tabelle. User werden ausschließlich über **Supabase Auth** (`auth.users`) verwaltet. Alle `user_id`-Felder referenzieren direkt `auth.users(id)`.
 
 ## TypeScript Interfaces
 
