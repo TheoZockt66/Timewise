@@ -6,23 +6,30 @@ import { validateKeyword } from "@/lib/validators/keyword.validator";
 /**
  * Löscht ein Keyword anhand der ID.
  *
- * Ablauf:
- * 1. Supabase-Client erstellen
- * 2. Delete-Operation auf der keywords-Tabelle ausführen
- * 3. Fehler behandeln und Ergebnis zurückgeben
+ * Ziel:
+ * Ein Keyword wird aus der Datenbank entfernt, damit es nicht mehr
+ * für Lernzeiteinträge (Events) verwendet werden kann.
  *
- * Randfall: Wenn das Keyword nicht existiert, gibt Supabase keinen Fehler zurück.
- * Das Verhalten ist idempotent – mehrfaches Löschen ist unkritisch.
+ * Ablauf:
+ * 1. Verbindung zur Datenbank herstellen
+ * 2. Keyword anhand der ID aus der Tabelle "keywords" löschen
+ * 3. Fehler behandeln oder Erfolg zurückgeben
+ *
+ * Randfall:
+ * Wenn das Keyword nicht existiert, passiert nichts (kein Fehler).
+ * Das Löschen ist idempotent – mehrfaches Löschen hat keine negativen Auswirkungen.
  */
 export async function deleteKeyword(id: string) {
+  // Schritt 1: Verbindung zur Datenbank herstellen
   const supabase = await createClient();
 
+  // Schritt 2: Keyword mit der passenden ID löschen
   const { error } = await supabase
     .from("keywords")
     .delete()
     .eq("id", id);
 
-  // Fehlerbehandlung für Supabase-Fehler
+  // Schritt 3: Fehlerbehandlung, falls die Datenbankoperation fehlschlägt
   if (error) {
     return {
       data: null,
@@ -34,6 +41,7 @@ export async function deleteKeyword(id: string) {
     };
   }
 
+  // Erfolgsfall: Kein Fehler bedeutet, dass das Löschen erfolgreich war
   return {
     data: null,
     error: null,
@@ -43,20 +51,26 @@ export async function deleteKeyword(id: string) {
 /**
  * Erstellt ein neues Keyword.
  *
- * Ablauf:
- * 1. Eingabedaten validieren
- * 2. Supabase Insert-Operation ausführen
- * 3. Ergebnis zurückgeben
+ * Ziel:
+ * Ein Keyword wird in der Datenbank gespeichert, damit es später
+ * Lernzeiteinträgen (Events) zugeordnet werden kann.
  *
- * Randfall: Ungültige Eingaben werden vor dem DB-Zugriff abgefangen.
- * Dadurch wird sichergestellt, dass nur valide Daten in die Datenbank gelangen.
+ * Ablauf:
+ * 1. Eingabedaten validieren (z. B. leeres Label oder falscher Farbwert verhindern)
+ * 2. Keyword in der Datenbank speichern
+ * 3. Fehler behandeln oder das neu erstellte Keyword zurückgeben
+ *
+ * Randfall:
+ * Ungültige Daten werden früh abgefangen, damit keine fehlerhaften
+ * Einträge in der Datenbank entstehen.
  */
 export async function createKeyword(data: {
   label?: string;
   color?: string;
   user_id: string;
 }) {
-  // Schritt 1: Eingabedaten validieren
+  // Schritt 1: Validierung schützt die Datenbank vor ungültigen Eingaben
+  // Beispiel: leeres Label oder ungültiger Hex-Farbwert
   const validation = validateKeyword(data);
 
   if (!validation.valid) {
@@ -69,9 +83,11 @@ export async function createKeyword(data: {
     };
   }
 
-  // Schritt 2: Supabase-Client erstellen und Insert durchführen
+  // Schritt 2: Verbindung zur Datenbank herstellen
   const supabase = await createClient();
 
+  // Schritt 3: Keyword wird in der Tabelle "keywords" gespeichert
+  // .select().single() sorgt dafür, dass wir direkt das gespeicherte Objekt zurückbekommen
   const { data: newKeyword, error } = await supabase
     .from("keywords")
     .insert({
@@ -82,7 +98,7 @@ export async function createKeyword(data: {
     .select()
     .single();
 
-  // Schritt 3: Fehlerbehandlung für Supabase-Fehler
+  // Schritt 4: Falls ein Fehler von Supabase kommt (z. B. DB-Problem), sauber behandeln
   if (error) {
     return {
       data: null,
@@ -94,6 +110,7 @@ export async function createKeyword(data: {
     };
   }
 
+  // Erfolgsfall: Das neu erstellte Keyword wird zurückgegeben
   return {
     data: newKeyword,
     error: null,
@@ -103,13 +120,18 @@ export async function createKeyword(data: {
 /**
  * Aktualisiert ein bestehendes Keyword.
  *
- * Ablauf:
- * 1. Eingabedaten validieren
- * 2. Supabase Update-Operation ausführen
- * 3. Ergebnis zurückgeben
+ * Ziel:
+ * Ein vorhandenes Keyword wird angepasst (z. B. Name oder Farbe),
+ * damit es weiterhin korrekt für Lernzeiteinträge (Events) verwendet werden kann.
  *
- * Randfall: Nur übergebene Felder werden aktualisiert.
- * Nicht gesetzte Felder bleiben unverändert in der Datenbank bestehen.
+ * Ablauf:
+ * 1. Eingabedaten validieren (ungültige Änderungen verhindern)
+ * 2. Keyword in der Datenbank anhand der ID aktualisieren
+ * 3. Fehler behandeln oder das aktualisierte Keyword zurückgeben
+ *
+ * Randfall:
+ * Nur die übergebenen Felder werden geändert.
+ * Nicht gesetzte Felder bleiben unverändert bestehen.
  */
 export async function updateKeyword(
   id: string,
@@ -119,7 +141,7 @@ export async function updateKeyword(
     description?: string;
   }
 ) {
-  // Schritt 1: Eingabedaten validieren
+  // Schritt 1: Validierung verhindert, dass ungültige Änderungen gespeichert werden
   const validation = validateKeyword(data);
 
   if (!validation.valid) {
@@ -132,9 +154,11 @@ export async function updateKeyword(
     };
   }
 
-  // Schritt 2: Supabase-Client erstellen und Update durchführen
+  // Schritt 2: Verbindung zur Datenbank herstellen
   const supabase = await createClient();
 
+  // Schritt 3: Keyword wird anhand der ID aktualisiert
+  // Nur die angegebenen Felder (label, color) werden überschrieben
   const { data: updatedKeyword, error } = await supabase
     .from("keywords")
     .update({
@@ -145,7 +169,7 @@ export async function updateKeyword(
     .select()
     .single();
 
-  // Schritt 3: Fehlerbehandlung für Supabase-Fehler
+  // Schritt 4: Fehlerbehandlung, falls die Datenbankoperation fehlschlägt
   if (error) {
     return {
       data: null,
@@ -157,6 +181,7 @@ export async function updateKeyword(
     };
   }
 
+  // Erfolgsfall: Das aktualisierte Keyword wird zurückgegeben
   return {
     data: updatedKeyword,
     error: null,
