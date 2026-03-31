@@ -5,7 +5,9 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
+import Link from "next/link";
 
+// Datenstruktur eines Keywords (kommt aus dem Backend)
 type Keyword = {
   id: string;
   label: string;
@@ -13,21 +15,30 @@ type Keyword = {
 };
 
 export default function Home() {
+  // State für alle Keywords (Anzeige im UI)
   const [keywords, setKeywords] = useState<Keyword[]>([]);
+
+  // State für Bearbeiten-Modus eines Keywords
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editLabel, setEditLabel] = useState("");
   const [editColor, setEditColor] = useState("");
+
+  // State für neues Keyword
   const [newLabel, setNewLabel] = useState("");
   const [newColor, setNewColor] = useState("#000000");
+
   const { toast } = useToast();
 
+  // Lädt beim ersten Rendern alle Keywords vom Backend
   useEffect(() => {
     fetch("/api/keywords")
       .then((res) => res.json())
       .then((data) => setKeywords(data.data || []));
   }, []);
 
+  // Erstellt ein neues Keyword und lädt danach die Liste neu
   const handleCreate = async () => {
+    // verhindert leere Eingaben
     if (!newLabel.trim()) {
       toast({
         title: "Fehler",
@@ -48,9 +59,9 @@ export default function Home() {
     });
 
     const result = await res.json();
-    console.log("RESULT:", result);
 
     if (!result.error) {
+      // nach Erstellung: Liste neu laden (synchron mit Backend)
       const refreshed = await fetch("/api/keywords");
       const refreshedData = await refreshed.json();
 
@@ -62,11 +73,13 @@ export default function Home() {
         duration: 3000,
       });
 
+      // Eingabefelder zurücksetzen
       setNewLabel("");
       setNewColor("#000000");
     }
   };
 
+  // Löscht ein Keyword und entfernt es direkt aus dem lokalen State
   const handleDelete = async (id: string) => {
     const res = await fetch(`/api/keywords/${id}`, {
       method: "DELETE",
@@ -75,6 +88,7 @@ export default function Home() {
     const result = await res.json();
 
     if (!result.error) {
+      // UI sofort aktualisieren (ohne kompletten Reload)
       setKeywords((prev) => prev.filter((k) => k.id !== id));
 
       toast({
@@ -89,6 +103,7 @@ export default function Home() {
     }
   };
 
+  // Aktualisiert ein Keyword und passt den lokalen State entsprechend an
   const handleUpdate = async (id: string) => {
     const res = await fetch(`/api/keywords/${id}`, {
       method: "PUT",
@@ -104,6 +119,7 @@ export default function Home() {
     const result = await res.json();
 
     if (!result.error) {
+      // nur das betroffene Keyword im State aktualisieren
       setKeywords((prev) =>
         prev.map((k) =>
           k.id === id
@@ -129,6 +145,16 @@ export default function Home() {
   return (
     <main className="min-h-screen bg-muted/30 px-4 py-8">
       <div className="mx-auto max-w-4xl space-y-6">
+        {/* Logo dient als Navigation zurück zur Startseite */}
+        <div className="flex items-center justify-between mb-6">
+          <Link href="/" className="inline-block">
+            <img
+              src="/timewise-logo.svg"
+              alt="Timewise Logo"
+              className="h-14 w-auto"
+            />
+          </Link>
+        </div>
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Meine Keywords</h1>
           <p className="mt-1 text-sm text-muted-foreground">
