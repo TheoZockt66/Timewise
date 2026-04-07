@@ -180,7 +180,6 @@ CREATE TABLE keywords (
     id          UUID PRIMARY KEY,
     user_id     UUID NOT NULL REFERENCES users(id),
     label       VARCHAR NOT NULL,
-    description VARCHAR,
     created_at  TIMESTAMP NOT NULL DEFAULT now(),
     color       VARCHAR NOT NULL
 );
@@ -219,7 +218,6 @@ interface Keyword {
   id: string;
   user_id: string;
   label: string;             // Pflicht (NOT NULL)
-  description?: string;
   color: string;             // Hex-Code, Pflicht (NOT NULL)
   created_at: string;
 }
@@ -312,8 +310,8 @@ POST   /api/auth/reset           → { email }                    → { success 
 
 # Keywords (M2)
 GET    /api/keywords             →                              → Keyword[]
-POST   /api/keywords             → { label, color, description? } → Keyword
-PUT    /api/keywords/:id         → { label?, color?, description? } → Keyword
+POST   /api/keywords             → { label, color }               → Keyword
+PUT    /api/keywords/:id         → { label?, color? }              → Keyword
 DELETE /api/keywords/:id         →                              → { success }
 
 # Events (M3)
