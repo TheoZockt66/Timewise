@@ -236,6 +236,18 @@ export default function KeywordsPage() {
                         <Button onClick={() => handleUpdate(k.id)} className="min-h-11">
                           Speichern
                         </Button>
+
+                        <Button
+                          variant="outline"
+                          onClick={() => {
+                            setEditingId(null);
+                            setEditLabel("");
+                            setEditColor("");
+                          }}
+                          className="min-h-11"
+                        >
+                          Abbrechen
+                        </Button>
                       </>
                     ) : (
                       <>
