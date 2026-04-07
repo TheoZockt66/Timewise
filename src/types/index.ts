@@ -10,7 +10,6 @@ export interface Keyword {
   id: string;
   user_id: string;
   label: string;
-  description?: string;
   color: string;
   created_at: string;
 }
