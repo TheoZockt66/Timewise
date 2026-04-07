@@ -138,7 +138,6 @@ export async function updateKeyword(
   data: {
     label?: string;
     color?: string;
-    description?: string;
   }
 ) {
   // Schritt 1: Validierung verhindert, dass ungültige Änderungen gespeichert werden

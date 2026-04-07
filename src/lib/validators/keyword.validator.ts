@@ -17,7 +17,6 @@
 export function validateKeyword(data: {
   label?: string;
   color?: string;
-  description?: string;
 }) {
   // Label darf nicht leer sein (auch nicht nur Leerzeichen)
   if (!data.label || data.label.trim().length === 0) {
