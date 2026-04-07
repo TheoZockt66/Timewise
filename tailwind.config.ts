@@ -1,4 +1,5 @@
 import type { Config } from "tailwindcss";
+import animate from "tailwindcss-animate";
 
 const config: Config = {
   // Dark mode wird über eine CSS-Klasse gesteuert (nicht System-Präferenz)
@@ -12,9 +13,9 @@ const config: Config = {
     extend: {
       // CSS-Variablen für shadcn/ui Theming
       fontFamily: {
-      sans: ["var(--font-atkinson)"],
+        sans: ["var(--font-atkinson)"],
       },
-      
+
       colors: {
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
@@ -57,7 +58,7 @@ const config: Config = {
       },
     },
   },
-  plugins: [require("tailwindcss-animate")],
+  plugins: [animate],
 };
 
 export default config;

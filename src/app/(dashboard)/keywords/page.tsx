@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import Link from "next/link";
+import Image from "next/image";
 
 // Datenstruktur eines Keywords (kommt aus dem Backend)
 type Keyword = {
@@ -14,7 +15,7 @@ type Keyword = {
   color: string;
 };
 
-export default function Home() {
+export default function KeywordsPage() {
   // State für alle Keywords (Anzeige im UI)
   const [keywords, setKeywords] = useState<Keyword[]>([]);
 
@@ -148,10 +149,14 @@ export default function Home() {
         {/* Logo dient als Navigation zurück zur Startseite */}
         <div className="flex items-center justify-between mb-6">
           <Link href="/" className="inline-block">
-            <img
+            <Image
               src="/timewise-logo.svg"
               alt="Timewise Logo"
+              width={56}
+              height={56}
               className="h-14 w-auto"
+              priority
+              style={{ width: "auto" }}
             />
           </Link>
         </div>
