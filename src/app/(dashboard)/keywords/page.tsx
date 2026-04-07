@@ -7,13 +7,7 @@ import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import Link from "next/link";
 import Image from "next/image";
-
-// Datenstruktur eines Keywords (kommt aus dem Backend)
-type Keyword = {
-  id: string;
-  label: string;
-  color: string;
-};
+import type { Keyword } from "@/types";
 
 export default function KeywordsPage() {
   // State für alle Keywords (Anzeige im UI)
