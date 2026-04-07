@@ -1,21 +1,19 @@
-"use client";
-
-import { Clock } from "lucide-react";
+import Image from "next/image";
 
 /**
  * AuthLogo – Timewise Logo-Komponente für Auth-Seiten.
- * Zeigt das Timewise-Logo mit Uhr-Icon und Schriftzug.
+ * Zeigt das offizielle Timewise-Logo aus dem public-Ordner.
  * Single Responsibility: nur für die Logo-Darstellung zuständig.
  */
 export function AuthLogo() {
   return (
-    <div className="flex items-center gap-2">
-      {/* Uhr-Icon als visuelles Symbol für Zeitmanagement */}
-      <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary">
-        <Clock className="h-6 w-6 text-primary-foreground" />
-      </div>
-      {/* Markenname mit Primärfarbe */}
-      <span className="text-2xl font-bold text-primary">Timewise</span>
-    </div>
+    // Logo auf 180px Breite skaliert, Höhe proportional (viewBox 289×75 → ~47px)
+    <Image
+      src="/timewise-logo.svg"
+      alt="Timewise Logo"
+      width={180}
+      height={47}
+      priority
+    />
   );
 }

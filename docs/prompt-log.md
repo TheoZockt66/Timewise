@@ -2,6 +2,107 @@
 
 ---
 
+Eintrag Nr.: 10
+Datum: 2026-04-07
+Prompt: passe das logo auch auf der startseite an
+Aktion: GEÄNDERT
+Datei / Komponente: src/app/page.tsx
+Schnittstelle: Keine Props-Änderung
+Beschreibung: |
+  Logo auf der Startseite (page.tsx) von Lucide-Clock-Icon auf
+  next/image mit /timewise-logo.svg umgestellt — konsistent zu den
+  Auth-Seiten. Clock-Import entfernt.
+
+---
+
+Eintrag Nr.: 9
+Datum: 2026-04-07
+Prompt: nutze bitte auf der login page und der registirierungssteite und der passwortvergessen seite das logo aus dem order logo geht das?
+Aktion: GEÄNDERT
+Datei / Komponente: src/components/auth/AuthLogo.tsx
+Schnittstelle: Keine Props — gibt ein <Image>-Element zurück
+Beschreibung: |
+  AuthLogo-Komponente von Lucide-Clock-Icon auf das echte SVG-Logo
+  (public/timewise-logo.svg) umgestellt. Da alle drei Auth-Seiten
+  (login, register, reset-password) dieselbe Komponente verwenden,
+  gilt die Änderung automatisch überall. next/image mit priority=true
+  für optimales LCP-Rendering. Breite 180px, Höhe 47px (proportional
+  zur SVG-viewBox 289×75).
+
+---
+
+Eintrag Nr.: 8
+Datum: 2026-04-06
+Prompt: erstelle mir wieder eine übersicht im obsidian syntax
+Aktion: ERSTELLT
+Datei / Komponente: docs/chat-erklaerungsuebersicht-obsidian-2.md
+Schnittstelle: Markdown-Lernuebersicht ohne Props/Parameter
+Beschreibung: |
+  Zweite Obsidian-kompatible Erklaerungsuebersicht auf Basis der zuletzt
+  besprochenen Themen erstellt.
+
+  Inhaltliche Kapitel:
+  - JSX und JSX-Kommentare
+  - Form-Semantik und Submit-Verhalten
+  - htmlFor/id-Verknuepfung
+  - aria-label bei Icon-Buttons
+  - Passwort-Toggle (show/hide)
+  - relative/absolute Positionierung im Input
+  - controlled inputs mit onChange
+  - Checkbox API (onCheckedChange)
+  - indeterminate-Zustand
+  - Tailwind-Scale-Klassen
+  - autoComplete-Tokens (email/current-password)
+  - Input-Fokusfarben aus Komponentenstyles
+  - DOM-Grundlagen
+
+---
+
+Eintrag Nr.: 7
+Datum: 2026-04-06
+Prompt: "✓ Ready in 760ms ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead. ⨯ Error: The router state header was sent but could not be parsed. Was ist hier das problem"
+Aktion: GEÄNDERT
+Datei / Komponente: src/middleware.ts → src/proxy.ts
+Schnittstelle: proxy(request: NextRequest) → Promise<NextResponse>
+Beschreibung: |
+  Zwei zusammenhängende Fehler behoben:
+
+  1. Deprecation Warning: Next.js 16 hat die Datei-Konvention von "middleware.ts"
+     auf "proxy.ts" umbenannt. Die alte Datei wurde durch die neue ersetzt.
+
+  2. 500-Fehler "router state header could not be parsed": Der App Router von
+     Next.js 16 verarbeitete die veraltete middleware.ts nicht mehr korrekt für
+     das Router State Management, was zu kaputten x-nextjs-router-state-tree
+     Headers und 500-Fehlern auf der Startseite führte.
+
+  Fix: src/middleware.ts gelöscht, src/proxy.ts erstellt mit identischer Logik
+  aber korrektem Export-Namen "proxy" statt "middleware".
+
+---
+
+Eintrag Nr.: 6
+Datum: 2026-04-04
+Prompt: erstelle eine obsidian übersicht über die themen die wir in diesem chat geschrieben haben, die als erklärungsübersicht dient
+Aktion: ERSTELLT
+Datei / Komponente: docs/chat-erklaerungsuebersicht-obsidian.md
+Schnittstelle: Markdown-Lernuebersicht ohne Props/Parameter
+Beschreibung: |
+  Obsidian-kompatible Erklaerungsuebersicht zu den im Chat behandelten Grundlagen erstellt.
+
+  Inhaltliche Kapitel:
+  - React State und Setter-Logik
+  - Hooks und Hook-Regeln
+  - Rendern/Re-Rendern in Client Components
+  - async/await
+  - Form Submit vs preventDefault
+  - fetch-Aufbau (method, headers, body)
+  - Header vs Body Best Practices
+  - REST-Konventionen
+  - HTTPS/TLS und Transportverschluesselung
+  - Next.js Router (push, replace, refresh)
+
+---
+
 Eintrag Nr.: 5
 Datum: 2026-03-31
 Prompt: erstelle eine startseite auf der man zu allen seiten kommt orientiere dich beim design an der login page

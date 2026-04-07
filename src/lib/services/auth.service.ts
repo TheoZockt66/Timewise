@@ -4,7 +4,7 @@ import type { AuthResponse, ApiResponse, AuthCredentials } from "@/types";
 // ─── Konstanten ───
 
 // Mindestlänge für Passwörter (Supabase-Standard ist 6)
-const MIN_PASSWORD_LENGTH = 6;
+const MIN_PASSWORD_LENGTH = 8;
 // Maximale E-Mail-Länge (RFC 5321)
 const MAX_EMAIL_LENGTH = 254;
 

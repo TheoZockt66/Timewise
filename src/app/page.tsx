@@ -3,7 +3,8 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { Clock, Calendar, Tag, BarChart3, Target, LogOut } from "lucide-react";
+import Image from "next/image";
+import { Calendar, Tag, BarChart3, Target, LogOut } from "lucide-react";
 import { AuthIllustration } from "@/components/auth/AuthIllustration";
 
 /**
@@ -103,12 +104,13 @@ export default function StartPage() {
         <div className="w-full max-w-md flex flex-col gap-8">
 
           {/* Logo – identisch zur Login-Seite */}
-          <div className="flex items-center gap-2">
-            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary">
-              <Clock className="h-6 w-6 text-primary-foreground" />
-            </div>
-            <span className="text-2xl font-bold text-primary">Timewise</span>
-          </div>
+          <Image
+            src="/timewise-logo.svg"
+            alt="Timewise Logo"
+            width={180}
+            height={47}
+            priority
+          />
 
           {/* Begrüßung */}
           <div>
