@@ -32,13 +32,16 @@ export async function POST(request: Request) {
 
   // Wenn kein User vorhanden ist → Zugriff verweigern
   if (!user) {
-    return NextResponse.json({
-      data: null,
-      error: {
-        code: "UNAUTHORIZED",
-        message: "Nicht eingeloggt",
-      }
-    });
+    return NextResponse.json(
+      {
+        data: null,
+        error: {
+          code: "UNAUTHORIZED",
+          message: "Nicht eingeloggt",
+        },
+      },
+      { status: 401 }
+    );
   }
 
   // Schritt 3: Daten aus dem Request (Frontend) lesen
@@ -68,8 +71,8 @@ export async function POST(request: Request) {
  * 3. Ergebnis zurückgeben
  *
  * Randfall:
- * Wenn kein Benutzer eingeloggt ist, wird eine leere Liste zurückgegeben,
- * damit das Frontend stabil bleibt.
+ * Wenn kein Benutzer eingeloggt ist, wird ein 401 UNAUTHORIZED zurückgegeben,
+ * damit das Frontend den Zustand korrekt erkennen kann.
  */
 export async function GET() {
   // Schritt 1: Verbindung zu Supabase herstellen
@@ -80,12 +83,18 @@ export async function GET() {
     data: { user },
   } = await supabase.auth.getUser();
 
-  // Kein User → keine Daten, aber kein Fehler (UI soll nicht crashen)
+  // Kein User → Zugriff verweigert (401), damit das Frontend den Zustand unterscheiden kann
   if (!user) {
-    return NextResponse.json({
-      data: [],
-      error: null,
-    });
+    return NextResponse.json(
+      {
+        data: null,
+        error: {
+          code: "UNAUTHORIZED",
+          message: "Nicht eingeloggt",
+        },
+      },
+      { status: 401 }
+    );
   }
 
   // Schritt 3: Alle Keywords des Users laden
