@@ -19,6 +19,7 @@ import type {
   EventWithKeywords,
   Keyword,
 } from "@/types";
+import { error } from "console";
 
 /**
  * ─── EVENT FORM ───
@@ -93,7 +94,7 @@ export function EventForm({
       if (response.error) {
         toast({
           title: "Fehler",
-          description: "Lernbereiche konnten nicht geladen werden.",
+          description: "Tags konnten nicht geladen werden.",
           variant: "destructive",
         });
         setKeywords([]);
@@ -129,7 +130,7 @@ export function EventForm({
 
   // ─── VALIDIERUNG: Master-Funktion vor Submit ───
 
-  const validateForm = async (): Promise<boolean> => {
+  const validateForm = async (): Promise<ErrorMap> => {
     const newErrors: ErrorMap = new Map();
 
     // Hole bestehende Events für Overlap-Check
@@ -155,7 +156,7 @@ export function EventForm({
     });
 
     setErrors(newErrors);
-    return newErrors.size === 0;
+    return newErrors;;
   };
 
   // ─── SUBMIT: Event erstellen oder aktualisieren ───
@@ -166,11 +167,11 @@ export function EventForm({
     if (isLoading) return; // Prevent double-submit
 
     // Validiere gesamtes Formular
-    const isValid = await validateForm();
-    if (!isValid) {
+    const errors = await validateForm();
+    if (errors.size > 0) {
       toast({
         title: "Validierungsfehler",
-        description: "Bitte überprüfen Sie die angezeigten Fehler.",
+        description: `Bitte überprüfen Sie die angezeigten Fehler:\n${Array.from(errors.values()).join("\n")}`,
         variant: "destructive",
       });
       return;
@@ -345,7 +346,7 @@ export function EventForm({
         <p className="font-semibold">💡 Tipps:</p>
         <ul className="list-disc list-inside space-y-1 text-xs md:text-sm">
           <li>Erfasse Lernzeiten zeitnah nach dem Lernen.</li>
-          <li>Mehrere Lernbereiche pro Eintrag sind möglich.</li>
+          <li>Mehrere Tags pro Eintrag sind möglich.</li>
           <li>Überschneidungen werden automatisch erkannt.</li>
         </ul>
       </div>

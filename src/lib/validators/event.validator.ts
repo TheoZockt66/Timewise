@@ -79,7 +79,7 @@ export function validateNotInFuture(endTime: string): ValidationError | null {
  * Prüft auf zeitliche Überschneidungen mit bestehenden Events.
  * 
  * Intervall-Algorithmus: Zwei Zeiträume überschneiden sich, wenn:
- * neue.start < bestehend.end UND neue.end > bestehend.start
+ * new.start < existing.end UND new.end > existing.start
  * 
  * Bei Update (mit excludeEventId): Das gerade bearbeitete Event wird ignoriert.
  */
@@ -181,15 +181,6 @@ export function validateEvent(data: {
   );
   if (overlapError) {
     errors.push(overlapError);
-  }
-
-  // 4. Keyword-Validierung: Mindestens ein Keyword erforderlich
-  if (!data.keywordIds || data.keywordIds.length === 0) {
-    errors.push({
-      field: "keywords",
-      message: "Mindestens ein Lernbereich muss ausgewählt werden.",
-      code: "KEYWORD_REQUIRED",
-    });
   }
 
   return {
