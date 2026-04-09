@@ -2,9 +2,33 @@
 
 ---
 
+Eintrag Nr.: 12
+Datum: 2026-04-09
+Prompt: Erstelle die Möglichkeit, ein Event im kalender Einzusehen, zu bearbeiten oder zu löschen.
+Aktion: ERSTELLT / ERWEITERT
+Datei / Komponente: Kalender-Interaktionen (M4) — 2 Dateien
+Schnittstelle: |
+  EventDetails: { event: EventWithKeywords, onClose: () => void, onUpdate: () => void } → JSX.Element
+  CalendarView: Erweitert um eventClick Handler und EventDetails Modal
+Beschreibung: |
+  Vollständige Event-Interaktion im Kalender implementiert:
+  - EventDetails-Komponente: Modal mit Event-Details, Bearbeiten- und Löschen-Buttons
+  - CalendarView erweitert: eventClick Handler, EventDetails Modal, refreshEvents Funktion
+  - Features: Event-Details anzeigen, inline bearbeiten, löschen mit Bestätigung
+  - UI/UX: Responsive Design, Keyword-Farben, Zeitformatierung, Dauer-Berechnung
+  - Integration: Bestehende EventForm für Bearbeitung wiederverwendet
+
+  Architektur-Prinzipien eingehalten:
+  - Separation of Concerns (Details-Komponente getrennt)
+  - Reusable Components (EventForm für Erstellen + Bearbeiten)
+  - State Management (lokaler State für Modal-Steuerung)
+  - Error Handling (Toast-Benachrichtigungen)
+
+---
+
 Eintrag Nr.: 11
 Datum: 2026-04-09
-Prompt: Füge dem Keyword.service eine Funktion fetchKeywords hinzu und implementiere diese. Übertrage die beiden beigefügten APIs analog auf Events.
+Prompt: Füge dem Keyword.service eine Funktion fetchKeywords hinzu und implementiere diese. Übertrage die beiden beigefügten APIs (route und [id]-route der Keywords) analog auf Events.
 Aktion: ERSTELLT / GEÄNDERT
 Datei / Komponente: Keyword.service + Events-API (M2 + M3)
 Schnittstelle: |

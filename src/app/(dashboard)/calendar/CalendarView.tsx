@@ -17,6 +17,7 @@ import Image from 'next/image';
 import { useCalendar } from '@/hooks/useCalendar';
 import { EventWithKeywords } from '@/types';
 import { EventForm } from '@/components/events/EventForm';
+import { EventDetails } from '@/components/calendar/EventDetails';
 
 export default function CalendarView() {
   // Holt die Termine und die Lade-Info aus der Datenbank
@@ -24,6 +25,9 @@ export default function CalendarView() {
   
   // Steuert, ob das weiße Fenster (Modal) für neue Termine sichtbar ist
   const [isModalOpen, setIsModalOpen] = useState(false);
+  
+  // Steuert, ob das Details-Modal für bestehende Termine sichtbar ist
+  const [selectedEvent, setSelectedEvent] = useState<EventWithKeywords | null>(null);
   
   // Speichert die Uhrzeiten, die der Nutzer mit der Maus markiert
   const [selectedDates, setSelectedDates] = useState<{start: string, end: string} | null>(null);
@@ -41,6 +45,22 @@ export default function CalendarView() {
     setSelectedDates({ start: selectInfo.startStr, end: selectInfo.endStr });
     setIsModalOpen(true);
     selectInfo.view.calendar.unselect(); // Entfernt die blaue Auswahlbox wieder
+  };
+
+  // Wird aufgerufen, wenn jemand auf einen bestehenden Termin klickt
+  const handleEventClick = (clickInfo: any) => {
+    const event = events.find(e => e.id === clickInfo.event.id);
+    if (event) {
+      setSelectedEvent(event);
+    }
+  };
+
+  // Hilfsfunktion zum Aktualisieren der Events nach Änderungen
+  const refreshEvents = () => {
+    const now = new Date();
+    const start = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
+    const end = new Date(now.getFullYear(), now.getMonth() + 1, 0).toISOString();
+    fetchEvents(start, end);
   };
 
   return (
@@ -90,6 +110,7 @@ export default function CalendarView() {
           selectable={true}
           selectMirror={true}
           select={handleSelect}
+          eventClick={handleEventClick}
           locale="de"
           headerToolbar={{
             left: 'prev,next today',
@@ -102,8 +123,8 @@ export default function CalendarView() {
             title: event.label || 'Unbenannt',
             start: event.start_time,
             end: event.end_time,
-            backgroundColor: event.keywords?.[0]?.color || '#7700F4',
-            borderColor: event.keywords?.[0]?.color || '#7700F4'
+            backgroundColor: '#7700F4',
+            borderColor: '#7700F4'
           }))}
           height="80vh"
         />
@@ -138,6 +159,17 @@ export default function CalendarView() {
                 onCancel={() => setIsModalOpen(false)}
               />
             </div>
+          </div>
+        )}
+
+        {/* MODAL: Details-Modal für bestehende Termine */}
+        {selectedEvent && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 px-4 py-6">
+            <EventDetails
+              event={selectedEvent}
+              onClose={() => setSelectedEvent(null)}
+              onUpdate={refreshEvents}
+            />
           </div>
         )}
       </div>

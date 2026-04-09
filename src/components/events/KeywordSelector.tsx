@@ -49,10 +49,10 @@ export function KeywordSelector({
     return (
       <div className="space-y-3">
         <Label className="text-base font-semibold text-text-primary">
-          Lernbereiche
+          Tags
         </Label>
         <div className="p-4 text-center text-text-secondary text-sm">
-          Lernbereiche werden geladen...
+          Tags werden geladen...
         </div>
       </div>
     );
@@ -63,12 +63,12 @@ export function KeywordSelector({
     return (
       <div className="space-y-3">
         <Label className="text-base font-semibold text-text-primary">
-          Lernbereiche
+          Tags
         </Label>
         <div className="p-4 text-center border border-border/50 rounded bg-surface text-text-secondary text-sm">
-          <p>Keine Lernbereiche verfügbar.</p>
+          <p>Keine Tags verfügbar.</p>
           <p className="mt-1 text-xs opacity-75">
-            Erstelle zuerst Lernbereiche in den Einstellungen.
+            Erstelle zuerst LernTagsbereiche in den Einstellungen.
           </p>
         </div>
       </div>
@@ -78,7 +78,7 @@ export function KeywordSelector({
   return (
     <fieldset className="space-y-4">
       <legend className="text-base font-semibold text-text-primary">
-        Lernbereiche
+        Tags
       </legend>
 
       {/* Keyword-Checkboxen in Grid */}

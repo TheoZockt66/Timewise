@@ -134,7 +134,7 @@ export async function createEvent(
   }
 
   return {
-      data: newEvent,
+      data: await getEventWithKeywords(newEvent.id, user.id),
       error: null,
   };
 
@@ -226,7 +226,7 @@ export async function fetchEventsServer(
  * Aktualisiert ein bestehendes Event (serverseitig).
  * Wird von API-Route PUT /api/events/:id verwendet.
  */
-export async function updateEventServer(
+export async function updateEvent(
   id: string,
   data: Partial<CreateEventRequest>
 ) {
@@ -248,27 +248,58 @@ export async function updateEventServer(
 
   // Validierung, wenn Zeitdaten geändert werden
   if (data.start_time || data.end_time || data.keyword_ids) {
-    const existingEvents = await fetchEventsServer({
-      start_date: data.start_time?.split("T")[0] || new Date().toISOString().split("T")[0],
-      end_date: data.end_time?.split("T")[0] || new Date().toISOString().split("T")[0],
-    });
+    // Hole das aktuelle Event, um zu prüfen, ob sich die Daten tatsächlich geändert haben
+    const { data: currentEvent, error: fetchError } = await supabase
+      .from("events")
+      .select("*")
+      .eq("id", id)
+      .eq("user_id", user.id)
+      .single();
 
-    const validation = validateEvent({
-      startTime: data.start_time || "",
-      endTime: data.end_time || "",
-      keywordIds: data.keyword_ids || [],
-      existingEvents: existingEvents.data || [],
-      excludeEventId: id, // Das aktuelle Event beim Overlap-Check ausschließen
-    });
-
-    if (!validation.isValid) {
+    if (fetchError) {
       return {
         data: null,
         error: {
-          code: "VALIDATION_ERROR",
-          message: validation.errors.map(e => e.message).join("; "),
+          code: "FETCH_FAILED",
+          message: "Event konnte nicht gefunden werden.",
+          details: fetchError.message,
         },
       };
+    }
+
+    // Prüfe, ob sich die Zeitdaten tatsächlich geändert haben
+    const timeChanged = data.start_time !== undefined && data.start_time !== currentEvent.start_time ||
+                       data.end_time !== undefined && data.end_time !== currentEvent.end_time;
+
+    if (timeChanged) {
+      // Hole Events für Overlap-Check nur im gleichen Zeitraum
+      const startDate = data.start_time ? new Date(data.start_time).toISOString().split('T')[0] :
+                        new Date(currentEvent.start_time).toISOString().split('T')[0];
+      const endDate = data.end_time ? new Date(data.end_time).toISOString().split('T')[0] :
+                      new Date(currentEvent.end_time).toISOString().split('T')[0];
+
+      const existingEvents = await fetchEventsServer({
+        start_date: startDate,
+        end_date: endDate,
+      });
+
+      const validation = validateEvent({
+        startTime: data.start_time || currentEvent.start_time,
+        endTime: data.end_time || currentEvent.end_time,
+        keywordIds: data.keyword_ids || [], // Keywords werden separat behandelt
+        existingEvents: existingEvents.data || [],
+        excludeEventId: id, // Das aktuelle Event beim Overlap-Check ausschließen
+      });
+
+      if (!validation.isValid) {
+        return {
+          data: null,
+          error: {
+            code: "VALIDATION_ERROR",
+            message: validation.errors.map(e => e.message).join("; "),
+          },
+        };
+      }
     }
   }
 
@@ -299,6 +330,7 @@ export async function updateEventServer(
 
   // Keyword-Zuordnungen aktualisieren, falls angegeben
   if (data.keyword_ids !== undefined) {
+
     // Alte Zuordnungen löschen
     await supabase
       .from("event_keywords")
@@ -306,119 +338,82 @@ export async function updateEventServer(
       .eq("event_id", id);
 
     // Neue Zuordnungen erstellen
-    if (data.keyword_ids.length > 0) {
-      const { error: keywordError } = await supabase
-        .from("event_keywords")
-        .insert(
-          data.keyword_ids.map((keyword_id) => ({
-            event_id: id,
-            keyword_id,
-          }))
-        );
+    const { error: keywordError } = await supabase
+      .from("event_keywords")
+      .insert(
+        data.keyword_ids.map((keyword_id) => ({
+          event_id: id,
+          keyword_id,
+        }))
+      );
 
-      if (keywordError) {
-        return {
-          data: null,
-          error: {
-            code: "UPDATE_FAILED",
-            message: "Fehler beim Aktualisieren der Event-Keywords.",
-            details: keywordError.message,
-          },
-        };
-      }
-    }
-  }
-
-  return {
-    data: updatedEvent,
-    error: null,
-  };
-}
-
-/**
- * Löscht ein Event (serverseitig).
- * Wird von API-Route DELETE /api/events/:id verwendet.
- */
-export async function deleteEventServer(id: string) {
-  const supabase = await createClient();
-
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    return {
-      data: null,
-      error: {
-        code: "UNAUTHORIZED",
-        message: "Nicht eingeloggt",
-      },
-    };
-  }
-
-  // Event löschen (RLS sorgt dafür, dass nur eigene Events gelöscht werden können)
-  const { error } = await supabase
-    .from("events")
-    .delete()
-    .eq("id", id)
-    .eq("user_id", user.id); // Zusätzliche Sicherheit
-
-  if (error) {
-    return {
-      data: null,
-      error: {
-        code: "DELETE_FAILED",
-        message: "Event konnte nicht gelöscht werden.",
-        details: error.message,
-      },
-    };
-  }
-
-  return {
-    data: null,
-    error: null,
-  };
-}
-
-
-
-/**
- * Aktualisiert ein existierendes Event.
- * PUT /api/events/:id
- */
-export async function updateEvent(
-  id: string,
-  data: Partial<CreateEventRequest>
-): Promise<ApiResponse<EventWithKeywords>> {
-  try {
-    const response = await fetch(`/api/events/${id}`, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(data),
-      credentials: "include",
-      mode: "same-origin",
-    });
-
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => null);
+    if (keywordError) {
       return {
         data: null,
-        error: errorData?.error || handleApiError(response),
+        error: {
+          code: "UPDATE_FAILED",
+          message: "Fehler beim Aktualisieren der Event-Keywords.",
+          details: keywordError.message,
+        },
       };
     }
+  }
 
-    return await response.json();
-  } catch (error) {
+  // Hole das aktualisierte Event mit Keywords
+  const eventWithKeywords = await getEventWithKeywords(id, user.id);
+  if (!eventWithKeywords) {
     return {
       data: null,
       error: {
-        code: "NETWORK_ERROR",
-        message: "Verbindungsfehler beim Aktualisieren.",
-        details: error instanceof Error ? error.message : undefined,
+        code: "FETCH_FAILED",
+        message: "Aktualisiertes Event konnte nicht geladen werden.",
       },
     };
   }
+
+  return {
+    data: eventWithKeywords,
+    error: null,
+  };
 }
+
+/**
+ * Hilfsfunktion: Event mit Keywords laden
+ */
+async function getEventWithKeywords(eventId: string, userId: string) {
+  const supabase = await createClient();
+
+  const { data, error } = await supabase
+    .from("events")
+    .select(`
+      *,
+      event_keywords (
+        keyword_id,
+        keywords (
+          id,
+          label,
+          color
+        )
+      )
+    `)
+    .eq("id", eventId)
+    .eq("user_id", userId)
+    .single();
+
+  if (error) {
+    return null;
+  }
+
+  // Transformiere in EventWithKeywords Format
+  return {
+    ...data,
+    keywords: data.event_keywords?.map((ek: any) => ek.keywords) || [],
+    duration_minutes: Math.round(
+      (new Date(data.end_time).getTime() - new Date(data.start_time).getTime()) / (1000 * 60)
+    ),
+  };
+}
+
 
 /**
  * Ruft Events für einen Zeitraum ab.
@@ -471,31 +466,31 @@ export async function fetchEvents(
  */
 export async function deleteEvent(
   id: string
-): Promise<ApiResponse<{ success: boolean }>> {
-  try {
-    const response = await fetch(`/api/events/${id}`, {
-      method: "DELETE",
-      credentials: "include",
-      mode: "same-origin",
-    });
+) {
+  // Schritt 1: Verbindung zur Datenbank herstellen
+  const supabase = await createClient();
 
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => null);
-      return {
-        data: null,
-        error: errorData?.error || handleApiError(response),
-      };
-    }
+  // Schritt 2: Event mit der passenden ID löschen
+  const { error } = await supabase
+    .from("events")
+    .delete()
+    .eq("id", id);
 
-    return await response.json();
-  } catch (error) {
+   // Schritt 3: Fehlerbehandlung, falls die Datenbankoperation fehlschlägt
+  if (error) {
     return {
       data: null,
       error: {
-        code: "NETWORK_ERROR",
-        message: "Fehler beim Löschen.",
-        details: error instanceof Error ? error.message : undefined,
+        code: "DELETE_FAILED",
+        message: "Event konnte nicht gelöscht werden.",
+        details: error.message,
       },
     };
   }
+
+  // Erfolgsfall: Kein Fehler bedeutet, dass das Löschen erfolgreich war
+  return {
+    data: null,
+    error: null,
+  };
 }

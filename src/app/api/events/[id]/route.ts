@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { deleteEventServer, updateEventServer } from "@/lib/services/event.service";
+import { deleteEvent, updateEvent } from "@/lib/services/event.service";
 import { createClient } from "@/lib/supabase/server";
 
 // ─── API-Endpunkte für einzelne Events ───
@@ -44,7 +44,7 @@ export async function DELETE(
   const { id } = await context.params;
 
   // Schritt 3: Event löschen (Business Logic im Service)
-  const result = await deleteEventServer(id);
+  const result = await deleteEvent(id);
 
   return NextResponse.json(result);
 }
@@ -91,7 +91,7 @@ export async function PUT(
   const body = await request.json();
 
   // Schritt 3: Event aktualisieren (Business Logic im Service)
-  const result = await updateEventServer(id, body);
+  const result = await updateEvent(id, body);
 
   return NextResponse.json(result);
 }
