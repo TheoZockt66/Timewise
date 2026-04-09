@@ -1,5 +1,8 @@
+"use server"
+
 import { createClient } from "@/lib/supabase/server";
 import { validateKeyword } from "@/lib/validators/keyword.validator";
+import type { Keyword, ApiResponse } from "@/types";
 
 // ─── Service-Funktionen ───
 
@@ -183,6 +186,69 @@ export async function updateKeyword(
   // Erfolgsfall: Das aktualisierte Keyword wird zurückgegeben
   return {
     data: updatedKeyword,
+    error: null,
+  };
+  
+}
+
+/**
+ * Ruft alle Keywords des aktuellen Benutzers ab.
+ *
+ * Ziel:
+ * Alle gespeicherten Keywords eines Users laden, damit sie im UI angezeigt
+ * und für Lernzeiteinträge ausgewählt werden können.
+ *
+ * Ablauf:
+ * 1. Verbindung zur Datenbank herstellen
+ * 2. Aktuellen Benutzer über Supabase Auth ermitteln
+ * 3. Alle Keywords dieses Users aus der Datenbank laden
+ * 4. Fehler behandeln oder die Keywords zurückgeben
+ *
+ * Randfall:
+ * Wenn kein Benutzer eingeloggt ist, wird der Zugriff verweigert,
+ * da Keywords immer einem User zugeordnet sind.
+ */
+export async function fetchKeywords() {
+  // Schritt 1: Verbindung zur Datenbank herstellen
+  const supabase = await createClient();
+
+  // Schritt 2: Aktuellen Benutzer abrufen (JWT-Validierung)
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  // Wenn kein User vorhanden ist → Zugriff verweigern
+  if (!user) {
+    return {
+      data: null,
+      error: {
+        code: "UNAUTHORIZED",
+        message: "Nicht eingeloggt",
+      },
+    };
+  }
+
+  // Schritt 3: Alle Keywords des Users laden
+  const { data, error } = await supabase
+    .from("keywords")
+    .select("*")
+    .eq("user_id", user.id);
+
+  // Schritt 4: Fehlerbehandlung, falls die Datenbankoperation fehlschlägt
+  if (error) {
+    return {
+      data: null,
+      error: {
+        code: "FETCH_FAILED",
+        message: "Keywords konnten nicht geladen werden.",
+        details: error.message,
+      },
+    };
+  }
+
+  // Erfolgsfall: Die Keywords werden zurückgegeben
+  return {
+    data,
     error: null,
   };
 }
