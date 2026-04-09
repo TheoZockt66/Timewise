@@ -2,6 +2,54 @@
 
 ---
 
+Eintrag Nr.: 13
+Datum: 2026-04-09
+Prompt: schaue dir den milestone mit den goals an / was brauchst du von m3? / dann mach das orientiere dich beim design an die keywords page
+Aktion: ERSTELLT
+Datei / Komponente: M6 Zielsystem - 5 Dateien
+Schnittstelle: |
+  validateGoal({ label?, target_study_time?, start_time?, end_time? }) -> { valid, error }
+  getGoals(userId) -> ApiResponse<GoalWithProgress[]>
+  createGoal({ label?, description?, target_study_time?, start_time?, end_time?, keyword_ids?, user_id }) -> ApiResponse<GoalWithProgress>
+  updateGoal(id, { label?, description?, target_study_time?, start_time?, end_time?, keyword_ids? }) -> ApiResponse<GoalWithProgress>
+  deleteGoal(id) -> ApiResponse<null>
+  GET /api/goals -> GoalWithProgress[]
+  POST /api/goals -> GoalWithProgress
+  PUT /api/goals/:id -> GoalWithProgress
+  DELETE /api/goals/:id -> { success }
+  GoalsPage: keine Props - Client Component mit vollstaendiger CRUD-UI
+Beschreibung: |
+  Vollstaendige Implementierung von Modul M6 (Zielsystem).
+
+  Besonderheit: M6 ist laut CLAUDE.md abhaengig von M3 (Events), aber da der
+  goal.service.ts direkt per Supabase-Client auf die events- und event_keywords-
+  Tabellen zugreift (statt ueber die Events-API), konnte M6 ohne fertige M3-API
+  implementiert werden.
+
+  Fortschrittsberechnung (zweistufig, ohne JOIN-Filter im JS-Client):
+  1. event_keywords nach keyword_ids filtern -> event_ids ermitteln
+  2. events nach user_id + event_ids + Zeitraum filtern -> Minuten summieren
+  Deduplizierung ueber Set<string> verhindert Doppelzaehlung bei mehreren Keywords.
+
+  Erstellte Dateien:
+  - src/lib/validators/goal.validator.ts (Label-Laenge, INTERVAL-Format, end > start)
+  - src/lib/services/goal.service.ts (CRUD + Fortschrittsberechnung, 8 Funktionen)
+  - src/app/api/goals/route.ts (GET all, POST create)
+  - src/app/api/goals/[id]/route.ts (PUT update, DELETE)
+  - src/app/(dashboard)/goals/page.tsx (UI: Design analog zur Keywords-Seite)
+
+  UI-Design (analog zu keywords/page.tsx):
+  - Gleiche Layout-Struktur (Logo, h1, 2 Cards)
+  - Card 1: Formular mit Label, Stunden, Beschreibung, Zeitraum, Keyword-Toggle-Buttons
+  - Card 2: Ziele-Liste mit Inline-Edit-Modus
+  - Fortschrittsbalken (bg-primary, width per inline style)
+  - "Ziel erreicht"-Badge (gruen) wenn percentage >= 100
+  - Keyword-Farbpunkt als visueller Anker pro Ziel
+
+  Anforderungsbezug: F29-F33 | AK41-AK45
+
+---
+
 Eintrag Nr.: 12
 Datum: 2026-04-09
 Prompt: Erstelle die Möglichkeit, ein Event im kalender Einzusehen, zu bearbeiten oder zu löschen.
