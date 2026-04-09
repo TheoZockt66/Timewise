@@ -2,6 +2,35 @@
 
 ---
 
+Eintrag Nr.: 11
+Datum: 2026-04-09
+Prompt: Füge dem Keyword.service eine Funktion fetchKeywords hinzu und implementiere diese. Übertrage die beiden beigefügten APIs analog auf Events.
+Aktion: ERSTELLT / GEÄNDERT
+Datei / Komponente: Keyword.service + Events-API (M2 + M3)
+Schnittstelle: |
+  fetchKeywords(): Promise<ApiResponse<Keyword[]>> — serverseitige Funktion
+  GET /api/events → ?start_date&end_date&keyword_ids → ApiResponse<EventWithKeywords[]>
+  POST /api/events → { start_time, end_time, keyword_ids[], label?, description? } → ApiResponse<EventWithKeywords>
+  PUT /api/events/:id → { start_time?, end_time?, keyword_ids?, label?, description? } → ApiResponse<EventWithKeywords>
+  DELETE /api/events/:id → ApiResponse<{ success }>
+Beschreibung: |
+  1. fetchKeywords-Funktion zu keyword.service.ts hinzugefügt (serverseitig, analog zu anderen CRUD-Funktionen)
+
+  2. Events-API analog zu Keywords-API implementiert:
+     - Erweiterte event.service.ts um serverseitige Funktionen: fetchEventsServer, updateEventServer, deleteEventServer
+     - Neue API-Routen: /api/events/route.ts (GET + POST), /api/events/[id]/route.ts (PUT + DELETE)
+     - Keyword-Validierung zu validateEvent hinzugefügt (mind. 1 Keyword erforderlich)
+     - Syntaxfehler in EventForm.tsx behoben (fehlendes Komma)
+
+  Architektur-Prinzipien eingehalten:
+  - Schichtenarchitektur: API Routes → Services → DB
+  - Auth-Check in jeder API-Route
+  - ApiResponse<T> Wrapper für alle Responses
+  - RLS-Sicherheit durch User-Filterung
+  - Separation of Concerns (Business Logic in Services)
+
+---
+
 Eintrag Nr.: 10
 Datum: 2026-04-07
 Prompt: passe das logo auch auf der startseite an

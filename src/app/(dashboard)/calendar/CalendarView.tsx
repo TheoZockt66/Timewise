@@ -16,7 +16,7 @@ import Image from 'next/image';
 // 4. Unsere eigenen, projektspezifischen Daten und Bausteine laden
 import { useCalendar } from '@/hooks/useCalendar';
 import { EventWithKeywords } from '@/types';
-import { EventForm } from '@/components/EventForm';
+import { EventForm } from '@/components/events/EventForm';
 
 export default function CalendarView() {
   // Holt die Termine und die Lade-Info aus der Datenbank
@@ -110,20 +110,33 @@ export default function CalendarView() {
 
         {/* MODAL: Das Pop-up Fenster zum Erstellen neuer Termine */}
         {isModalOpen && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-            <div className="bg-white p-6 rounded-lg max-w-sm w-full">
-              <h2 className="text-xl font-bold mb-4">Neuer Termin</h2>
-              
-              {/* Hier wird der Formular-Platzhalter für Events geladen */}
-              <EventForm />
-              
-              {/* Button zum Schließen des Fensters */}
-              <button 
-                onClick={() => setIsModalOpen(false)}
-                className="mt-4 w-full text-gray-600 py-2 hover:bg-gray-100 rounded transition"
-              >
-                Schließen
-              </button>
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 px-4 py-6">
+            <div className="bg-white p-6 rounded-lg w-full max-w-4xl shadow-xl overflow-y-auto max-h-[90vh]">
+              <div className="flex items-start justify-between gap-4 mb-4">
+                <div>
+                  <h2 className="text-xl font-bold">Neuer Termin</h2>
+                  <p className="text-sm text-text-secondary">Bitte wähle Datum und Uhrzeit für deine Lernzeit.</p>
+                </div>
+                <button
+                  onClick={() => setIsModalOpen(false)}
+                  className="text-sm text-gray-500 hover:text-gray-700 transition"
+                  aria-label="Modal schließen"
+                >
+                  Schließen
+                </button>
+              </div>
+
+              <EventForm
+                selectedRange={selectedDates ?? undefined}
+                onSuccess={() => {
+                  setIsModalOpen(false);
+                  const now = new Date();
+                  const start = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
+                  const end = new Date(now.getFullYear(), now.getMonth() + 1, 0).toISOString();
+                  fetchEvents(start, end);
+                }}
+                onCancel={() => setIsModalOpen(false)}
+              />
             </div>
           </div>
         )}
