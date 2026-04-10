@@ -75,8 +75,8 @@ export default function CalendarView() {
           <Image 
             src="/timewise-logo.svg"   // Der exakte Dateiname aus eurem public-Ordner
             alt="Timewise Logo"        // Alternativtext für Screenreader
-            width={150}                // Anzeigebreite des Logos in Pixeln
-            height={40}                // Anzeigehöhe des Logos in Pixeln
+            width={180}                // Anzeigebreite des Logos in Pixeln
+            height={47}                // Anzeigehöhe des Logos in Pixeln
             priority                   // Priorisiert das Laden, da es direkt oben im Sichtfeld ist
           />
         </Link>
