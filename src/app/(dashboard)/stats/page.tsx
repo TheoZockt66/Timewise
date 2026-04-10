@@ -111,13 +111,28 @@ export default function StatsPage() {
                                         <strong>Gesamtminuten:</strong> {entry.total_minutes}
                                     </p>
 
-                                    {/* Aufschlüsselung nach Keywords */}
+                                    {/* Aufschlüsselung der Lernzeit nach Keywords für diesen Zeitraum */}
                                     {entry.by_keyword.length > 0 && (
                                         <>
                                             <div className="mt-2 space-y-1">
                                                 {entry.by_keyword.map((k) => (
-                                                    <div key={k.keyword_id} className="flex justify-between">
-                                                        <span>{k.keyword_label}</span>
+                                                    <div
+                                                        key={k.keyword_id}
+                                                        className="flex items-center justify-between"
+                                                    >
+                                                        {/* Linke Seite: Farbe + Label */}
+                                                        <div className="flex items-center gap-2">
+                                                            {/* Farbindikator für das Keyword */}
+                                                            <div
+                                                                className="h-3 w-3 rounded-full"
+                                                                style={{ backgroundColor: k.keyword_color }}
+                                                            />
+
+                                                            {/* Name des Keywords */}
+                                                            <span>{k.keyword_label}</span>
+                                                        </div>
+
+                                                        {/* Rechte Seite: Lernzeit in Minuten */}
                                                         <span>{k.minutes} min</span>
                                                     </div>
                                                 ))}

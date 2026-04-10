@@ -93,7 +93,7 @@ export async function GET(request: Request) {
 
     // Umwandlung in das API-Format (AggregatedTime[])
     const response = Object.entries(grouped).map(([period, total_minutes]) => {
-        // 🔥 Keyword-Aggregation für diesen Zeitraum
+        // Keyword-Aggregation für diesen Zeitraum
         const keywordMap: Record<string, {
             keyword_id: string;
             keyword_label: string;
@@ -142,7 +142,7 @@ export async function GET(request: Request) {
                 });
             }
 
-            // 👉 Nur Events berücksichtigen, die in diesen Zeitraum gehören
+            // Nur Events berücksichtigen, die in diesen Zeitraum gehören
             if (eventKey !== period) return;
 
             // Keywords des Events durchgehen
