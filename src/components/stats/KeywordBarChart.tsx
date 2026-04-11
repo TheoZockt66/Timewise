@@ -34,15 +34,40 @@ type Props = {
  */
 export default function KeywordBarChart({ data }: Props) {
     return (
-        <div className="w-full h-72">
+        <div className="w-full h-[360px]">
             <ResponsiveContainer width="100%" height={300}>
-                <BarChart data={data} barCategoryGap="50%">
+                <BarChart
+                    data={data}
+                    barCategoryGap="50%"
+                    margin={{ top: 10, right: 20, left: 20, bottom: 30 }}
+                >
                     <XAxis
                         dataKey="keyword_label"
-                        tick={{ fontSize: 14 }}
+                        tick={{ fontSize: 12, fill: "#374151" }}
+                        tickMargin={12}
+                        label={{
+                            value: "Keyword",
+                            position: "bottom",
+                            offset: 10,
+                            style: { fill: "#374151", fontSize: 12 },
+                        }}
                     />
 
-                    <YAxis tick={{ fontSize: 12 }} width={40} />
+                    <YAxis
+                        width={60}
+                        tick={{ fontSize: 12, fill: "#374151" }}
+                        tickMargin={10}
+                        label={{
+                            value: "Minuten",
+                            angle: -90,
+                            position: "insideLeft",
+                            style: {
+                                textAnchor: "middle",
+                                fill: "#374151",
+                                fontSize: 12,
+                            },
+                        }}
+                    />
 
                     {/* Custom Tooltip:
                     - zeigt Keyword-Name und Minuten

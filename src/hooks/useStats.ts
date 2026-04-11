@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import type { AggregatedTime } from "@/types";
 import type { ApiResponse } from "@/types";
+import { fetchEvents } from "@/lib/services/event.service";
 
 /**
  * Parameter für den useStats Hook.
@@ -27,6 +28,7 @@ type UseStatsParams = {
  */
 type UseStatsResult = {
     data: AggregatedTime[];
+    timelineData: { period: string; total_minutes: number }[];
     loading: boolean;
     error: string | null;
     refetch: () => Promise<void>;
@@ -51,8 +53,12 @@ export function useStats({
     granularity = "week",
     keywordIds = [],
 }: UseStatsParams): UseStatsResult {
-    // State für die geladenen Statistikdaten
     const [data, setData] = useState<AggregatedTime[]>([]);
+
+    // State für die geladenen Statistikdaten
+    const [timelineData, setTimelineData] = useState<
+        { period: string; total_minutes: number }[]
+    >([]);
 
     // State für Ladezustand (z. B. Spinner in UI)
     const [loading, setLoading] = useState(false);
@@ -62,6 +68,98 @@ export function useStats({
 
     // Stabilisiert das Dependency Array, da Arrays sonst bei jedem Render eine neue Referenz haben
     const keywordIdsKey = keywordIds.join(",");
+
+    // ─── Timeline Builder Funktionen ───
+
+    // Woche → Mo–So
+    const buildWeekTimeline = (events: any[]) => {
+        const days = ["So", "Mo", "Di", "Mi", "Do", "Fr", "Sa"];
+        const grouped: Record<string, number> = {
+            Mo: 0, Di: 0, Mi: 0, Do: 0, Fr: 0, Sa: 0, So: 0
+        };
+
+        const map = ["So", "Mo", "Di", "Mi", "Do", "Fr", "Sa"];
+
+        events.forEach((event) => {
+            const date = new Date(event.start_time);
+            const jsDay = date.getDay();
+            const dayName = map[jsDay] ?? "Mo";
+
+            grouped[dayName] += event.duration_minutes;
+        });
+
+        return days.map((d) => ({
+            period: d,
+            total_minutes: grouped[d],
+        }));
+    };
+
+    // Monat → KWs
+    const buildMonthTimeline = (events: any[]) => {
+        const grouped: Record<string, number> = {};
+
+        const getCalendarWeek = (d: Date) => {
+            const date = new Date(d);
+            date.setHours(0, 0, 0, 0);
+
+            // Donnerstag entscheidet die KW
+            date.setDate(date.getDate() + 4 - (date.getDay() || 7));
+
+            const yearStart = new Date(date.getFullYear(), 0, 1);
+
+            return Math.ceil((((date.getTime() - yearStart.getTime()) / 86400000) + 1) / 7);
+        };
+
+        events.forEach((event) => {
+            const date = new Date(event.start_time);
+            const week = getCalendarWeek(date);
+            const key = `KW ${week}`;
+
+            grouped[key] = (grouped[key] || 0) + event.duration_minutes;
+        });
+
+        // vorhandene KWs extrahieren
+        const weeks = Object.keys(grouped)
+            .map((k) => parseInt(k.replace("KW ", "")))
+            .sort((a, b) => a - b);
+
+        // wenn keine Daten → nichts anzeigen
+        if (weeks.length === 0) return [];
+
+        // Bereich bestimmen (z. B. KW 14–KW 17)
+        const minWeek = weeks[0];
+        const maxWeek = weeks[weeks.length - 1];
+
+        // fehlende Wochen auffüllen
+        const fullTimeline = [];
+
+        for (let w = minWeek; w <= maxWeek; w++) {
+            const key = `KW ${w}`;
+            fullTimeline.push({
+                period: key,
+                total_minutes: grouped[key] || 0,
+            });
+        }
+
+        return fullTimeline;
+    };
+
+    // Tag → Stunden
+    const buildDayTimeline = (events: any[]) => {
+        const grouped: Record<string, number> = {};
+
+        events.forEach((event) => {
+            const date = new Date(event.start_time);
+            const key = `${date.getHours()}:00`;
+
+            grouped[key] = (grouped[key] || 0) + event.duration_minutes;
+        });
+
+        return Object.entries(grouped).map(([period, total_minutes]) => ({
+            period,
+            total_minutes,
+        }));
+    };
 
     /**
     * Lädt die Statistikdaten vom Backend basierend auf den aktuellen Filtern.
@@ -78,10 +176,6 @@ export function useStats({
                 start_date: startDate,
                 end_date: endDate,
                 granularity,
-            });
-
-            keywordIds?.forEach((id) => {
-                params.append("keyword_ids", id);
             });
 
             // Optional: mehrere Keywords hinzufügen
@@ -108,6 +202,31 @@ export function useStats({
 
             // Erfolgsfall: Daten im State speichern
             setData(result.data ?? []);
+
+            // ─── Timeline Daten (fein granular) ───
+            const responseEvents = await fetch(
+                `/api/events?start_date=${startDate}&end_date=${endDate}`
+            );
+
+            const eventsResponse = await responseEvents.json();
+
+            console.log("EVENTS:", eventsResponse.data);
+
+            if (eventsResponse.data) {
+                let timeline: { period: string; total_minutes: number }[] = [];
+
+                if (granularity === "week") {
+                    timeline = buildWeekTimeline(eventsResponse.data);
+                } else if (granularity === "month") {
+                    timeline = buildMonthTimeline(eventsResponse.data);
+                } else {
+                    timeline = buildDayTimeline(eventsResponse.data);
+                }
+
+                console.log("TIMELINE DATA:", timeline);
+
+                setTimelineData(timeline);
+            }
         } catch (err) {
             // Fehler sauber behandeln und UI stabil halten
             const message =
@@ -132,6 +251,7 @@ export function useStats({
     // Rückgabe für die UI
     return {
         data,
+        timelineData,
         loading,
         error,
         refetch: fetchStats,
