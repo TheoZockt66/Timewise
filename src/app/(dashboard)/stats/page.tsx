@@ -3,10 +3,12 @@
 import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { useEffect } from "react";
 
 import { useStats } from "@/hooks/useStats";
 import KeywordBarChart from "@/components/stats/KeywordBarChart";
 import StatsFilterBar from "@/components/stats/StatsFilterBar";
+import KeywordSelect from "@/components/stats/KeywordSelect";
 
 /**
  * StatsPage
@@ -27,18 +29,29 @@ import StatsFilterBar from "@/components/stats/StatsFilterBar";
 export default function StatsPage() {
 
     /**
-     * State für die aktuellen Filterparameter.
-     *
-     * Enthält:
-     * - startDate / endDate → Zeitraum
-     * - granularity → Gruppierung (day / week / month)
-     *
-     * Wird an den useStats Hook übergeben.
-     */
+    * State für die aktuellen Filterparameter.
+    *
+    * Enthält:
+    * - startDate / endDate → dynamisch gesetzter Zeitraum (aktueller Monat)
+    * - granularity → Gruppierung (day / week / month)
+    * - keywordIds → ausgewählte Keywords für die Filterung
+    *
+    * Wird an den useStats Hook übergeben und bestimmt die angezeigten Daten.
+    */
+    const today = new Date();
+
+    // Start: erster Tag des aktuellen Monats
+    const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+
+    // Format für Input (YYYY-MM-DD)
+    const formatDate = (date: Date) =>
+        date.toISOString().split("T")[0];
+
     const [filters, setFilters] = useState({
-        startDate: "2024-01-01",
-        endDate: "2026-12-31",
+        startDate: formatDate(startOfMonth),
+        endDate: formatDate(today),
         granularity: "week" as "day" | "week" | "month",
+        keywordIds: [] as string[],
     });
 
     /**
@@ -50,6 +63,21 @@ export default function StatsPage() {
      * - error → Fehlerzustand
      */
     const { data, loading, error } = useStats(filters);
+
+    // Liste aller verfügbaren Keywords für den Filter
+    type Keyword = {
+        id: string;
+        label: string;
+        color: string;
+    };
+
+    const [keywords, setKeywords] = useState<Keyword[]>([]);
+
+    useEffect(() => {
+        fetch("/api/keywords")
+            .then((res) => res.json())
+            .then((data) => setKeywords(data.data || []));
+    }, []);
 
     return (
         <main className="min-h-screen bg-muted/30 px-4 py-8">
@@ -75,12 +103,31 @@ export default function StatsPage() {
                 </div>
 
                 {/* Filter-Bar zur Steuerung der Daten */}
-                <StatsFilterBar
-                    startDate={filters.startDate}
-                    endDate={filters.endDate}
-                    granularity={filters.granularity}
-                    onChange={(newFilters) => setFilters(newFilters)}
-                />
+                {/* Filter-Bereich */}
+                <div className="flex gap-6 items-start">
+
+                    {/* Links: Datum + Buttons */}
+                    <div className="flex-1">
+                        <StatsFilterBar
+                            startDate={filters.startDate}
+                            endDate={filters.endDate}
+                            granularity={filters.granularity}
+                            keywordIds={filters.keywordIds}
+                            onChange={(newFilters) => setFilters(newFilters)}
+                        />
+                    </div>
+
+                    {/* Rechts: Keyword Filter */}
+                    <div className="w-64">
+                        <KeywordSelect
+                            keywords={keywords}
+                            selectedIds={filters.keywordIds}
+                            onChange={(ids) =>
+                                setFilters({ ...filters, keywordIds: ids })
+                            }
+                        />
+                    </div>
+                </div>
 
                 {/* Ladezustand */}
                 {loading && <p>Lade Daten...</p>}
@@ -150,6 +197,6 @@ export default function StatsPage() {
                     </div>
                 )}
             </div>
-        </main>
+        </main >
     );
 }

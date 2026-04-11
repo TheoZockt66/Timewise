@@ -18,9 +18,12 @@ export async function GET(request: Request) {
     const end_date = searchParams.get("end_date") || undefined;
 
     // Events aus Service laden (WICHTIG: keine direkte DB-Abfrage hier!)
+    const keyword_ids = searchParams.getAll("keyword_ids");
+
     const result = await fetchEventsServer({
         start_date,
         end_date,
+        keyword_ids,
     });
 
     if (result.error) {

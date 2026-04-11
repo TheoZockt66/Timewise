@@ -3,14 +3,26 @@
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 
+/**
+ * Props für die StatsFilterBar.
+ *
+ * Beschreibung:
+ * - startDate / endDate → aktueller Zeitraum
+ * - granularity → aktuelle Gruppierung (day / week / month)
+ * - keywordIds → aktuell ausgewählte Keywords (für spätere Filterung)
+ * - onChange → Callback zur Aktualisierung der Filter im Parent
+ */
 type Props = {
   startDate: string;
   endDate: string;
   granularity: "day" | "week" | "month";
+  keywordIds: string[];
+
   onChange: (values: {
     startDate: string;
     endDate: string;
     granularity: "day" | "week" | "month";
+    keywordIds: string[];
   }) => void;
 };
 
@@ -27,24 +39,37 @@ export default function StatsFilterBar({
   startDate,
   endDate,
   granularity,
+  keywordIds,
   onChange,
 }: Props) {
+
+  const updateFilters = (updates: Partial<{
+    startDate: string;
+    endDate: string;
+    granularity: "day" | "week" | "month";
+    keywordIds: string[];
+  }>) => {
+    onChange({
+      startDate,
+      endDate,
+      granularity,
+      keywordIds,
+      ...updates,
+    });
+  };
   return (
     <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
-      
-      {/* Zeitraum */}
+
+      {/* Zeitraum-Auswahl (Start- und Enddatum) */}
       <div className="flex gap-2">
         <div>
           <label className="text-sm">Von</label>
           <Input
             type="date"
             value={startDate}
+            /* Aktualisiert den Startzeitraum und übernimmt bestehende Filter (Granularität, Keywords) */
             onChange={(e) =>
-              onChange({
-                startDate: e.target.value,
-                endDate,
-                granularity,
-              })
+              updateFilters({ startDate: e.target.value })
             }
           />
         </div>
@@ -55,22 +80,18 @@ export default function StatsFilterBar({
             type="date"
             value={endDate}
             onChange={(e) =>
-              onChange({
-                startDate,
-                endDate: e.target.value,
-                granularity,
-              })
+              updateFilters({ endDate: e.target.value })
             }
           />
         </div>
       </div>
 
-      {/* Granularity */}
+      {/* Auswahl der Gruppierung (Tag, Woche, Monat) */}
       <div className="flex gap-2">
         <Button
           variant={granularity === "day" ? "default" : "outline"}
           onClick={() =>
-            onChange({ startDate, endDate, granularity: "day" })
+            updateFilters({ granularity: "day" })
           }
         >
           Tag
@@ -79,7 +100,7 @@ export default function StatsFilterBar({
         <Button
           variant={granularity === "week" ? "default" : "outline"}
           onClick={() =>
-            onChange({ startDate, endDate, granularity: "week" })
+            updateFilters({ granularity: "week" })
           }
         >
           Woche
@@ -88,7 +109,7 @@ export default function StatsFilterBar({
         <Button
           variant={granularity === "month" ? "default" : "outline"}
           onClick={() =>
-            onChange({ startDate, endDate, granularity: "month" })
+            updateFilters({ granularity: "month" })
           }
         >
           Monat

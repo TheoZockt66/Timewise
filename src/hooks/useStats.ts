@@ -80,6 +80,10 @@ export function useStats({
                 granularity,
             });
 
+            keywordIds?.forEach((id) => {
+                params.append("keyword_ids", id);
+            });
+
             // Optional: mehrere Keywords hinzufügen
             keywordIds?.forEach((id) => {
                 params.append("keyword_ids", id);
