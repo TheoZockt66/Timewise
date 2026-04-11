@@ -111,7 +111,18 @@ export default function CalendarView() {
           selectMirror={true}
           select={handleSelect}
           eventClick={handleEventClick}
+          
+          // Lokalisierung (Deutsch & Wochenstart)
           locale="de"
+          firstDay={1}                 // 1 = Montag (0 wäre Sonntag)
+          buttonText={{                // Deutsche Buttons
+            today: 'Heute',
+            month: 'Monat',
+            week: 'Woche',
+            day: 'Tag',
+            list: 'Liste'
+          }}
+          
           headerToolbar={{
             left: 'prev,next today',
             center: 'title',
@@ -175,4 +186,4 @@ export default function CalendarView() {
       </div>
     </div>
   );
-} 
+}
