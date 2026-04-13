@@ -1,18 +1,6 @@
 import type { Metadata } from "next";
-// import { Inter } from "next/font/google";
 import "./globals.css";
-import { Atkinson_Hyperlegible } from "next/font/google";
 import { Toaster } from "@/components/ui/toaster";
-
-const atkinson = Atkinson_Hyperlegible({
-  subsets: ["latin"],
-  weight: ["400", "700"],
-  variable: "--font-atkinson",
-});
-
-// Inter als primäre Schriftart – wird als CSS-Variable eingebunden
-// Inter aktuell deaktiviert, da laut Anforderungen Atkinson Hyperlegible verwendet werden muss
-// const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 
 export const metadata: Metadata = {
   title: "Timewise",
@@ -31,7 +19,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="de" suppressHydrationWarning>
-      <body className={atkinson.className}>
+      <body className="font-sans">
         {children}
         <Toaster />
       </body>

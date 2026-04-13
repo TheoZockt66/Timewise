@@ -32,11 +32,11 @@ export interface EventKeyword {
 export interface Goal {
   id: string;
   user_id: string;
-  label?: string;
-  description?: string;
-  start_time?: string;
-  end_time?: string;
-  target_study_time?: string;
+  label?: string | null;
+  description?: string | null;
+  start_time?: string | null;
+  end_time?: string | null;
+  target_study_time?: string | null;
   created_at: string;
 }
 

@@ -2,6 +2,237 @@
 
 ---
 
+Eintrag Nr.: 23
+Datum: 2026-04-13
+Prompt: passe das erwartete ergebnis bitte an die umlaute an
+Aktion: GEÄNDERT
+Datei / Komponente: Keyword-Validator-Testdatei
+Schnittstelle: |
+  src/lib/validators/keyword.validator.test.ts → Vitest-Erwartungen für validateKeyword()
+Beschreibung: |
+  Die erwarteten Fehlermeldungen im Keyword-Validator-Test an die aktuellen Umlaute angepasst.
+
+  Geänderte Punkte:
+  - Drei Assertions für ungültige Farbwerte erwarten jetzt „gültiger“ statt „gueltiger“.
+  - Die Fachlogik des Validators wurde nicht geändert, nur die Testerwartungen.
+
+  Hinweis:
+  - Ein erneuter Testlauf sollte die vorherigen drei Fehlschläge beseitigen.
+
+---
+
+Eintrag Nr.: 22
+Datum: 2026-04-13
+Prompt: kannst du das bitte ändern sodass diese warnung nicht mehr kommt
+Aktion: GEÄNDERT
+Datei / Komponente: Dashboard-Logos auf Goals-, Keywords- und Stats-Seite
+Schnittstelle: |
+  next/image Logo-Renderings mit festen proportionalen width/height-Werten statt einseitiger CSS-Skalierung
+Beschreibung: |
+  Die next/image-Warnung zur geänderten Bildgröße beseitigt.
+
+  Geänderte Punkte:
+  - Die Logo-Instanzen auf Goals, Keywords und Stats verwenden jetzt konsistente Maße von 216×56.
+  - Die vorherige Kombination aus width/height-Props mit nur höhenbasierter CSS-Skalierung wurde entfernt.
+  - Dadurch erkennt Next.js keine einseitige Größenänderung mehr und die Warnung verschwindet.
+
+  Hinweis:
+  - Es wurde kein Testlauf ausgeführt.
+
+Eintrag Nr.: 21
+Datum: 2026-04-13
+Prompt: warum kann ich weiterhin keine ziele erstellen
+Aktion: GEÄNDERT
+Datei / Komponente: Goal-Service
+Schnittstelle: |
+  createGoal(...) → nutzt fehlertolerante Goal-Anreicherung für die Rückgabe
+  updateGoal(...) → nutzt fehlertolerante Goal-Anreicherung für die Rückgabe
+Beschreibung: |
+  Einen Restfehler in der Goal-Erstellung und -Aktualisierung behoben.
+
+  Geänderte Punkte:
+  - Nach dem Speichern wurde bisher noch eine strikte Fortschritts-/Keyword-Anreicherung ausgeführt.
+  - Wenn diese Anreicherung scheiterte, wirkte das Ziel im Frontend wie „nicht erstellt“, obwohl der Insert bereits erfolgreich gewesen sein konnte.
+  - createGoal und updateGoal nutzen jetzt dieselbe fehlertolerante Anreicherung wie getGoals.
+
+  Hinweis:
+  - Es wurde kein Testlauf ausgeführt.
+
+---
+
+Eintrag Nr.: 20
+Datum: 2026-04-13
+Prompt: teste einmal die goals mit dem testscript
+Aktion: GEÄNDERT
+Datei / Komponente: Goal-Validator-Testdatei
+Schnittstelle: |
+  src/lib/validators/goal.validator.test.ts → Vitest-Datei für validateGoal()
+Beschreibung: |
+  Den gezielten Goal-Testlauf mit Vitest ausgeführt und die fehlschlagenden Erwartungen an die aktuellen Fehlermeldungen angepasst.
+
+  Geänderte Punkte:
+  - Nur die Goal-Testdatei wurde ausgeführt, nicht die gesamte Test-Suite.
+  - Der erste Lauf zeigte 3 fehlschlagende Assertions wegen veralteter ASCII-Schreibweisen ohne Umlaute.
+  - Die erwarteten Fehlermeldungen in goal.validator.test.ts wurden auf die aktuellen Texte mit Umlauten aktualisiert.
+
+  Hinweis:
+  - Danach kann derselbe Goal-Test erneut sauber ausgeführt werden.
+
+---
+
+Eintrag Nr.: 19
+Datum: 2026-04-13
+Prompt: 8The resource <URL> was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.Understand this warning / api/goals:1 Failed to load resource: the server responded with a status of 500 (Internal Server Error) / Bitte achte darauf da du umlaute wie ö ä ü auch nutzt
+Aktion: GEÄNDERT
+Datei / Komponente: Goals-Service, Goals-Hook, Goals-Page und Goal-API-Texte
+Schnittstelle: |
+  getGoals(userId) → ApiResponse<GoalWithProgress[]> mit fehlertoleranter Anreicherung
+  useGoals().refetch() → behält erfolgreiche Teilantworten bei kombinierten Ladevorgängen
+  GoalsPage / GoalCard / Goal-API → Texte mit echten Umlauten
+Beschreibung: |
+  Den Ladepfad für Goals robuster gemacht und die betroffenen Texte auf echte Umlaute umgestellt.
+
+  Geänderte Punkte:
+  - GET /api/goals bricht nicht mehr komplett ab, wenn die Fortschritts-Anreicherung eines einzelnen Ziels fehlschlägt.
+  - Der Goals-Hook verwirft bei Teilfehlern nicht mehr automatisch bereits erfolgreich geladene Daten.
+  - Das Logo auf der Goals-Seite wird nicht mehr per priority vorab geladen, um unnötige Preload-Warnungen zu reduzieren.
+  - Nutzertexte in Goals-Formular, Goals-Page, Validatoren und Goal-API wurden auf Schreibungen mit Umlauten angepasst.
+
+  Hinweis:
+  - Es wurde kein Testlauf ausgeführt.
+
+---
+
+Eintrag Nr.: 18
+Datum: 2026-04-13
+Prompt: Im front end kann ich immer noch nicht die Zeizeit entfernen sodass ich keine habe für das goal
+Aktion: GEAENDERT
+Datei / Komponente: Goal-Formular, Hook, Service und Goal-UI
+Schnittstelle: |
+  GoalFormValues.targetHours -> string statt number, damit leerer Wert moeglich ist
+  buildGoalPayload(values) -> target_study_time: string | null
+  createGoal(data) -> Zielzeit beim Erstellen optional
+Beschreibung: |
+  Zielzeit fuer Goals im Frontend und Backend wirklich optional gemacht.
+
+  Geaenderte Punkte:
+  - Das Formular erlaubt jetzt ein leeres Feld fuer die Zielzeit.
+  - Der Payload sendet bei leerer Eingabe null statt zwangsweise "1:00:00".
+  - createGoal verlangt serverseitig keine Zielzeit mehr.
+  - Ziele ohne Zielzeit zeigen im UI jetzt "Keine Zielzeit definiert" statt eines 0/0-Fortschrittsbalkens.
+
+  Hinweis:
+  - Es wurde kein Testlauf ausgefuehrt.
+
+---
+
+Eintrag Nr.: 17
+Datum: 2026-04-13
+Prompt: Bitte schaue dir einmal die keyword.validator.test an und schreibe auch so ein testscript für den login und für den die goals
+Aktion: GEAENDERT
+Datei / Komponente: Validator- und Service-Tests fuer Keywords, Goals und Login
+Schnittstelle: |
+  validateKeyword() Testdatei bereinigt
+  validateGoal() Testdatei neu angelegt
+  login() Testdatei mit gemocktem Supabase-Client neu angelegt
+Beschreibung: |
+  Testbasis fuer Validierung und Login erweitert.
+
+  Geaenderte Punkte:
+  - src/lib/validators/keyword.validator.test.ts fachlich und typseitig bereinigt.
+  - src/lib/validators/goal.validator.test.ts neu angelegt fuer Pflichtfeld-, Datums- und Zielzeit-Validierung.
+  - src/lib/services/auth.service.test.ts neu angelegt fuer Login-Validierung, E-Mail-Trim, Erfolgspfad und Fehlerpfad mit Mock.
+
+  Hinweis:
+  - Es wurde kein Testlauf ausgefuehrt.
+
+---
+
+Eintrag Nr.: 16
+Datum: 2026-04-13
+Prompt: ist m6 vollständig umgesetzt? / änder das im code ab und mach es das bezeichung ein pflichtfeld wird
+Aktion: GEAENDERT
+Datei / Komponente: Goal-Validierung und Goal-Formular
+Schnittstelle: |
+  validateGoal(data, { requireLabel?, requireTargetStudyTime? }) -> { valid, error }
+  GoalForm -> Bezeichnung als Pflichtfeld mit clientseitiger Sperre bei leerem Wert
+Beschreibung: |
+  M6 so angepasst, dass die Bezeichnung eines Lernziels jetzt Pflicht ist.
+
+  Geaenderte Punkte:
+  - Servervalidierung erweitert: createGoal verlangt jetzt explizit eine Bezeichnung.
+  - Auch Update-Anfragen mit leerer Bezeichnung werden abgelehnt.
+  - Das Goals-Formular markiert die Bezeichnung sichtbar als Pflichtfeld.
+  - Der Submit-Button bleibt deaktiviert, solange die Bezeichnung leer oder nur Whitespace ist.
+
+---
+
+Eintrag Nr.: 15
+Datum: 2026-04-12
+Prompt: kannst du das projekt so machen das es bei vercel produktiv laufen kann?
+Aktion: GEAENDERT
+Datei / Komponente: Build- und Deployment-Konfiguration fuer Vercel
+Schnittstelle: |
+  getPublicSupabaseEnv() -> { url: string, anonKey: string }
+  .env.example -> Vorlage fuer NEXT_PUBLIC_SUPABASE_URL und NEXT_PUBLIC_SUPABASE_ANON_KEY
+  eslint.config.mjs -> Flat-Config fuer ESLint 9 / Next 16
+Beschreibung: |
+  Produktionspfad fuer Vercel stabilisiert und erfolgreich per Produktions-Build verifiziert.
+
+  Geaenderte Punkte:
+  - Google-Font-Build-Abhaengigkeit entfernt: Layout nutzt jetzt eine normale Sans-Definition, die Atkinson Hyperlegible zur Laufzeit laedt statt waehrend des Builds.
+  - Zentrale Env-Validierung fuer Supabase eingefuehrt ueber src/lib/env.ts; server.ts, client.ts und middleware.ts nutzen jetzt denselben Konfigurationszugriff.
+  - package.json fuer Deployment gehaertet: Node-Version auf >=20.9.0 festgelegt und Lint-Skript auf ESLint 9 umgestellt.
+  - .env.example fuer Vercel- und lokale Konfiguration angelegt.
+  - eslint.config.mjs fuer Next 16 / ESLint 9 ergaenzt.
+  - docs/vercel-deployment.md mit den benoetigten Vercel-Einstellungen angelegt.
+  - Fehlende lokale Dependencies installiert; anschliessend lief npm run build erfolgreich durch.
+
+  Ergebnis:
+  - Der Produktions-Build mit Next 16.2.0 laeuft lokal erfolgreich durch.
+  - Die App ist damit in einem deutlich realistischeren Zustand fuer einen Vercel-Deploy.
+
+---
+
+Eintrag Nr.: 14
+Datum: 2026-04-12
+Prompt: schaue dir m6 an und sage mir was dort noch fehlt / behebe diese probleme
+Aktion: GEAENDERT
+Datei / Komponente: M6 Zielsystem - Service, API, Hook und Goals-Komponenten
+Schnittstelle: |
+  validateGoal(data, { requireTargetStudyTime? }) -> { valid, error }
+  updateGoal(id, userId, data) -> ApiResponse<GoalWithProgress>
+  deleteGoal(id, userId) -> ApiResponse<{ success: boolean }>
+  useGoals() -> { goals, availableKeywords, loading, saving, deletingId, error, refetch, createGoalEntry, updateGoalEntry, deleteGoalEntry }
+  GoalForm, GoalCard, GoalList, GoalProgressBar -> UI-Bausteine fuer M6
+Beschreibung: |
+  M6 fachlich und strukturell ueberarbeitet.
+
+  Behobene Punkte:
+  - Optionalfelder koennen nun sauber geleert werden (label, description, start_time, end_time).
+  - Zeitraumlogik fuer Goals verbessert: Enddatum wird als ganzer Tag behandelt, Fortschritt zaehlt Ueberlappungen im Zielzeitraum.
+  - Fehlerbehandlung im goal.service verschaerft: DB- und Zuordnungsfehler werden jetzt propagiert.
+  - Zielvalidierung erweitert: target_study_time serverseitig fuer Create erzwungen, Zeitformat und Datumswerte werden sauber validiert.
+  - Keyword-IDs werden serverseitig auf Besitz/Gueltigkeit des Users geprueft.
+  - Goals-API liefert konsistentere HTTP-Statuscodes; DELETE gibt jetzt { success: true } zurueck.
+  - Goals-UI hat jetzt Loading-/Error-State und Loesch-Bestaetigung.
+  - M6 in Hook- und Komponentenstruktur aufgeteilt (useGoals, GoalForm, GoalCard, GoalList, GoalProgressBar).
+
+  Geaenderte/neu angelegte Dateien:
+  - src/lib/validators/goal.validator.ts
+  - src/lib/services/goal.service.ts
+  - src/app/api/goals/route.ts
+  - src/app/api/goals/[id]/route.ts
+  - src/app/(dashboard)/goals/page.tsx
+  - src/hooks/useGoals.ts
+  - src/components/goals/GoalForm.tsx
+  - src/components/goals/GoalCard.tsx
+  - src/components/goals/GoalList.tsx
+  - src/components/goals/GoalProgressBar.tsx
+  - src/types/index.ts
+
+---
+
 Eintrag Nr.: 13
 Datum: 2026-04-09
 Prompt: schaue dir den milestone mit den goals an / was brauchst du von m3? / dann mach das orientiere dich beim design an die keywords page

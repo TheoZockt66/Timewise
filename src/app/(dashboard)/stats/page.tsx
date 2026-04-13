@@ -94,9 +94,9 @@ export default function StatsPage() {
                         <Image
                             src="/timewise-logo.svg"
                             alt="Timewise Logo"
-                            width={56}
+                            width={216}
                             height={56}
-                            className="h-14 w-auto object-contain"
+                            className="h-14 w-[216px] object-contain"
                             priority
                         />
                     </Link>

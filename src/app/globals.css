@@ -1,3 +1,5 @@
+@import url("https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&display=swap");
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -54,6 +56,7 @@
     @apply bg-background text-foreground;
     /* Mindestens 16px Fließtext gemäß UI-Anforderungen */
     font-size: 16px;
+    font-family: "Atkinson Hyperlegible", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   }
   /* Überschriften mindestens 20px gemäß UI-Anforderungen */
   h1, h2, h3 {

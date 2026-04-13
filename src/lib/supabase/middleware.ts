@@ -1,5 +1,6 @@
 import { createServerClient, type SetAllCookies } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
+import { getPublicSupabaseEnv } from "@/lib/env";
 
 // Öffentliche Routen, die ohne Authentifizierung erreichbar sind
 const PUBLIC_ROUTES = ["/login", "/register", "/reset-password"];
@@ -26,10 +27,11 @@ const API_PREFIX = "/api/";
 export async function updateSession(request: NextRequest) {
   // Erstelle eine Antwort, die wir anschließend modifizieren können
   let supabaseResponse = NextResponse.next({ request });
+  const { url, anonKey } = getPublicSupabaseEnv();
 
   const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    url,
+    anonKey,
     {
       cookies: {
         getAll() {

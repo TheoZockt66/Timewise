@@ -1,23 +1,42 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
-import { updateGoal, deleteGoal } from "@/lib/services/goal.service";
+import { deleteGoal, updateGoal } from "@/lib/services/goal.service";
+import type { ApiResponse, GoalWithProgress } from "@/types";
 
-// ─── API-Endpunkte für einzelne Ziele ───
+function getStatusCode(errorCode?: string, successStatus = 200): number {
+  if (!errorCode) return successStatus;
 
-/**
- * Aktualisiert ein bestehendes Ziel (PUT /api/goals/:id).
- *
- * Body: Alle Felder optional (Partial Update)
- *
- * Ablauf:
- * 1. Auth-Check
- * 2. Body und ID auslesen
- * 3. Ziel über Service aktualisieren
- */
+  switch (errorCode) {
+    case "UNAUTHORIZED":
+      return 401;
+    case "VALIDATION_ERROR":
+    case "INVALID_KEYWORDS":
+    case "KEYWORD_VALIDATION_FAILED":
+      return 400;
+    case "NOT_FOUND":
+      return 404;
+    default:
+      return 500;
+  }
+}
+
+function buildUnauthorizedResponse<T>() {
+  return NextResponse.json(
+    {
+      data: null,
+      error: {
+        code: "UNAUTHORIZED",
+        message: "Nicht eingeloggt. Bitte melde dich an und versuche es erneut.",
+      },
+    },
+    { status: 401 }
+  );
+}
+
 export async function PUT(
   request: Request,
   context: { params: Promise<{ id: string }> }
-) {
+): Promise<NextResponse<ApiResponse<GoalWithProgress>>> {
   const supabase = await createClient();
 
   const {
@@ -25,37 +44,33 @@ export async function PUT(
   } = await supabase.auth.getUser();
 
   if (!user) {
-    return NextResponse.json({
-      data: null,
-      error: { code: "UNAUTHORIZED", message: "Nicht eingeloggt" },
-    });
+    return buildUnauthorizedResponse<GoalWithProgress>();
   }
 
-  const { id } = await context.params;
-  const body = await request.json();
+  try {
+    const { id } = await context.params;
+    const body = await request.json();
+    const result = await updateGoal(id, user.id, body);
 
-  // Leere Strings bei optionalen Datumsfeldern als undefined behandeln
-  const result = await updateGoal(id, {
-    ...body,
-    start_time: body.start_time || undefined,
-    end_time: body.end_time || undefined,
-  });
-
-  return NextResponse.json(result);
+    return NextResponse.json(result, { status: getStatusCode(result.error?.code) });
+  } catch {
+    return NextResponse.json(
+      {
+        data: null,
+        error: {
+          code: "INVALID_REQUEST",
+          message: "Die Anfrage konnte nicht gelesen werden. Bitte prüfe deine Eingaben.",
+        },
+      },
+      { status: 400 }
+    );
+  }
 }
 
-/**
- * Löscht ein Ziel (DELETE /api/goals/:id).
- *
- * Ablauf:
- * 1. Auth-Check
- * 2. ID aus der URL extrahieren
- * 3. Ziel über Service löschen
- */
 export async function DELETE(
   request: Request,
   context: { params: Promise<{ id: string }> }
-) {
+): Promise<NextResponse<ApiResponse<{ success: boolean }>>> {
   const supabase = await createClient();
 
   const {
@@ -63,13 +78,11 @@ export async function DELETE(
   } = await supabase.auth.getUser();
 
   if (!user) {
-    return NextResponse.json({
-      data: null,
-      error: { code: "UNAUTHORIZED", message: "Nicht eingeloggt" },
-    });
+    return buildUnauthorizedResponse<{ success: boolean }>();
   }
 
   const { id } = await context.params;
-  const result = await deleteGoal(id);
-  return NextResponse.json(result);
+  const result = await deleteGoal(id, user.id);
+
+  return NextResponse.json(result, { status: getStatusCode(result.error?.code) });
 }
