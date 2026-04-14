@@ -2,6 +2,24 @@
 
 ---
 
+Eintrag Nr.: 24
+Datum: 2026-04-14
+Prompt: schau mal so sieht es aus aber das ist nicht die richtige schriftart
+Aktion: GEÄNDERT
+Datei / Komponente: Globale Schriftkonfiguration
+Schnittstelle: |
+  src/app/globals.css → definiert jetzt die CSS-Variable --font-atkinson und nutzt sie konsistent für den Body-Font
+Beschreibung: |
+  Die fehlerhafte Font-Konfiguration korrigiert, durch die das Projekt auf eine Browser-Standardschrift zurückfallen konnte.
+
+  Geänderte Punkte:
+  - Die in tailwind.config.ts erwartete Variable --font-atkinson wird jetzt in :root tatsächlich definiert.
+  - Der Body nutzt dieselbe Variable nun auch direkt als font-family.
+  - Dadurch funktioniert die Klasse font-sans wieder konsistent und die Oberfläche sollte Atkinson Hyperlegible statt einer Serif-Fallback-Schrift anzeigen.
+
+  Hinweis:
+  - Ein Lint-Lauf sollte bestätigen, dass die Änderung syntaktisch sauber ist.
+
 Eintrag Nr.: 23
 Datum: 2026-04-13
 Prompt: passe das erwartete ergebnis bitte an die umlaute an
