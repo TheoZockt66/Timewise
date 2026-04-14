@@ -73,9 +73,15 @@ export function useStats({
 
     // Woche → Mo–So
     const buildWeekTimeline = (events: any[]) => {
-        const days = ["So", "Mo", "Di", "Mi", "Do", "Fr", "Sa"];
+        const days = ["Mo", "Di", "Mi", "Do", "Fr", "Sa", "So"];
         const grouped: Record<string, number> = {
-            Mo: 0, Di: 0, Mi: 0, Do: 0, Fr: 0, Sa: 0, So: 0
+            Mo: 0,
+            Di: 0,
+            Mi: 0,
+            Do: 0,
+            Fr: 0,
+            Sa: 0,
+            So: 0,
         };
 
         const map = ["So", "Mo", "Di", "Mi", "Do", "Fr", "Sa"];
@@ -94,15 +100,19 @@ export function useStats({
         }));
     };
 
-    // Monat → KWs
+    // Monat → KWs (ALLE Wochen im Zeitraum anzeigen)
     const buildMonthTimeline = (events: any[]) => {
+
         const grouped: Record<string, number> = {};
 
+        /**
+         * Hilfsfunktion zur Berechnung der Kalenderwoche
+         * (ISO-Standard → Woche beginnt Montag)
+         */
         const getCalendarWeek = (d: Date) => {
             const date = new Date(d);
             date.setHours(0, 0, 0, 0);
 
-            // Donnerstag entscheidet die KW
             date.setDate(date.getDate() + 4 - (date.getDay() || 7));
 
             const yearStart = new Date(date.getFullYear(), 0, 1);
@@ -110,6 +120,9 @@ export function useStats({
             return Math.ceil((((date.getTime() - yearStart.getTime()) / 86400000) + 1) / 7);
         };
 
+        /**
+         * 1. Events auf Wochen aggregieren
+         */
         events.forEach((event) => {
             const date = new Date(event.start_time);
             const week = getCalendarWeek(date);
@@ -118,23 +131,26 @@ export function useStats({
             grouped[key] = (grouped[key] || 0) + event.duration_minutes;
         });
 
-        // vorhandene KWs extrahieren
-        const weeks = Object.keys(grouped)
-            .map((k) => parseInt(k.replace("KW ", "")))
-            .sort((a, b) => a - b);
+        /**
+         * 2. Start- und Enddatum aus dem Filter verwenden
+         */
+        const start = new Date(startDate);
+        const end = new Date(endDate);
 
-        // wenn keine Daten → nichts anzeigen
-        if (weeks.length === 0) return [];
+        /**
+         * 3. Erste und letzte KW bestimmen
+         */
+        const startWeek = getCalendarWeek(start);
+        const endWeek = getCalendarWeek(end);
 
-        // Bereich bestimmen (z. B. KW 14–KW 17)
-        const minWeek = weeks[0];
-        const maxWeek = weeks[weeks.length - 1];
-
-        // fehlende Wochen auffüllen
+        /**
+         * 4. ALLE Wochen im Bereich erzeugen
+         */
         const fullTimeline = [];
 
-        for (let w = minWeek; w <= maxWeek; w++) {
+        for (let w = startWeek; w <= endWeek; w++) {
             const key = `KW ${w}`;
+
             fullTimeline.push({
                 period: key,
                 total_minutes: grouped[key] || 0,
@@ -204,8 +220,21 @@ export function useStats({
             setData(result.data ?? []);
 
             // ─── Timeline Daten (fein granular) ───
+            /**
+            * Lädt Events für die Timeline (inkl. Keyword-Filter)
+            */
+            const paramsEvents = new URLSearchParams({
+                start_date: startDate,
+                end_date: endDate,
+            });
+
+            // Keyword-Filter hinzufügen (wie beim Aggregate-Endpunkt)
+            keywordIds?.forEach((id) => {
+                paramsEvents.append("keyword_ids", id);
+            });
+
             const responseEvents = await fetch(
-                `/api/events?start_date=${startDate}&end_date=${endDate}`
+                `/api/events?${paramsEvents.toString()}`
             );
 
             const eventsResponse = await responseEvents.json();

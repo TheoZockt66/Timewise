@@ -99,7 +99,7 @@ export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const start_date = searchParams.get("start_date") || undefined;
   const end_date = searchParams.get("end_date") || undefined;
-  const keyword_ids = searchParams.get("keyword_ids")?.split(",") || undefined;
+  const keyword_ids = searchParams.getAll("keyword_ids");
 
   // Schritt 4: Events über den Service laden
   const result = await fetchEventsServer({

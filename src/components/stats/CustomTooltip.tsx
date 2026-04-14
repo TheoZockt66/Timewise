@@ -5,11 +5,11 @@
  *
  * Beschreibung:
  * - active → zeigt an, ob der Tooltip gerade sichtbar ist (Hover-Zustand)
- * - payload → enthält die Daten des aktuellen Balkens (z. B. Minutenwert)
- * - label → Bezeichnung des Balkens (z. B. Keyword-Name)
+ * - payload → enthält die Daten des aktuellen Punktes / Balkens (z. B. Minutenwert)
+ * - label → Bezeichnung des aktuellen Werts (z. B. Keyword-Name oder Wochentag)
  */
 type TooltipPayload = {
-    value: number;
+    value?: number;
 };
 
 type Props = {
@@ -22,11 +22,12 @@ type Props = {
  * CustomTooltip
  *
  * Ziel:
- * Individuelle Darstellung des Tooltips für das Balkendiagramm.
+ * Gemeinsame Darstellung des Tooltips für mehrere Diagramme.
  *
  * Vorteil:
- * - volle Kontrolle über Inhalt und Layout
- * - vermeidet unerwünschte Standard-Anzeigen wie "minutes:"
+ * - dieselbe Tooltip-Optik für Balken- und Liniendiagramm
+ * - weniger doppelter Code
+ * - zentrale Änderung, falls das Design später angepasst werden soll
  */
 export default function CustomTooltip({ active, payload, label }: Props) {
 
@@ -35,22 +36,23 @@ export default function CustomTooltip({ active, payload, label }: Props) {
      * - er aktiv ist (Hover)
      * - Daten vorhanden sind
      *
-     * Andernfalls: nichts rendern (verhindert leere Tooltips)
+     * Andernfalls: nichts rendern
+     * -> verhindert leere oder kaputte Tooltips
      */
     if (!active || !payload || payload.length === 0) {
         return null;
     }
 
     /**
-     * Extrahiert den Minutenwert aus dem Payload.
-     * payload[0] enthält die Daten des aktuell gehoverter Balkens.
+     * Extrahiert den Wert aus dem Payload.
+     * Wenn kein Wert vorhanden ist, wird 0 verwendet.
      */
-    const value = payload[0].value;
+    const value = payload[0]?.value ?? 0;
 
     return (
         <div className="rounded-md border bg-white p-2 shadow">
 
-            {/* Label (z. B. Keyword-Name) */}
+            {/* Bezeichnung des aktuellen Datenpunkts */}
             <p className="font-medium">{label}</p>
 
             {/* Wert in Minuten */}

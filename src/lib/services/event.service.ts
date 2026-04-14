@@ -74,15 +74,15 @@ export async function createEvent(
   } = await supabase.auth.getUser();
 
   // Wenn kein User vorhanden ist → Zugriff verweigern
-    if (!user) {
-      return{
-          data: null,
-          error: {
-            code: "UNAUTHORIZED",
-            message: "Nicht eingeloggt",
-          },
-        };
-      }
+  if (!user) {
+    return {
+      data: null,
+      error: {
+        code: "UNAUTHORIZED",
+        message: "Nicht eingeloggt",
+      },
+    };
+  }
 
   const { data: newEvent, error } = await supabase
     .from("events")
@@ -117,7 +117,7 @@ export async function createEvent(
           keyword_id,
         }))
       );
-  
+
     if (keywordError) {
       // Optional: Event löschen, wenn Zuordnungen fehlschlagen, um Inkonsistenzen zu vermeiden
       await supabase.from("events").delete().eq("id", newEvent.id);
@@ -134,8 +134,8 @@ export async function createEvent(
   }
 
   return {
-      data: await getEventWithKeywords(newEvent.id, user.id),
-      error: null,
+    data: await getEventWithKeywords(newEvent.id, user.id),
+    error: null,
   };
 
 }
@@ -189,11 +189,6 @@ export async function fetchEventsServer(
     query = query.lte("end_time", params.end_date);
   }
 
-  // Filter nach keyword_ids (über Zwischentabelle)
-  if (params?.keyword_ids?.length) {
-    query = query.in("event_keywords.keyword_id", params.keyword_ids);
-  }
-
   const { data, error } = await query;
 
   if (error) {
@@ -215,9 +210,26 @@ export async function fetchEventsServer(
       (new Date(event.end_time).getTime() - new Date(event.start_time).getTime()) / (1000 * 60)
     ),
   }));
+  /**
+ * Hinweis:
+ * Supabase unterstützt Filter auf verschachtelten Relationen (event_keywords)
+ * in Kombination mit select() nicht zuverlässig.
+ *
+ * Daher wird der Keyword-Filter nachträglich im Service angewendet,
+ * um konsistentes Verhalten sicherzustellen.
+ */
+  let filteredEvents = eventsWithKeywords;
+
+  if (params?.keyword_ids?.length) {
+    filteredEvents = eventsWithKeywords.filter((event) =>
+      event.keywords.some((k) =>
+        params.keyword_ids!.includes(k.id)
+      )
+    );
+  }
 
   return {
-    data: eventsWithKeywords,
+    data: filteredEvents,
     error: null,
   };
 }
@@ -269,14 +281,14 @@ export async function updateEvent(
 
     // Prüfe, ob sich die Zeitdaten tatsächlich geändert haben
     const timeChanged = data.start_time !== undefined && data.start_time !== currentEvent.start_time ||
-                       data.end_time !== undefined && data.end_time !== currentEvent.end_time;
+      data.end_time !== undefined && data.end_time !== currentEvent.end_time;
 
     if (timeChanged) {
       // Hole Events für Overlap-Check nur im gleichen Zeitraum
       const startDate = data.start_time ? new Date(data.start_time).toISOString().split('T')[0] :
-                        new Date(currentEvent.start_time).toISOString().split('T')[0];
+        new Date(currentEvent.start_time).toISOString().split('T')[0];
       const endDate = data.end_time ? new Date(data.end_time).toISOString().split('T')[0] :
-                      new Date(currentEvent.end_time).toISOString().split('T')[0];
+        new Date(currentEvent.end_time).toISOString().split('T')[0];
 
       const existingEvents = await fetchEventsServer({
         start_date: startDate,
@@ -476,7 +488,7 @@ export async function deleteEvent(
     .delete()
     .eq("id", id);
 
-   // Schritt 3: Fehlerbehandlung, falls die Datenbankoperation fehlschlägt
+  // Schritt 3: Fehlerbehandlung, falls die Datenbankoperation fehlschlägt
   if (error) {
     return {
       data: null,

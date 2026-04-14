@@ -59,6 +59,33 @@ export default function StatsPage() {
     });
 
     /**
+    * Navigiert im Zeitraum vor/zurück (← →)
+    */
+    const shiftPeriod = (direction: "prev" | "next") => {
+        const factor = direction === "next" ? 1 : -1;
+
+        const start = new Date(filters.startDate);
+        const end = new Date(filters.endDate);
+
+        if (filters.granularity === "week") {
+            start.setDate(start.getDate() + factor * 7);
+            end.setDate(end.getDate() + factor * 7);
+        } else if (filters.granularity === "month") {
+            start.setMonth(start.getMonth() + factor);
+            end.setMonth(end.getMonth() + factor);
+        } else {
+            start.setDate(start.getDate() + factor);
+            end.setDate(end.getDate() + factor);
+        }
+
+        setFilters({
+            ...filters,
+            startDate: formatDate(start),
+            endDate: formatDate(end),
+        });
+    };
+
+    /**
      * Lädt Statistikdaten basierend auf den aktuellen Filtern.
      *
      * Rückgabewerte:
@@ -67,6 +94,35 @@ export default function StatsPage() {
      * - error → Fehlerzustand
      */
     const { data, timelineData, loading, error } = useStats(filters);
+
+    /**
+    * Berechnet die Gesamtlernzeit für die Timeline
+    * (Summe aller Werte im Verlauf)
+    */
+    const totalTimelineMinutes = timelineData.reduce(
+        (sum, entry) => sum + entry.total_minutes,
+        0
+    );
+
+    /**
+    * Zeitraumtext für das Liniendiagramm
+    */
+    const formatGermanDate = (dateString: string) =>
+        new Date(dateString).toLocaleDateString("de-DE", {
+            day: "2-digit",
+            month: "2-digit",
+            year: "numeric",
+        });
+
+    const timelinePeriodLabel =
+        filters.granularity === "month"
+            ? new Date(filters.startDate).toLocaleDateString("de-DE", {
+                month: "long",
+                year: "numeric",
+            })
+            : formatGermanDate(filters.startDate) +
+            " bis " +
+            formatGermanDate(filters.endDate);
 
     // Liste aller verfügbaren Keywords für den Filter
     type Keyword = {
@@ -113,12 +169,68 @@ export default function StatsPage() {
 
                     {/* Links: Datum + Buttons */}
                     <div className="flex-1">
+                        <div className="flex gap-2 mb-2">
+                            <button
+                                onClick={() => shiftPeriod("prev")}
+                                className="px-3 py-1 rounded bg-muted hover:bg-muted/80"
+                            >
+                                ←
+                            </button>
+
+                            <button
+                                onClick={() => shiftPeriod("next")}
+                                className="px-3 py-1 rounded bg-muted hover:bg-muted/80"
+                            >
+                                →
+                            </button>
+                        </div>
                         <StatsFilterBar
                             startDate={filters.startDate}
                             endDate={filters.endDate}
                             granularity={filters.granularity}
                             keywordIds={filters.keywordIds}
-                            onChange={(newFilters) => setFilters(newFilters)}
+                            onChange={(newFilters) => {
+
+                                // WOCHE → Montag bis Sonntag
+                                if (newFilters.granularity === "week") {
+                                    const selectedDate = new Date(newFilters.startDate);
+                                    const day = selectedDate.getDay();
+
+                                    const diffToMonday = day === 0 ? -6 : 1 - day;
+
+                                    const start = new Date(selectedDate);
+                                    start.setDate(selectedDate.getDate() + diffToMonday);
+
+                                    const end = new Date(start);
+                                    end.setDate(start.getDate() + 6);
+
+                                    setFilters({
+                                        ...newFilters,
+                                        startDate: formatDate(start),
+                                        endDate: formatDate(end),
+                                    });
+
+                                    // MONAT → kompletter Monat
+                                } else if (newFilters.granularity === "month") {
+                                    const selectedDate = new Date(newFilters.startDate);
+
+                                    // erster Tag des Monats
+                                    const start = new Date(selectedDate.getFullYear(), selectedDate.getMonth(), 1);
+
+                                    // letzter Tag des Monats
+                                    const end = new Date(selectedDate.getFullYear(), selectedDate.getMonth() + 1, 0);
+
+                                    setFilters({
+                                        ...newFilters,
+                                        startDate: formatDate(start),
+                                        endDate: formatDate(end),
+                                    });
+
+                                } else {
+                                    // Tag bleibt wie ausgewählt
+                                    setFilters(newFilters);
+                                }
+                            }}
                         />
                     </div>
 
@@ -128,7 +240,7 @@ export default function StatsPage() {
                             keywords={keywords}
                             selectedIds={filters.keywordIds}
                             onChange={(ids) =>
-                                setFilters({ ...filters, keywordIds: ids })
+                                setFilters((prev) => ({ ...prev, keywordIds: ids }))
                             }
                         />
                     </div>
@@ -150,9 +262,19 @@ export default function StatsPage() {
                                 {/* Karten pro Zeitraum */}
                                 {data.map((entry) => (
                                     <div key={entry.period} className="rounded-xl border bg-white p-6 shadow-sm">
-
+                                        <h2 className="text-lg font-semibold mb-2">
+                                            Lernzeit nach Fächern
+                                        </h2>
                                         <p>
-                                            <strong>Zeitraum:</strong> {entry.period}
+                                            <strong>Zeitraum:</strong>{" "}
+                                            {filters.granularity === "month"
+                                                ? new Date(filters.startDate).toLocaleDateString("de-DE", {
+                                                    month: "long",
+                                                    year: "numeric",
+                                                })
+                                                : formatGermanDate(filters.startDate) +
+                                                " bis " +
+                                                formatGermanDate(filters.endDate)}
                                         </p>
 
                                         <p>
@@ -191,9 +313,20 @@ export default function StatsPage() {
 
                                 {/* Liniendiagramm: zeigt Verlauf der Lernzeit über den gewählten Zeitraum */}
                                 <div className="rounded-xl border bg-white p-6 shadow-sm">
-                                    <h2 className="text-lg font-semibold mb-4">
-                                        Lernzeit-Verlauf
+                                    <h2 className="text-lg font-semibold mb-2">
+                                        Lernzeit im Zeitverlauf
                                     </h2>
+
+                                    {/* Zeitraum + Gesamtzeit wie beim Balkendiagramm */}
+                                    <p>
+                                        <strong>Zeitraum:</strong>{" "}
+                                        {timelinePeriodLabel}
+                                    </p>
+
+                                    <p>
+                                        <strong>Gesamtlernzeit:</strong>{" "}
+                                        {Math.floor(totalTimelineMinutes / 60)}h {totalTimelineMinutes % 60}min
+                                    </p>
 
                                     <div className="w-full h-[360px]">
                                         <TimelineLineChart data={timelineData} />
@@ -204,6 +337,6 @@ export default function StatsPage() {
                     </div>
                 )}
             </div>
-        </main>
+        </main >
     );
 }

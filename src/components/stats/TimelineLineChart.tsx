@@ -8,6 +8,7 @@ import {
     Tooltip,
     ResponsiveContainer,
 } from "recharts";
+import CustomTooltip from "@/components/stats/CustomTooltip";
 
 type DataPoint = {
     period: string;
@@ -69,7 +70,7 @@ export default function TimelineLineChart({ data }: Props) {
                         }}
                     />
 
-                    <Tooltip formatter={(value) => `${value} min`} />
+                    <Tooltip content={<CustomTooltip />} />
 
                     <Line
                         type="linear"
