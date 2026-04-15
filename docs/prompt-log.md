@@ -2,6 +2,28 @@
 
 ---
 
+Eintrag Nr.: 25
+Datum: 2026-04-14
+Prompt: nehme die agents.md datei und ergänze die lücken
+Aktion: GEÄNDERT
+Datei / Komponente: Agent-Kontextdateien
+Schnittstelle: |
+  AGENTS.md → kanonische Projektübersicht für die Agenten
+  CLAUDE.md → auf denselben Stand wie AGENTS.md synchronisiert
+  .github/copilot-instructions.md → auf denselben Stand wie AGENTS.md synchronisiert
+Beschreibung: |
+  Die Agent-Dokumentation auf einen gemeinsamen, aktuellen Repo-Stand gebracht.
+
+  Geänderte Punkte:
+  - Veraltete Pfade und Strukturen korrigiert, insbesondere die Umstellung von src/middleware.ts auf src/proxy.ts.
+  - Die reale Ordnerstruktur mit vorhandenen Komponenten, Hooks, Tests und Hilfsdateien ergänzt.
+  - Das Supabase-Schema auf auth.users-basierte Referenzen vereinheitlicht und den veralteten Verweis auf eine lokale users-Tabelle entfernt.
+  - Die aktuelle Tooling-Landschaft mit Vitest, ESLint, .env.example und Vercel-Dokumentation ergänzt.
+  - Die Prompt-Log-Regel präzisiert: dokumentiert wird bei tatsächlichen Dateiänderungen.
+
+  Hinweis:
+  - Es wurde keine Code- oder Laufzeitlogik geändert, nur Projektkontext für die Agenten aktualisiert.
+
 Eintrag Nr.: 24
 Datum: 2026-04-14
 Prompt: schau mal so sieht es aus aber das ist nicht die richtige schriftart

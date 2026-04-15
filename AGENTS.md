@@ -1,6 +1,6 @@
 # Timewise — Projektkontext
 
-> Diese Datei wird von der KI bei jedem Prompt gelesen. Sie enthält alles, was nötig ist, um im Projekt sinnvoll zu arbeiten.
+> Diese Datei ist die kanonische Projektübersicht für KI-Agents in diesem Repo. `CLAUDE.md` und `.github/copilot-instructions.md` sollten inhaltlich denselben Stand widerspiegeln.
 
 ## Was ist Timewise?
 
@@ -9,84 +9,93 @@ Eine webbasierte Anwendung zur strukturierten Erfassung und Auswertung von Lernz
 ## Tech-Stack
 
 | Bereich | Technologie |
-|---------|-------------|
-| Frontend | React + Next.js (App Router, SSR) |
-| Styling | Tailwind CSS + shadcn/ui |
-| Kalender | FullCalendar Standard (@fullcalendar/react) |
+|---|---|
+| Frontend | React 19 + Next.js 16 (App Router, SSR/Client Components) |
+| Styling | Tailwind CSS 3 + shadcn/ui |
+| Kalender | FullCalendar |
 | Charts | Recharts |
-| Backend | Next.js API Routes |
+| Backend | Next.js Route Handlers (`route.ts`) |
 | Datenbank | Supabase (PostgreSQL) |
-| Auth | Supabase Auth (JWT, Sessions) |
-| Deployment | Vercel (oder vergleichbar) |
+| Auth | Supabase Auth + RLS |
+| Testing | Vitest + Testing Library |
+| Deployment | Vercel |
+
+## Aktueller Repo-Stand
+
+- M1 bis M6 sind im Repo angelegt und in wesentlichen Teilen implementiert.
+- Route-Protection läuft über `src/proxy.ts`; es gibt kein aktives `src/middleware.ts`.
+- Die Startseite `/` ist aktuell eine geschützte Navigationsseite für eingeloggte User.
+- Die Auth-Seiten `/login`, `/register` und `/reset-password` sind öffentlich.
+- Es gibt kein eigenes `(dashboard)/layout.tsx`; die geschützten Seiten liegen direkt unter `src/app/(dashboard)/...`.
+- Das Datenbankschema liegt in Supabase. Im Repo gibt es aktuell keine lokalen SQL-Migrationsdateien.
 
 ## Modulstruktur
 
 Das System besteht aus 6 Modulen. Die Abhängigkeiten bestimmen die Reihenfolge.
 
 ### M1 — Auth & Benutzerverwaltung
-- **Zweck:** Registrierung, Login, Logout, Passwort-Reset, JWT, RLS Policies
-- **Anforderungen:** F1–F6, C1, C2 | AK1–AK11
-- **Abhängig von:** nichts (Fundament)
-- **Wird gebraucht von:** allen anderen Modulen
+- Zweck: Registrierung, Login, Logout, Passwort-Reset, JWT, RLS Policies
+- Anforderungen: F1–F6, C1, C2 | AK1–AK11
+- Abhängig von: nichts
+- Wird gebraucht von: allen anderen Modulen
 
 ### M2 — Keyword-System
-- **Zweck:** Keywords erstellen/bearbeiten/löschen, Farbe (Hex-Code) zuweisen
-- **Anforderungen:** F18–F24 | AK28–AK35
-- **Abhängig von:** M1 Auth
-- **Wird gebraucht von:** M3 Events, M5 Statistiken, M6 Ziele
+- Zweck: Keywords erstellen, bearbeiten und löschen, Farbe (Hex-Code) zuweisen
+- Anforderungen: F18–F24 | AK28–AK35
+- Abhängig von: M1 Auth
+- Wird gebraucht von: M3 Events, M5 Statistiken, M6 Ziele
 
-### M3 — Lernzeiterfassung (Herzstück)
-- **Zweck:** Events CRUD, automatische Dauerberechnung, Überschneidungsprüfung, Keyword-Zuordnung (n:m), Aggregation
-- **Anforderungen:** F10–F17 | AK16–AK27
-- **Abhängig von:** M1 Auth, M2 Keywords
-- **Wird gebraucht von:** M4 Kalender, M5 Statistiken, M6 Ziele
+### M3 — Lernzeiterfassung
+- Zweck: Events CRUD, Dauerberechnung, Überschneidungsprüfung, Keyword-Zuordnung (n:m), Aggregation
+- Anforderungen: F10–F17 | AK16–AK27
+- Abhängig von: M1 Auth, M2 Keywords
+- Wird gebraucht von: M4 Kalender, M5 Statistiken, M6 Ziele
 
 ### M4 — Kalenderansicht
-- **Zweck:** Tages-/Wochen-/Monatsansicht, Events mit Keyword-Farben anzeigen, Zeitbereich-Auswahl → Eingabemaske
-- **Anforderungen:** F7–F9 | AK12–AK15
-- **Abhängig von:** M1 Auth, M3 Events
-- **Wird gebraucht von:** nichts (reiner Konsument)
-- **Hinweis:** Kein eigener API-Endpunkt — nutzt GET /api/events aus M3
+- Zweck: Tages-, Wochen- und Monatsansicht, Event-Details, Bearbeitung und Löschung
+- Anforderungen: F7–F9 | AK12–AK15
+- Abhängig von: M1 Auth, M3 Events
+- Wird gebraucht von: nichts
+- Hinweis: Nutzt die Events-API aus M3
 
 ### M5 — Datenvisualisierung
-- **Zweck:** Gesamtlernzeit als Kennzahl, Balkendiagramm (pro Keyword), Liniendiagramm (Verlauf), Filter
-- **Anforderungen:** F25–F28 | AK36–AK40
-- **Abhängig von:** M1 Auth, M2 Keywords (Farben), M3 Events (Daten)
-- **Wird gebraucht von:** M6 Ziele (Fortschrittsberechnung)
-- **Hinweis:** Nutzt GET /api/events/aggregate aus M3
+- Zweck: Gesamtlernzeit, Balkendiagramm pro Keyword, Liniendiagramm, Filter
+- Anforderungen: F25–F28 | AK36–AK40
+- Abhängig von: M1 Auth, M2 Keywords, M3 Events
+- Wird gebraucht von: M6 Ziele
+- Hinweis: Nutzt `GET /api/events/aggregate`
 
 ### M6 — Zielsystem
-- **Zweck:** Lernziele definieren (Stunden, Zeitraum, Beschreibung), Keywords zuordnen, Fortschritt automatisch berechnen
-- **Anforderungen:** F29–F33 | AK41–AK45
-- **Abhängig von:** M1 Auth, M2 Keywords, M3 Events
-- **Wird gebraucht von:** nichts (Endpunkt)
-- **Wichtig:** Überlappende Ziel-Zeiträume sind ERLAUBT (F31)
+- Zweck: Lernziele definieren, Keywords zuordnen, Fortschritt berechnen
+- Anforderungen: F29–F33 | AK41–AK45
+- Abhängig von: M1 Auth, M2 Keywords, M3 Events
+- Wird gebraucht von: nichts
+- Wichtig: Überlappende Zielzeiträume sind erlaubt
 
 ## Ordnerstruktur
 
-Legende: ✅ = existiert bereits, 📁 = muss noch erstellt werden
+Legende: `✅` = existiert im aktuellen Repo
 
-```
+```text
 timewise/
 ├── src/
 │   ├── app/
 │   │   ├── globals.css                 ✅
 │   │   ├── layout.tsx                  ✅ Root-Layout
-│   │   ├── page.tsx                    ✅ Startseite (Platzhalter)
-│   │   ├── (auth)/                     ✅ Auth-Seiten (eigenes Layout, kein Sidebar)
+│   │   ├── page.tsx                    ✅ geschützte Start-/Navigationsseite
+│   │   ├── (auth)/                     ✅ öffentliches Auth-Segment
 │   │   │   ├── layout.tsx              ✅
 │   │   │   ├── login/page.tsx          ✅
 │   │   │   ├── register/page.tsx       ✅
 │   │   │   └── reset-password/page.tsx ✅
-│   │   ├── (dashboard)/                Geschützte Seiten (Sidebar + Navigation)
-│   │   │   ├── layout.tsx              📁
+│   │   ├── (dashboard)/                ✅ geschützte Seiten ohne eigenes Segment-Layout
 │   │   │   ├── calendar/
 │   │   │   │   ├── page.tsx            ✅
 │   │   │   │   └── CalendarView.tsx    ✅
 │   │   │   ├── keywords/page.tsx       ✅
-│   │   │   ├── stats/page.tsx          📁
-│   │   │   └── goals/page.tsx          📁
-│   │   └── api/                        API-Endpunkte
+│   │   │   ├── stats/page.tsx          ✅
+│   │   │   └── goals/page.tsx          ✅
+│   │   └── api/                        ✅ Route Handler
 │   │       ├── auth/
 │   │       │   ├── callback/route.ts   ✅
 │   │       │   ├── login/route.ts      ✅
@@ -94,17 +103,17 @@ timewise/
 │   │       │   ├── register/route.ts   ✅
 │   │       │   └── reset/route.ts      ✅
 │   │       ├── keywords/
-│   │       │   ├── route.ts            ✅ GET all, POST create
-│   │       │   └── [id]/route.ts       ✅ GET, PUT, DELETE
+│   │       │   ├── route.ts            ✅ GET, POST
+│   │       │   └── [id]/route.ts       ✅ PUT, DELETE
 │   │       ├── events/
-│   │       │   ├── route.ts            📁 GET (gefiltert), POST
-│   │       │   ├── [id]/route.ts       📁 GET, PUT, DELETE
-│   │       │   └── aggregate/route.ts  📁 GET aggregierte Lernzeiten
+│   │       │   ├── route.ts            ✅ GET, POST
+│   │       │   ├── [id]/route.ts       ✅ PUT, DELETE
+│   │       │   └── aggregate/route.ts  ✅ GET Aggregation
 │   │       └── goals/
-│   │           ├── route.ts            📁
-│   │           └── [id]/route.ts       📁
+│   │           ├── route.ts            ✅ GET, POST
+│   │           └── [id]/route.ts       ✅ PUT, DELETE
 │   ├── components/
-│   │   ├── ui/                         ✅ shadcn/ui Komponenten
+│   │   ├── ui/                         ✅ shadcn/ui Basiskomponenten
 │   │   │   ├── button.tsx              ✅
 │   │   │   ├── card.tsx                ✅
 │   │   │   ├── checkbox.tsx            ✅
@@ -112,58 +121,84 @@ timewise/
 │   │   │   ├── label.tsx               ✅
 │   │   │   ├── toast.tsx               ✅
 │   │   │   └── toaster.tsx             ✅
-│   │   ├── auth/                       ✅
+│   │   ├── auth/
 │   │   │   ├── AuthIllustration.tsx    ✅
 │   │   │   └── AuthLogo.tsx            ✅
-│   │   ├── EventForm.tsx               ✅ Platzhalter (wird zu components/events/ verschoben)
-│   │   ├── keywords/                   📁 KeywordList, KeywordForm, KeywordBadge, ColorPicker, KeywordSelect
-│   │   ├── events/                     📁 EventCard, TimeRangePicker, OverlapWarning
-│   │   ├── calendar/                   📁 CalendarToolbar, CalendarEvent
-│   │   ├── stats/                      📁 StatsOverview, KeywordBarChart, TimelineLineChart, StatsFilterBar
-│   │   └── goals/                      📁 GoalList, GoalForm, GoalCard, GoalProgressBar
+│   │   ├── calendar/
+│   │   │   └── EventDetails.tsx        ✅
+│   │   ├── events/
+│   │   │   ├── EventForm.tsx           ✅
+│   │   │   ├── KeywordSelector.tsx     ✅
+│   │   │   └── TimeRangePicker.tsx     ✅
+│   │   ├── goals/
+│   │   │   ├── GoalCard.tsx            ✅
+│   │   │   ├── GoalForm.tsx            ✅
+│   │   │   ├── GoalList.tsx            ✅
+│   │   │   └── GoalProgressBar.tsx     ✅
+│   │   └── stats/
+│   │       ├── CustomTooltip.tsx       ✅
+│   │       ├── KeywordBarChart.tsx     ✅
+│   │       ├── KeywordSelect.tsx       ✅
+│   │       ├── StatsFilterBar.tsx      ✅
+│   │       └── TimelineLineChart.tsx   ✅
 │   ├── hooks/
 │   │   ├── use-toast.ts                ✅
 │   │   ├── useCalendar.ts              ✅
-│   │   ├── useStats.ts                 📁
-│   │   └── useGoals.ts                 📁
+│   │   ├── useStats.ts                 ✅
+│   │   └── useGoals.ts                 ✅
 │   ├── lib/
+│   │   ├── env.ts                      ✅
+│   │   ├── utils.ts                    ✅
 │   │   ├── supabase/
-│   │   │   ├── client.ts               ✅ Browser Supabase Client
-│   │   │   ├── server.ts               ✅ Server Supabase Client
-│   │   │   └── middleware.ts           ✅ Session Refresh
-│   │   ├── utils.ts                    ✅ Hilfsfunktionen
+│   │   │   ├── client.ts               ✅
+│   │   │   ├── server.ts               ✅
+│   │   │   └── middleware.ts           ✅ Session-/Route-Logik
 │   │   ├── services/
 │   │   │   ├── auth.service.ts         ✅
-│   │   │   ├── keyword.service.ts      ✅
-│   │   │   ├── event.service.ts        📁 CRUD + Overlap-Check + Aggregation
-│   │   │   └── goal.service.ts         📁 CRUD + Fortschrittsberechnung
+│   │   │   ├── auth.service.test.ts    ✅
+│   │   │   ├── event.service.ts        ✅
+│   │   │   ├── goal.service.ts         ✅
+│   │   │   └── keyword.service.ts      ✅
 │   │   └── validators/
+│   │       ├── event.validator.ts      ✅
+│   │       ├── goal.validator.ts       ✅
+│   │       ├── goal.validator.test.ts  ✅
 │   │       ├── keyword.validator.ts    ✅
-│   │       └── event.validator.ts      📁 Zeitvalidierung, Overlap-Logik
+│   │       └── keyword.validator.test.ts ✅
 │   ├── types/
-│   │   └── index.ts                    ✅ Shared Interfaces
-│   └── middleware.ts                   ✅ Next.js Route Protection
+│   │   └── index.ts                    ✅
+│   └── proxy.ts                        ✅ Next.js Proxy Entry
 ├── docs/
-│   └── prompt-log.md                   ✅ KI-Prompt-Dokumentation
-├── .env.local                          ✅ Supabase Keys (nicht in Git!)
-├── CLAUDE.md                           ✅ Claude Code Kontext
-├── AGENTS.md                           ✅ OpenAI Codex Kontext
-├── .github/copilot-instructions.md     ✅ GitHub Copilot Kontext
-├── components.json                     ✅ shadcn/ui Config
-├── tailwind.config.ts                  ✅
+│   ├── prompt-log.md                   ✅
+│   └── vercel-deployment.md            ✅
+├── public/
+│   └── timewise-logo.svg               ✅
+├── scripts/
+│   └── generate-tests.ts               ✅
+├── .env.example                        ✅
+├── .env.local                          ✅ lokal, nicht committen
+├── AGENTS.md                           ✅
+├── CLAUDE.md                           ✅
+├── .github/copilot-instructions.md     ✅
+├── README.md                           ✅
+├── Onboarding.md                       ✅
+├── components.json                     ✅
+├── eslint.config.mjs                   ✅
 ├── next.config.ts                      ✅
+├── package.json                        ✅
+├── package-lock.json                   ✅
 ├── postcss.config.mjs                  ✅
+├── tailwind.config.ts                  ✅
 ├── tsconfig.json                       ✅
-└── package.json                        ✅
+├── vitest.config.ts                    ✅
+└── vitest.setup.ts                     ✅
 ```
 
-**Datenbankschema existiert bereits in Supabase** — keine lokalen Migrations nötig.
+## Datenbankschema
 
-## Datenbankschema (Single Source of Truth)
+Das Datenbankschema existiert bereits in Supabase. Es gibt aktuell keine lokalen Migrationsdateien im Repo.
 
 ```sql
--- Events
--- user_id referenziert auth.users(id) — verwaltet von Supabase Auth
 CREATE TABLE events (
     id          UUID PRIMARY KEY,
     user_id     UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
@@ -174,7 +209,6 @@ CREATE TABLE events (
     created_at  TIMESTAMP NOT NULL DEFAULT now()
 );
 
--- Goals
 CREATE TABLE goals (
     id                UUID PRIMARY KEY,
     user_id           UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
@@ -186,7 +220,6 @@ CREATE TABLE goals (
     created_at        TIMESTAMP NOT NULL DEFAULT now()
 );
 
--- Keywords
 CREATE TABLE keywords (
     id          UUID PRIMARY KEY,
     user_id     UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
@@ -195,14 +228,12 @@ CREATE TABLE keywords (
     color       VARCHAR NOT NULL
 );
 
--- Event ↔ Keywords (m:n)
 CREATE TABLE event_keywords (
     event_id    UUID NOT NULL REFERENCES events(id) ON DELETE CASCADE,
     keyword_id  UUID NOT NULL REFERENCES keywords(id) ON DELETE CASCADE,
     PRIMARY KEY (event_id, keyword_id)
 );
 
--- Goal ↔ Keywords (m:n)
 CREATE TABLE goal_keywords (
     goal_id     UUID NOT NULL REFERENCES goals(id) ON DELETE CASCADE,
     keyword_id  UUID NOT NULL REFERENCES keywords(id) ON DELETE CASCADE,
@@ -210,26 +241,30 @@ CREATE TABLE goal_keywords (
 );
 ```
 
-**Hinweis:** Es gibt keine eigene `users`-Tabelle. User werden ausschließlich über **Supabase Auth** (`auth.users`) verwaltet. Alle `user_id`-Felder referenzieren direkt `auth.users(id)`.
+Hinweis:
+- Es gibt keine eigene `users`-Tabelle im Anwendungsschema.
+- User werden ausschließlich über Supabase Auth (`auth.users`) verwaltet.
+- Alle `user_id`-Spalten referenzieren direkt `auth.users(id)`.
+- Funktionierende RLS-Policies in Supabase sind für CRUD zwingend erforderlich.
 
 ## TypeScript Interfaces
 
-Die Interfaces bilden das Datenbankschema 1:1 ab. Feldnamen entsprechen den Spaltennamen.
+Die Shared Types liegen in `src/types/index.ts`.
 
 ### Kern-Entitäten
 
 ```typescript
 interface User {
-  id: string;                // UUID von Supabase Auth
+  id: string;
   email: string;
-  created_at: string;        // ISO 8601
+  created_at: string;
 }
 
 interface Keyword {
   id: string;
   user_id: string;
-  label: string;             // Pflicht (NOT NULL)
-  color: string;             // Hex-Code, Pflicht (NOT NULL)
+  label: string;
+  color: string;
   created_at: string;
 }
 
@@ -238,129 +273,134 @@ interface Event {
   user_id: string;
   label?: string;
   description?: string;
-  start_time: string;        // ISO 8601, Pflicht (NOT NULL)
-  end_time: string;          // ISO 8601, Pflicht (NOT NULL)
+  start_time: string;
+  end_time: string;
   created_at: string;
-}
-
-interface EventKeyword {
-  event_id: string;
-  keyword_id: string;
 }
 
 interface Goal {
   id: string;
   user_id: string;
-  label?: string;
-  description?: string;
-  start_time?: string;       // ISO 8601, optional
-  end_time?: string;         // ISO 8601, optional
-  target_study_time?: string; // PostgreSQL INTERVAL, z.B. "20:00:00"
+  label?: string | null;
+  description?: string | null;
+  start_time?: string | null;
+  end_time?: string | null;
+  target_study_time?: string | null;
   created_at: string;
-}
-
-interface GoalKeyword {
-  goal_id: string;
-  keyword_id: string;
 }
 ```
 
-### API Types
+### Auth- und API-Typen
 
 ```typescript
-// Standardisierter Response-Wrapper
+interface AuthCredentials {
+  email: string;
+  password: string;
+}
+
+interface AuthResponse {
+  user: User;
+  session: {
+    access_token: string;
+    refresh_token: string;
+    expires_at: number;
+  };
+}
+
 interface ApiResponse<T> {
   data: T | null;
   error: ApiError | null;
 }
 
 interface ApiError {
-  code: string;    // z.B. "OVERLAP", "UNAUTHORIZED", "KEYWORD_REQUIRED"
-  message: string; // Benutzerfreundlich
+  code: string;
+  message: string;
   details?: string;
 }
 
-// Event mit aufgelösten Keywords
 interface EventWithKeywords extends Event {
   keywords: Keyword[];
-  duration_minutes: number;  // Berechnet im Backend: (end_time - start_time)
+  duration_minutes: number;
 }
 
-// Goal mit berechnetem Fortschritt
 interface GoalWithProgress extends Goal {
   keywords: Keyword[];
   logged_minutes: number;
-  target_minutes: number;    // Aus target_study_time konvertiert
-  percentage: number;        // 0–100+
+  target_minutes: number;
+  percentage: number;
   is_achieved: boolean;
   remaining_minutes: number;
   days_remaining: number;
-}
-
-// Aggregierte Lernzeiten
-interface AggregatedTime {
-  period: string;
-  total_minutes: number;
-  by_keyword: {
-    keyword_id: string;
-    keyword_label: string;
-    keyword_color: string;
-    minutes: number;
-  }[];
 }
 ```
 
 ## API Endpoints
 
-```
-# Auth (M1)
-POST   /api/auth/register       → { email, password }          → AuthResponse
-POST   /api/auth/login           → { email, password }          → AuthResponse
-POST   /api/auth/logout          → (empty)                      → { success }
-POST   /api/auth/reset           → { email }                    → { success }
+```text
+POST   /api/auth/register
+POST   /api/auth/login
+POST   /api/auth/logout
+POST   /api/auth/reset
+GET    /api/auth/callback
 
-# Keywords (M2)
-GET    /api/keywords             →                              → Keyword[]
-POST   /api/keywords             → { label, color }               → Keyword
-PUT    /api/keywords/:id         → { label?, color? }              → Keyword
-DELETE /api/keywords/:id         →                              → { success }
+GET    /api/keywords
+POST   /api/keywords
+PUT    /api/keywords/:id
+DELETE /api/keywords/:id
 
-# Events (M3)
-GET    /api/events               → ?start_date&end_date&keyword_ids → EventWithKeywords[]
-POST   /api/events               → { start_time, end_time, keyword_ids[], label?, description? } → EventWithKeywords
-PUT    /api/events/:id           → { start_time?, end_time?, keyword_ids?, label?, description? } → EventWithKeywords
-DELETE /api/events/:id           →                              → { success }
-GET    /api/events/aggregate     → ?start_date&end_date&keyword_ids&granularity → AggregatedTime[]
+GET    /api/events
+POST   /api/events
+PUT    /api/events/:id
+DELETE /api/events/:id
+GET    /api/events/aggregate
 
-# Goals (M6)
-GET    /api/goals                →                              → GoalWithProgress[]
-POST   /api/goals                → { target_study_time, start_time?, end_time?, label?, description?, keyword_ids? } → GoalWithProgress
-PUT    /api/goals/:id            → (partial update)             → GoalWithProgress
-DELETE /api/goals/:id            →                              → { success }
+GET    /api/goals
+POST   /api/goals
+PUT    /api/goals/:id
+DELETE /api/goals/:id
 ```
 
 ## Validierungsregeln
 
 ### Events
-- `end_time` > `start_time` → sonst: ApiError `INVALID_TIME_RANGE`
-- `end_time` ≤ jetzt → sonst: ApiError `FUTURE_NOT_ALLOWED`
-- Keine zeitliche Überschneidung mit bestehenden Events → sonst: ApiError `OVERLAP`
-- `keyword_ids.length` ≥ 1 → sonst: ApiError `KEYWORD_REQUIRED`
-- `duration_minutes` existiert nicht in der DB — wird im Backend bei jeder Abfrage berechnet
+- `end_time` muss nach `start_time` liegen.
+- Events dürfen nicht in der Zukunft enden.
+- Zeitliche Überschneidungen mit bestehenden Events sind unzulässig.
+- Laut Projektanforderung braucht jedes Event mindestens ein Keyword.
 
 ### Keywords
-- `label`: min 1, max 50 Zeichen, unique pro User
-- `color`: valider Hex-Code (#RRGGBB), Pflichtfeld (NOT NULL)
+- `label`: Pflichtfeld, nicht leer, maximal 50 Zeichen
+- `color`: valider Hex-Code im Format `#RRGGBB`
+- Label-Eindeutigkeit pro User sollte serverseitig berücksichtigt werden
 
 ### Goals
-- `target_study_time` als PostgreSQL INTERVAL (z.B. "20:00:00" für 20 Stunden)
-- `start_time` und `end_time` sind optional (laut Schema nullable)
-- Überlappende Zeiträume sind ERLAUBT
-- Fortschritt = Summe aller Events mit zugeordneten Keywords im Ziel-Zeitraum
+- `label` ist bei Create verpflichtend.
+- `label` darf nicht nur aus Leerzeichen bestehen und maximal 100 Zeichen lang sein.
+- `target_study_time` ist aktuell optional; wenn gesetzt, dann im Format `HH:MM:SS` und größer als `0`.
+- `start_time` und `end_time` sind optional.
+- `end_time` darf nicht vor `start_time` liegen.
+- Überlappende Zielzeiträume sind erlaubt.
+- Fortschritt berechnet sich aus passenden Events im Zielzeitraum über die zugeordneten Keywords.
+
+## Skripte & Tests
+
+### npm-Skripte
+- `npm run dev` → lokale Entwicklung mit Next.js
+- `npm run build` → Produktions-Build
+- `npm run start` → Start des gebauten Projekts
+- `npm run lint` → ESLint über das ganze Repo
+- `npm run test` → Vitest Watch Mode
+- `npm run test:run` → Vitest einmalig
+- `npm run generate-tests` → Test-Generierungsskript
+
+### Vorhandene Testdateien
+- `src/lib/validators/keyword.validator.test.ts`
+- `src/lib/validators/goal.validator.test.ts`
+- `src/lib/services/auth.service.test.ts`
 
 ## Farbkonzept
 
-```
+```text
 Primär (Lila):     #5500B0, #7700F4, #9B3FF7, #C98BFB, #EDD9FE
 Akzent (Türkis):   #00957F, #00C2A8, #33CDB7, #99E8DE, #CCFAF4
 Success:           #22C55E
@@ -375,86 +415,82 @@ Surface:           #F7F4FF
 Background:        #FFFFFF
 ```
 
-## UI-Anforderungen (nicht vergessen!)
+## UI-Anforderungen
 
 - Schriftart: Atkinson Hyperlegible
 - Fließtext: mindestens 16px
 - Überschriften: mindestens 20px
 - Interaktive Elemente: mindestens 44×44px
 - Kontrast: mindestens 4,5:1 (WCAG 2.1)
-- Responsive: Desktop + Tablet (Smartphone optional)
-- Hauptfunktionen in max. 3 Klicks erreichbar
-- Fehlermeldungen: immer Fehlergrund + Korrekturhinweis
-- Visuelle Bestätigung nach Speichern/Löschen
+- Responsive: Desktop + Tablet
+- Hauptfunktionen in maximal 3 Klicks erreichbar
+- Fehlermeldungen: immer Fehlergrund plus Korrekturhinweis
+- Visuelle Bestätigung nach Speichern und Löschen
 
 ## Architekturprinzipien
 
-- **Schichtenarchitektur:** Frontend → API Routes → Auth → Business Logic → DB
-- **Kein Request erreicht die Business Logic ohne JWT-Validierung**
-- **Frontend enthält keine Geschäftslogik** — nur Darstellung
-- **Services (lib/services/) enthalten die Business Logic**, API Routes leiten nur weiter
-- **RLS (Row-Level Security)** auf allen Tabellen — User sieht nur eigene Daten
-- **Bidirektionaler Datenfluss** zwischen Business Logic und PostgreSQL
-- **Gestrichelter Auth→DB Pfad:** Auth greift nur bei Login/Register/Token-Refresh auf die DB zu, sonst validiert JWT kryptographisch ohne DB-Call
+- Schichtenarchitektur: Frontend → Route Handler → Auth → Business Logic → DB
+- Kein Request erreicht die Business Logic ohne Auth-Prüfung
+- Frontend enthält keine Geschäftslogik, sondern Darstellung und UI-State
+- Services in `src/lib/services/` enthalten die fachliche Logik
+- RLS auf allen Tabellen: User sieht nur eigene Daten
+- Route-Protection läuft zentral über `src/proxy.ts` und `src/lib/supabase/middleware.ts`
+- Shared Types liegen zentral in `src/types/index.ts`
 
 ## Arbeitsweise
 
-Das Team arbeitet iterativ — einzelne Funktionen werden schrittweise umgesetzt, nicht das gesamte System auf einmal. Ziel ist nicht nur funktionierender Code, sondern auch ein nachvollziehbarer Lernprozess (Hochschulprojekt).
+Das Team arbeitet iterativ. Einzelne Funktionen werden schrittweise umgesetzt, nicht das gesamte System auf einmal. Ziel ist nicht nur funktionierender Code, sondern auch ein nachvollziehbarer Lernprozess.
 
 ## Regeln für die KI
 
 ### Scope & Rückfragen
-- Erstelle immer nur exakt den Code der angefragt wird — nicht mehr und nicht weniger.
-- Wenn eine Anfrage unklar ist oder Abhängigkeiten fehlen: stelle zuerst gezielte Rückfragen bevor du mit dem Code beginnst. Lieber einmal mehr nachfragen als etwas falsch umsetzen.
+- Erstelle immer nur exakt den Code, der angefragt wird.
+- Wenn eine Anfrage unklar ist oder Abhängigkeiten fehlen: zuerst gezielte Rückfragen stellen.
 - Orientiere dich an der Ordnerstruktur und den Interfaces oben.
 
 ### Code-Qualität
-- Jeder Code wird als eigenständige Komponente oder Modul umgesetzt mit klar definierten Schnittstellen (Props, Parameter, Rückgabewerte).
-- Komponenten dürfen keine internen Details anderer Komponenten kennen — Kommunikation nur über definierte Schnittstellen.
-- Verständlichkeit hat Vorrang vor Optimierung.
-- Code verständlich und kommentiert schreiben — erkläre jede nicht-triviale Zeile mit einem Kommentar direkt im Code.
-- Jede API-Route muss zuerst den Auth-Check machen (Supabase Auth JWT validieren).
-- Nutze den ApiResponse<T> Wrapper für alle API-Antworten.
-- Events brauchen IMMER mindestens ein Keyword — vergiss die Validierung nicht.
-- Die Overlap-Prüfung muss auch beim Bearbeiten greifen (excludeId für den eigenen Eintrag).
-- Keyword-Farben werden aus der DB geladen und direkt in Charts/Kalender verwendet.
-- Alle Zeiten in ISO 8601, alle IDs als UUID.
+- Jeder Baustein wird als eigenständige Komponente oder Modul mit klarer Schnittstelle umgesetzt.
+- Komponenten dürfen keine internen Details anderer Komponenten kennen.
+- Verständlichkeit hat Vorrang vor Mikro-Optimierung.
+- Nicht triviale Logik direkt im Code knapp kommentieren.
+- Jede API-Route macht zuerst den Auth-Check.
+- Nutze den `ApiResponse<T>`-Wrapper für API-Antworten.
+- Zeiten in ISO 8601, IDs als UUID.
 
 ### Software-Engineering-Prinzipien
-Halte folgende Prinzipien konsequent ein:
-- **SOLID** — Single Responsibility, Open/Closed, Liskov Substitution, Interface Segregation, Dependency Inversion
-- **GoF Entwurfsmuster** wo sinnvoll (z.B. Observer, Command, State)
-- **DRY** — Don't Repeat Yourself
-- **Separation of Concerns** — Darstellung, Business Logic und Datenzugriff getrennt
+- SOLID
+- DRY
+- Separation of Concerns
+- GoF-Muster nur dort einsetzen, wo sie das Design wirklich verbessern
 
 ### Verbotene Code-Smells
 
 | Code-Smell | Problem | Lösung |
 |---|---|---|
-| LongMethod | Methode länger als 20 Zeilen | ExtractMethod |
-| GodClass | Klasse/Komponente macht alles | ExtractClass |
-| FeatureEnvy | Nutzt fremde Daten statt eigene | MoveMethod |
-| DuplicateCode | Copy-Paste | ExtractMethod / ExtractClass |
-| MagicNumbers | Hardcodierte Werte | ExtractConstant |
+| LongMethod | Methode länger als nötig | Extract Method |
+| GodClass | Klasse/Komponente macht zu viel | Extract Class |
+| FeatureEnvy | Nutzt fremde Daten statt eigene | Move Method |
+| DuplicateCode | Copy-Paste | Extract Method / Extract Class |
+| MagicNumbers | Hardcodierte Werte | Extract Constant |
 
-### Ausgabeformat für jede User Story oder Funktion
+### Ausgabeformat für größere User Stories oder Funktionen
 
-Für jede angeforderte Implementierung lieferst du diese Struktur:
+1. Was
+2. Schnittstelle
+3. Warum
+4. Alternativen
+5. KI-Kennzeichnung
+6. Menschliche Begründung
+7. Randfälle
+8. Prüfhinweis
+9. Oral Defense
+10. Anforderungsbezug
 
-1. **Was** — Kurze Erklärung was umgesetzt wird
-2. **Schnittstelle** — Welche Props / Parameter nimmt die Komponente entgegen, was gibt sie zurück?
-3. **Warum** — Warum wurde dieses Pattern / diese Umsetzung gewählt? (Bezug auf SOLID, DRY, Separation of Concerns etc.)
-4. **Alternativen** — Welche alternativen Implementierungen gab es und warum wurden sie verworfen?
-5. **KI-Kennzeichnung** — Markiere explizit welche Teile maßgeblich KI-generiert sind
-6. **Menschliche Begründung** — Warum ist diese Implementierung inhaltlich richtig, sicher und effizient? (Nicht: "Die KI hat das vorgeschlagen")
-7. **Randfälle** — Welche Randfälle und Fehlerfälle sind zu beachten?
-8. **Prüfhinweis** — Was muss konkret im Code auf Richtigkeit, Sicherheit und Effizienz geprüft werden bevor er übernommen wird?
-9. **Oral Defense** — Eine kurze Erklärung die dem Dozenten gesagt werden kann wenn er zu diesem Code fragt
-10. **Anforderungsbezug** — Beziehe dich wo möglich auf die Projektanforderungen (F1–F33, U1–U5, R1–R5, P1–P3, S1–S6, C1–C2)
+Bei kleinen, klaren Änderungen reicht eine knappe, direkte Antwort.
 
-### Prompt-Log Dokumentation
+## Prompt-Log Dokumentation
 
-Nach jeder Antwort wird die Datei `docs/prompt-log.md` im Projekt aktualisiert. Die Datei wird nie gekürzt oder überschrieben — nur um den neuen Eintrag erweitert. Am Ende jeder Antwort wird der vollständige aktualisierte Inhalt ausgegeben.
+Nach jeder Antwort mit tatsächlichen Dateiänderungen wird `docs/prompt-log.md` ergänzt. Die Datei wird nie gekürzt oder überschrieben, sondern nur erweitert.
 
 Format:
 
@@ -472,6 +508,4 @@ Schnittstelle: [Props / Parameter / Rückgabewerte der Komponente]
 Beschreibung: [Was wurde gemacht und warum]
 
 ---
-
-[Alle vorherigen Einträge bleiben erhalten]
 ```
