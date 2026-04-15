@@ -21,6 +21,21 @@ function formatGoalDate(iso?: string | null): string | null {
   return iso ? new Date(iso).toLocaleDateString("de-DE") : null;
 }
 
+function formatLoggedMinutes(minutes: number): string {
+  if (minutes < 60) {
+    return `${minutes} Minute${minutes === 1 ? "" : "n"}`;
+  }
+
+  const hours = Math.floor(minutes / 60);
+  const remainingMinutes = minutes % 60;
+
+  if (remainingMinutes === 0) {
+    return `${hours} Stunde${hours === 1 ? "" : "n"}`;
+  }
+
+  return `${hours} Stunde${hours === 1 ? "" : "n"} ${remainingMinutes} Minute${remainingMinutes === 1 ? "" : "n"}`;
+}
+
 export function GoalCard({
   goal,
   availableKeywords,
@@ -54,12 +69,6 @@ export function GoalCard({
       <div className="flex flex-col gap-3">
         <div className="flex items-center justify-between gap-2">
           <div className="flex min-w-0 items-center gap-2">
-            {goal.keywords.length > 0 ? (
-              <span
-                className="h-3 w-3 flex-shrink-0 rounded-full"
-                style={{ backgroundColor: goal.keywords[0].color }}
-              />
-            ) : null}
             <span className="truncate text-base font-semibold">
               {goal.label || "Unbenanntes Ziel"}
             </span>
@@ -97,7 +106,9 @@ export function GoalCard({
             percentage={goal.percentage}
           />
         ) : (
-          <p className="text-sm text-muted-foreground">Keine Zielzeit definiert.</p>
+          <p className="text-sm text-muted-foreground">
+            Bisher aufgewendete Zeit: {formatLoggedMinutes(goal.logged_minutes)}
+          </p>
         )}
 
         <div className="flex flex-wrap gap-3 text-xs text-muted-foreground">

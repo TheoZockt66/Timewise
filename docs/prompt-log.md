@@ -2,6 +2,79 @@
 
 ---
 
+Eintrag Nr.: 29
+Datum: 2026-04-15
+Prompt: wenn ich etwas abbrechen will soll der button rot sein geht das
+Aktion: GEÄNDERT
+Datei / Komponente: Goal-Formular
+Schnittstelle: |
+  src/components/goals/GoalForm.tsx → der optionale Abbrechen-Button nutzt jetzt die destructive-Variante statt outline
+Beschreibung: |
+  Die Abbrechen-Aktion im Goals-Formular visuell deutlicher gemacht.
+
+  Geänderte Punkte:
+  - Der `Abbrechen`-Button im Goal-Formular verwendet jetzt den roten `destructive`-Buttonstil.
+  - Die eigentliche Abbruchlogik und Formulardaten bleiben unverändert.
+
+  Hinweis:
+  - Es wurde nur die Darstellung des Buttons geändert.
+
+Eintrag Nr.: 28
+Datum: 2026-04-15
+Prompt: nehme die lösche bestätigung aus goals raus und ich möchte das wenn keine zielzeit definiert ist soll dort die aufsummierte zeit da stehen die ich bisher dafür gebraucht habe
+Aktion: GEÄNDERT
+Datei / Komponente: Goals-Seite und Goal-Karte
+Schnittstelle: |
+  src/app/(dashboard)/goals/page.tsx → Löschen eines Goals erfolgt jetzt ohne vorherige Browser-Bestätigung
+  src/components/goals/GoalCard.tsx → Ziele ohne Zielzeit zeigen jetzt die aufsummierte bisherige Lernzeit statt eines Platzhaltertexts
+Beschreibung: |
+  Die Bedienung der Goals-Seite weiter vereinfacht und die Anzeige für Ziele ohne Zielzeit aussagekräftiger gemacht.
+
+  Geänderte Punkte:
+  - Die `window.confirm`-Abfrage vor dem Löschen eines Ziels wurde entfernt.
+  - Goal-Karten ohne definierte Zielzeit zeigen jetzt die bereits aufgelaufene Lernzeit in Stunden/Minuten an.
+  - Für die neue Anzeige wurde eine kleine Formatierungsfunktion für Minutenwerte ergänzt.
+
+  Hinweis:
+  - Es wurde nur die Goals-UI geändert, keine Service- oder API-Logik.
+
+Eintrag Nr.: 27
+Datum: 2026-04-15
+Prompt: Kannst du dbei der goal seite oben link vor dem logo ein zurück bztton hinzufügen? Den Punkte bei den Goals entfernen und die Fehlerpopups rot machen so wie bei der eventspage
+Aktion: GEÄNDERT
+Datei / Komponente: Goals-Seite und Goal-Karte
+Schnittstelle: |
+  src/app/(dashboard)/goals/page.tsx → Kopfzeile mit Zurück-Button ergänzt, Fehler-Toasts nutzen jetzt die destructive-Variante
+  src/components/goals/GoalCard.tsx → farbigen Punkt vor dem Goal-Titel entfernt
+Beschreibung: |
+  Die Bedienung und Fehlerrückmeldung auf der Goals-Seite an die übrige App angeglichen.
+
+  Geänderte Punkte:
+  - In der Kopfzeile der Goals-Seite wurde vor dem Logo ein Zurück-Button zur Startseite ergänzt.
+  - Die Fehler-Popups beim Erstellen, Speichern und Löschen von Goals nutzen jetzt dieselbe rote destructive-Toast-Variante wie bei den Events.
+  - Der farbige Punkt vor dem Titel einer Goal-Karte wurde entfernt.
+
+  Hinweis:
+  - Es wurde nur die Goals-UI angepasst, keine Service- oder API-Logik geändert.
+
+Eintrag Nr.: 26
+Datum: 2026-04-15
+Prompt: Kannst du auf der Startseite es so machen das so ist wie bei den anderen verlinkten seiten also nicht lila ausgefüllt geht das?
+Aktion: GEÄNDERT
+Datei / Komponente: Startseite Navigation
+Schnittstelle: |
+  src/app/page.tsx → NavCard-Aufruf für den Kalender-Link nutzt jetzt denselben Standardstil wie die übrigen Navigationskarten
+Beschreibung: |
+  Die hervorgehobene lila Kalender-Karte auf der geschützten Startseite entfernt.
+
+  Geänderte Punkte:
+  - Der Kalender-Link nutzt nicht mehr den primary-Variant-Zustand.
+  - Dadurch erscheint die Karte wie die anderen verlinkten Seiten als weiße Standardkarte.
+  - Die übrige Startseitenstruktur und Navigationslogik bleiben unverändert.
+
+  Hinweis:
+  - Es wurde keine Laufzeitlogik geändert, nur die Darstellung der Startseiten-Navigation.
+
 Eintrag Nr.: 25
 Datum: 2026-04-14
 Prompt: nehme die agents.md datei und ergänze die lücken

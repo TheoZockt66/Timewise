@@ -148,7 +148,7 @@ export function GoalForm({
         {onCancel ? (
           <Button
             type="button"
-            variant="outline"
+            variant="destructive"
             onClick={onCancel}
             className="min-h-11"
             disabled={disabled}

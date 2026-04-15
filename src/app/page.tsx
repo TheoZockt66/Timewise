@@ -130,7 +130,6 @@ export default function StartPage() {
               icon={Calendar}
               title="Kalender"
               description="Lernzeiten erfassen und verwalten"
-              variant="primary"
             />
             <NavCard
               href="/keywords"
