@@ -10,6 +10,7 @@ import StatsFilterBar from "@/components/stats/StatsFilterBar";
 import KeywordSelect from "@/components/stats/KeywordSelect";
 import TimelineLineChart from "@/components/stats/TimelineLineChart";
 import { formatDate } from "@/lib/utils";
+import DateNavigation from "@/components/ui/DateNavigation";
 
 /**
  * StatsPage
@@ -169,20 +170,11 @@ export default function StatsPage() {
 
                     {/* Links: Datum + Buttons */}
                     <div className="flex-1">
-                        <div className="flex gap-2 mb-2">
-                            <button
-                                onClick={() => shiftPeriod("prev")}
-                                className="px-3 py-1 rounded bg-muted hover:bg-muted/80"
-                            >
-                                ←
-                            </button>
-
-                            <button
-                                onClick={() => shiftPeriod("next")}
-                                className="px-3 py-1 rounded bg-muted hover:bg-muted/80"
-                            >
-                                →
-                            </button>
+                        <div className="mb-2">
+                            <DateNavigation
+                                onPrev={() => shiftPeriod("prev")}
+                                onNext={() => shiftPeriod("next")}
+                            />
                         </div>
                         <StatsFilterBar
                             startDate={filters.startDate}
