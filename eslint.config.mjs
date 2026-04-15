@@ -15,9 +15,11 @@ const config = [
     ignores: [
       ".next/**",
       "coverage/**",
+      "dashboard/data/**",
       "node_modules/**",
       "out/**",
       "build/**",
+      "reports/**",
     ],
   },
 ];

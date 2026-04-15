@@ -19,7 +19,6 @@ import type {
   EventWithKeywords,
   Keyword,
 } from "@/types";
-import { error } from "console";
 
 /**
  * ─── EVENT FORM ───
@@ -88,18 +87,27 @@ export function EventForm({
   useEffect(() => {
     const loadKeywords = async () => {
       setIsKeywordsLoading(true);
-      const responseKW = await fetch("/api/keywords")
-      const response = await responseKW.json();;
+      try {
+        const responseKW = await fetch("/api/keywords");
+        const response = await responseKW.json();
 
-      if (response.error) {
+        if (response.error) {
+          toast({
+            title: "Fehler",
+            description: "Tags konnten nicht geladen werden.",
+            variant: "destructive",
+          });
+          setKeywords([]);
+        } else {
+          setKeywords(response.data || []);
+        }
+      } catch {
         toast({
           title: "Fehler",
           description: "Tags konnten nicht geladen werden.",
           variant: "destructive",
         });
         setKeywords([]);
-      } else {
-        setKeywords(response.data || []);
       }
 
       setIsKeywordsLoading(false);
@@ -156,7 +164,7 @@ export function EventForm({
     });
 
     setErrors(newErrors);
-    return newErrors;;
+    return newErrors;
   };
 
   // ─── SUBMIT: Event erstellen oder aktualisieren ───

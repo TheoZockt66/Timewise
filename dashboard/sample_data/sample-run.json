@@ -1,0 +1,55 @@
+{
+  "schema_version": 1,
+  "timestamp": "2026-04-15T13:15:00Z",
+  "workflow": "sample-local",
+  "run_id": "sample-20260415-131500",
+  "branch": "feature/dashboard-foundation",
+  "commit": "c3d4e5f",
+  "status": "passed",
+  "summary": {
+    "total": 63,
+    "passed": 63,
+    "failed": 0,
+    "skipped": 0,
+    "duration_seconds": 13.53
+  },
+  "coverage": {
+    "lines": 79.2,
+    "functions": 81.4,
+    "branches": 63.1,
+    "statements": 78.9
+  },
+  "suites": [
+    {
+      "name": "validators",
+      "file": "tests/unit/validators",
+      "status": "passed",
+      "duration_seconds": 1.42,
+      "total": 24,
+      "passed": 24,
+      "failed": 0,
+      "skipped": 0
+    },
+    {
+      "name": "routes",
+      "file": "tests/api",
+      "status": "passed",
+      "duration_seconds": 2.18,
+      "total": 12,
+      "passed": 12,
+      "failed": 0,
+      "skipped": 0
+    },
+    {
+      "name": "components",
+      "file": "tests/component",
+      "status": "passed",
+      "duration_seconds": 3.31,
+      "total": 8,
+      "passed": 8,
+      "failed": 0,
+      "skipped": 0
+    }
+  ],
+  "failures": []
+}

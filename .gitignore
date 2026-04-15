@@ -5,7 +5,12 @@
 .yarn/install-state.gz
 
 # Testing
-/coverage
+/coverage/*
+!/coverage/.gitkeep
+/reports/*
+!/reports/.gitkeep
+/dashboard/data/snapshots/*
+!/dashboard/data/snapshots/.gitkeep
 
 # Next.js
 /.next/
@@ -22,6 +27,8 @@
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+__pycache__/
+*.pyc
 
 # Local env files – NIEMALS committen!
 .env*.local

@@ -1,0 +1,595 @@
+{
+  "schema_version": 1,
+  "timestamp": "2026-04-15T19:43:40Z",
+  "workflow": "local-vitest",
+  "run_id": "run-20260415T194340Z",
+  "branch": "main",
+  "commit": "c9c8396",
+  "status": "passed",
+  "summary": {
+    "total": 140,
+    "passed": 139,
+    "failed": 0,
+    "skipped": 1,
+    "duration_seconds": 25.46
+  },
+  "coverage": {
+    "lines": 70.71,
+    "functions": 73.86,
+    "branches": 58.31,
+    "statements": 70.11
+  },
+  "suites": [
+    {
+      "name": "dashboard-navigation.smoke.test.ts",
+      "file": "C:/Users/aanto/Projekte/Timewise/tests/e2e/dashboard-navigation.smoke.test.ts",
+      "status": "passed",
+      "duration_seconds": 0.0,
+      "total": 1,
+      "passed": 0,
+      "failed": 0,
+      "skipped": 1
+    },
+    {
+      "name": "callback.route.test.ts",
+      "file": "C:/Users/aanto/Projekte/Timewise/tests/api/auth/callback.route.test.ts",
+      "status": "passed",
+      "duration_seconds": 0.03,
+      "total": 3,
+      "passed": 3,
+      "failed": 0,
+      "skipped": 0
+    },
+    {
+      "name": "login.route.test.ts",
+      "file": "C:/Users/aanto/Projekte/Timewise/tests/api/auth/login.route.test.ts",
+      "status": "passed",
+      "duration_seconds": 0.03,
+      "total": 3,
+      "passed": 3,
+      "failed": 0,
+      "skipped": 0
+    },
+    {
+      "name": "logout.route.test.ts",
+      "file": "C:/Users/aanto/Projekte/Timewise/tests/api/auth/logout.route.test.ts",
+      "status": "passed",
+      "duration_seconds": 0.02,
+      "total": 2,
+      "passed": 2,
+      "failed": 0,
+      "skipped": 0
+    },
+    {
+      "name": "register.route.test.ts",
+      "file": "C:/Users/aanto/Projekte/Timewise/tests/api/auth/register.route.test.ts",
+      "status": "passed",
+      "duration_seconds": 0.02,
+      "total": 3,
+      "passed": 3,
+      "failed": 0,
+      "skipped": 0
+    },
+    {
+      "name": "reset.route.test.ts",
+      "file": "C:/Users/aanto/Projekte/Timewise/tests/api/auth/reset.route.test.ts",
+      "status": "passed",
+      "duration_seconds": 0.04,
+      "total": 3,
+      "passed": 3,
+      "failed": 0,
+      "skipped": 0
+    },
+    {
+      "name": "detail.route.test.ts",
+      "file": "C:/Users/aanto/Projekte/Timewise/tests/api/goals/detail.route.test.ts",
+      "status": "passed",
+      "duration_seconds": 0.02,
+      "total": 3,
+      "passed": 3,
+      "failed": 0,
+      "skipped": 0
+    },
+    {
+      "name": "route.test.ts",
+      "file": "C:/Users/aanto/Projekte/Timewise/tests/api/goals/route.test.ts",
+      "status": "passed",
+      "duration_seconds": 0.03,
+      "total": 3,
+      "passed": 3,
+      "failed": 0,
+      "skipped": 0
+    },
+    {
+      "name": "detail.route.test.ts",
+      "file": "C:/Users/aanto/Projekte/Timewise/tests/api/keywords/detail.route.test.ts",
+      "status": "passed",
+      "duration_seconds": 0.03,
+      "total": 3,
+      "passed": 3,
+      "failed": 0,
+      "skipped": 0
+    },
+    {
+      "name": "route.test.ts",
+      "file": "C:/Users/aanto/Projekte/Timewise/tests/api/keywords/route.test.ts",
+      "status": "passed",
+      "duration_seconds": 0.02,
+      "total": 3,
+      "passed": 3,
+      "failed": 0,
+      "skipped": 0
+    },
+    {
+      "name": "AuthIllustration.test.tsx",
+      "file": "C:/Users/aanto/Projekte/Timewise/tests/component/auth/AuthIllustration.test.tsx",
+      "status": "passed",
+      "duration_seconds": 0.12,
+      "total": 1,
+      "passed": 1,
+      "failed": 0,
+      "skipped": 0
+    },
+    {
+      "name": "AuthLayout.test.tsx",
+      "file": "C:/Users/aanto/Projekte/Timewise/tests/component/auth/AuthLayout.test.tsx",
+      "status": "passed",
+      "duration_seconds": 0.1,
+      "total": 1,
+      "passed": 1,
+      "failed": 0,
+      "skipped": 0
+    },
+    {
+      "name": "AuthLogo.test.tsx",
+      "file": "C:/Users/aanto/Projekte/Timewise/tests/component/auth/AuthLogo.test.tsx",
+      "status": "passed",
+      "duration_seconds": 0.08,
+      "total": 1,
+      "passed": 1,
+      "failed": 0,
+      "skipped": 0
+    },
+    {
+      "name": "LoginPage.test.tsx",
+      "file": "C:/Users/aanto/Projekte/Timewise/tests/component/auth/LoginPage.test.tsx",
+      "status": "passed",
+      "duration_seconds": 1.29,
+      "total": 2,
+      "passed": 2,
+      "failed": 0,
+      "skipped": 0
+    },
+    {
+      "name": "RegisterPage.test.tsx",
+      "file": "C:/Users/aanto/Projekte/Timewise/tests/component/auth/RegisterPage.test.tsx",
+      "status": "passed",
+      "duration_seconds": 1.72,
+      "total": 2,
+      "passed": 2,
+      "failed": 0,
+      "skipped": 0
+    },
+    {
+      "name": "ResetPasswordPage.test.tsx",
+      "file": "C:/Users/aanto/Projekte/Timewise/tests/component/auth/ResetPasswordPage.test.tsx",
+      "status": "passed",
+      "duration_seconds": 1.28,
+      "total": 2,
+      "passed": 2,
+      "failed": 0,
+      "skipped": 0
+    },
+    {
+      "name": "CalendarPage.test.tsx",
+      "file": "C:/Users/aanto/Projekte/Timewise/tests/component/calendar/CalendarPage.test.tsx",
+      "status": "passed",
+      "duration_seconds": 0.09,
+      "total": 1,
+      "passed": 1,
+      "failed": 0,
+      "skipped": 0
+    },
+    {
+      "name": "CalendarView.test.tsx",
+      "file": "C:/Users/aanto/Projekte/Timewise/tests/component/calendar/CalendarView.test.tsx",
+      "status": "passed",
+      "duration_seconds": 1.18,
+      "total": 2,
+      "passed": 2,
+      "failed": 0,
+      "skipped": 0
+    },
+    {
+      "name": "EventDetails.test.tsx",
+      "file": "C:/Users/aanto/Projekte/Timewise/tests/component/calendar/EventDetails.test.tsx",
+      "status": "passed",
+      "duration_seconds": 1.9,
+      "total": 3,
+      "passed": 3,
+      "failed": 0,
+      "skipped": 0
+    },
+    {
+      "name": "EventForm.test.tsx",
+      "file": "C:/Users/aanto/Projekte/Timewise/tests/component/events/EventForm.test.tsx",
+      "status": "passed",
+      "duration_seconds": 1.87,
+      "total": 2,
+      "passed": 2,
+      "failed": 0,
+      "skipped": 0
+    },
+    {
+      "name": "KeywordSelector.test.tsx",
+      "file": "C:/Users/aanto/Projekte/Timewise/tests/component/events/KeywordSelector.test.tsx",
+      "status": "passed",
+      "duration_seconds": 0.31,
+      "total": 2,
+      "passed": 2,
+      "failed": 0,
+      "skipped": 0
+    },
+    {
+      "name": "TimeRangePicker.test.tsx",
+      "file": "C:/Users/aanto/Projekte/Timewise/tests/component/events/TimeRangePicker.test.tsx",
+      "status": "passed",
+      "duration_seconds": 0.89,
+      "total": 2,
+      "passed": 2,
+      "failed": 0,
+      "skipped": 0
+    },
+    {
+      "name": "GoalCard.test.tsx",
+      "file": "C:/Users/aanto/Projekte/Timewise/tests/component/goals/GoalCard.test.tsx",
+      "status": "passed",
+      "duration_seconds": 1.26,
+      "total": 2,
+      "passed": 2,
+      "failed": 0,
+      "skipped": 0
+    },
+    {
+      "name": "GoalForm.test.tsx",
+      "file": "C:/Users/aanto/Projekte/Timewise/tests/component/goals/GoalForm.test.tsx",
+      "status": "passed",
+      "duration_seconds": 1.25,
+      "total": 3,
+      "passed": 3,
+      "failed": 0,
+      "skipped": 0
+    },
+    {
+      "name": "GoalList.test.tsx",
+      "file": "C:/Users/aanto/Projekte/Timewise/tests/component/goals/GoalList.test.tsx",
+      "status": "passed",
+      "duration_seconds": 0.92,
+      "total": 2,
+      "passed": 2,
+      "failed": 0,
+      "skipped": 0
+    },
+    {
+      "name": "GoalProgressBar.test.tsx",
+      "file": "C:/Users/aanto/Projekte/Timewise/tests/component/goals/GoalProgressBar.test.tsx",
+      "status": "passed",
+      "duration_seconds": 0.13,
+      "total": 1,
+      "passed": 1,
+      "failed": 0,
+      "skipped": 0
+    },
+    {
+      "name": "GoalsPage.test.tsx",
+      "file": "C:/Users/aanto/Projekte/Timewise/tests/component/goals/GoalsPage.test.tsx",
+      "status": "passed",
+      "duration_seconds": 1.46,
+      "total": 2,
+      "passed": 2,
+      "failed": 0,
+      "skipped": 0
+    },
+    {
+      "name": "aggregate.route.test.ts",
+      "file": "C:/Users/aanto/Projekte/Timewise/tests/api/events/aggregate.route.test.ts",
+      "status": "passed",
+      "duration_seconds": 0.06,
+      "total": 2,
+      "passed": 2,
+      "failed": 0,
+      "skipped": 0
+    },
+    {
+      "name": "detail.route.test.ts",
+      "file": "C:/Users/aanto/Projekte/Timewise/tests/api/events/detail.route.test.ts",
+      "status": "passed",
+      "duration_seconds": 0.03,
+      "total": 3,
+      "passed": 3,
+      "failed": 0,
+      "skipped": 0
+    },
+    {
+      "name": "route.test.ts",
+      "file": "C:/Users/aanto/Projekte/Timewise/tests/api/events/route.test.ts",
+      "status": "passed",
+      "duration_seconds": 0.04,
+      "total": 3,
+      "passed": 3,
+      "failed": 0,
+      "skipped": 0
+    },
+    {
+      "name": "StartPage.test.tsx",
+      "file": "C:/Users/aanto/Projekte/Timewise/tests/component/home/StartPage.test.tsx",
+      "status": "passed",
+      "duration_seconds": 1.74,
+      "total": 2,
+      "passed": 2,
+      "failed": 0,
+      "skipped": 0
+    },
+    {
+      "name": "CustomTooltip.test.tsx",
+      "file": "C:/Users/aanto/Projekte/Timewise/tests/component/stats/CustomTooltip.test.tsx",
+      "status": "passed",
+      "duration_seconds": 0.11,
+      "total": 2,
+      "passed": 2,
+      "failed": 0,
+      "skipped": 0
+    },
+    {
+      "name": "KeywordBarChart.test.tsx",
+      "file": "C:/Users/aanto/Projekte/Timewise/tests/component/stats/KeywordBarChart.test.tsx",
+      "status": "passed",
+      "duration_seconds": 0.15,
+      "total": 1,
+      "passed": 1,
+      "failed": 0,
+      "skipped": 0
+    },
+    {
+      "name": "KeywordSelect.test.tsx",
+      "file": "C:/Users/aanto/Projekte/Timewise/tests/component/stats/KeywordSelect.test.tsx",
+      "status": "passed",
+      "duration_seconds": 1.21,
+      "total": 1,
+      "passed": 1,
+      "failed": 0,
+      "skipped": 0
+    },
+    {
+      "name": "StatsFilterBar.test.tsx",
+      "file": "C:/Users/aanto/Projekte/Timewise/tests/component/stats/StatsFilterBar.test.tsx",
+      "status": "passed",
+      "duration_seconds": 1.09,
+      "total": 2,
+      "passed": 2,
+      "failed": 0,
+      "skipped": 0
+    },
+    {
+      "name": "StatsPage.test.tsx",
+      "file": "C:/Users/aanto/Projekte/Timewise/tests/component/stats/StatsPage.test.tsx",
+      "status": "passed",
+      "duration_seconds": 1.32,
+      "total": 2,
+      "passed": 2,
+      "failed": 0,
+      "skipped": 0
+    },
+    {
+      "name": "TimelineLineChart.test.tsx",
+      "file": "C:/Users/aanto/Projekte/Timewise/tests/component/stats/TimelineLineChart.test.tsx",
+      "status": "passed",
+      "duration_seconds": 0.1,
+      "total": 3,
+      "passed": 3,
+      "failed": 0,
+      "skipped": 0
+    },
+    {
+      "name": "RootLayout.test.tsx",
+      "file": "C:/Users/aanto/Projekte/Timewise/tests/component/layout/RootLayout.test.tsx",
+      "status": "passed",
+      "duration_seconds": 0.09,
+      "total": 1,
+      "passed": 1,
+      "failed": 0,
+      "skipped": 0
+    },
+    {
+      "name": "KeywordsPage.test.tsx",
+      "file": "C:/Users/aanto/Projekte/Timewise/tests/component/keywords/KeywordsPage.test.tsx",
+      "status": "passed",
+      "duration_seconds": 1.95,
+      "total": 3,
+      "passed": 3,
+      "failed": 0,
+      "skipped": 0
+    },
+    {
+      "name": "DateNavigation.test.tsx",
+      "file": "C:/Users/aanto/Projekte/Timewise/tests/component/ui/DateNavigation.test.tsx",
+      "status": "passed",
+      "duration_seconds": 0.74,
+      "total": 1,
+      "passed": 1,
+      "failed": 0,
+      "skipped": 0
+    },
+    {
+      "name": "create-goal-flow.test.ts",
+      "file": "C:/Users/aanto/Projekte/Timewise/tests/integration/goals/create-goal-flow.test.ts",
+      "status": "passed",
+      "duration_seconds": 0.02,
+      "total": 1,
+      "passed": 1,
+      "failed": 0,
+      "skipped": 0
+    },
+    {
+      "name": "get-goals-progress.test.ts",
+      "file": "C:/Users/aanto/Projekte/Timewise/tests/integration/goals/get-goals-progress.test.ts",
+      "status": "passed",
+      "duration_seconds": 0.02,
+      "total": 1,
+      "passed": 1,
+      "failed": 0,
+      "skipped": 0
+    },
+    {
+      "name": "auth.service.test.ts",
+      "file": "C:/Users/aanto/Projekte/Timewise/tests/unit/services/auth.service.test.ts",
+      "status": "passed",
+      "duration_seconds": 0.01,
+      "total": 5,
+      "passed": 5,
+      "failed": 0,
+      "skipped": 0
+    },
+    {
+      "name": "event.service.test.ts",
+      "file": "C:/Users/aanto/Projekte/Timewise/tests/unit/services/event.service.test.ts",
+      "status": "passed",
+      "duration_seconds": 0.01,
+      "total": 3,
+      "passed": 3,
+      "failed": 0,
+      "skipped": 0
+    },
+    {
+      "name": "goal.service.test.ts",
+      "file": "C:/Users/aanto/Projekte/Timewise/tests/unit/services/goal.service.test.ts",
+      "status": "passed",
+      "duration_seconds": 0.01,
+      "total": 3,
+      "passed": 3,
+      "failed": 0,
+      "skipped": 0
+    },
+    {
+      "name": "keyword.service.test.ts",
+      "file": "C:/Users/aanto/Projekte/Timewise/tests/unit/services/keyword.service.test.ts",
+      "status": "passed",
+      "duration_seconds": 0.01,
+      "total": 3,
+      "passed": 3,
+      "failed": 0,
+      "skipped": 0
+    },
+    {
+      "name": "useCalendar.test.ts",
+      "file": "C:/Users/aanto/Projekte/Timewise/tests/unit/hooks/useCalendar.test.ts",
+      "status": "passed",
+      "duration_seconds": 0.07,
+      "total": 2,
+      "passed": 2,
+      "failed": 0,
+      "skipped": 0
+    },
+    {
+      "name": "useGoals.helpers.test.ts",
+      "file": "C:/Users/aanto/Projekte/Timewise/tests/unit/hooks/useGoals.helpers.test.ts",
+      "status": "passed",
+      "duration_seconds": 0.01,
+      "total": 2,
+      "passed": 2,
+      "failed": 0,
+      "skipped": 0
+    },
+    {
+      "name": "useGoals.test.ts",
+      "file": "C:/Users/aanto/Projekte/Timewise/tests/unit/hooks/useGoals.test.ts",
+      "status": "passed",
+      "duration_seconds": 0.29,
+      "total": 2,
+      "passed": 2,
+      "failed": 0,
+      "skipped": 0
+    },
+    {
+      "name": "useStats.test.ts",
+      "file": "C:/Users/aanto/Projekte/Timewise/tests/unit/hooks/useStats.test.ts",
+      "status": "passed",
+      "duration_seconds": 0.21,
+      "total": 2,
+      "passed": 2,
+      "failed": 0,
+      "skipped": 0
+    },
+    {
+      "name": "env.test.ts",
+      "file": "C:/Users/aanto/Projekte/Timewise/tests/unit/utils/env.test.ts",
+      "status": "passed",
+      "duration_seconds": 0.01,
+      "total": 2,
+      "passed": 2,
+      "failed": 0,
+      "skipped": 0
+    },
+    {
+      "name": "proxy.test.ts",
+      "file": "C:/Users/aanto/Projekte/Timewise/tests/unit/utils/proxy.test.ts",
+      "status": "passed",
+      "duration_seconds": 0.01,
+      "total": 2,
+      "passed": 2,
+      "failed": 0,
+      "skipped": 0
+    },
+    {
+      "name": "utils.test.ts",
+      "file": "C:/Users/aanto/Projekte/Timewise/tests/unit/utils/utils.test.ts",
+      "status": "passed",
+      "duration_seconds": 0.01,
+      "total": 3,
+      "passed": 3,
+      "failed": 0,
+      "skipped": 0
+    },
+    {
+      "name": "event.validator.test.ts",
+      "file": "C:/Users/aanto/Projekte/Timewise/tests/unit/validators/event.validator.test.ts",
+      "status": "passed",
+      "duration_seconds": 0.01,
+      "total": 5,
+      "passed": 5,
+      "failed": 0,
+      "skipped": 0
+    },
+    {
+      "name": "goal.validator.test.ts",
+      "file": "C:/Users/aanto/Projekte/Timewise/tests/unit/validators/goal.validator.test.ts",
+      "status": "passed",
+      "duration_seconds": 0.01,
+      "total": 11,
+      "passed": 11,
+      "failed": 0,
+      "skipped": 0
+    },
+    {
+      "name": "keyword.validator.test.ts",
+      "file": "C:/Users/aanto/Projekte/Timewise/tests/unit/validators/keyword.validator.test.ts",
+      "status": "passed",
+      "duration_seconds": 0.01,
+      "total": 8,
+      "passed": 8,
+      "failed": 0,
+      "skipped": 0
+    },
+    {
+      "name": "create-event-flow.test.ts",
+      "file": "C:/Users/aanto/Projekte/Timewise/tests/integration/events/create-event-flow.test.ts",
+      "status": "passed",
+      "duration_seconds": 0.02,
+      "total": 1,
+      "passed": 1,
+      "failed": 0,
+      "skipped": 0
+    }
+  ],
+  "failures": []
+}

@@ -7,7 +7,17 @@ export default defineConfig({
   test: {
     environment: 'jsdom',
     globals: true,
-    setupFiles: ['./vitest.setup.ts'],
+    setupFiles: ['./tests/setup/vitest.setup.ts'],
+    include: ['tests/**/*.test.ts', 'tests/**/*.test.tsx'],
+    clearMocks: true,
+    restoreMocks: true,
+    coverage: {
+      provider: 'v8',
+      reportsDirectory: './coverage',
+      reporter: ['text', 'json-summary', 'lcov'],
+      include: ['src/**/*.{ts,tsx}'],
+      exclude: ['src/**/*.test.ts', 'src/**/*.test.tsx', 'src/app/**/*.d.ts'],
+    },
   },
   resolve: {
     alias: {

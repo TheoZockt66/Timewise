@@ -1,0 +1,2 @@
+# On Windows, use a 64-bit Python installation because pyarrow has no 32-bit wheel.
+streamlit>=1.44,<2

@@ -1,5 +1,5 @@
 import { describe, expect, test } from "vitest";
-import { validateKeyword } from "./keyword.validator";
+import { validateKeyword } from "@/lib/validators/keyword.validator";
 
 describe("validateKeyword", () => {
   test("returns valid for a keyword with label and hex color", () => {

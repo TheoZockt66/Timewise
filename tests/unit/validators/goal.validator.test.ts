@@ -1,5 +1,5 @@
 import { describe, expect, test } from "vitest";
-import { validateGoal } from "./goal.validator";
+import { validateGoal } from "@/lib/validators/goal.validator";
 
 describe("validateGoal", () => {
   test("returns valid for a complete goal on create", () => {

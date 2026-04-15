@@ -31,13 +31,16 @@ export async function DELETE(
   } = await supabase.auth.getUser();
 
   if (!user) {
-    return NextResponse.json({
-      data: null,
-      error: {
-        code: "UNAUTHORIZED",
-        message: "Nicht eingeloggt",
+    return NextResponse.json(
+      {
+        data: null,
+        error: {
+          code: "UNAUTHORIZED",
+          message: "Nicht eingeloggt",
+        },
       },
-    });
+      { status: 401 }
+    );
   }
 
   // Schritt 2: ID aus der URL extrahieren
@@ -77,13 +80,16 @@ export async function PUT(
   } = await supabase.auth.getUser();
 
   if (!user) {
-    return NextResponse.json({
-      data: null,
-      error: {
-        code: "UNAUTHORIZED",
-        message: "Nicht eingeloggt",
+    return NextResponse.json(
+      {
+        data: null,
+        error: {
+          code: "UNAUTHORIZED",
+          message: "Nicht eingeloggt",
+        },
       },
-    });
+      { status: 401 }
+    );
   }
 
   // Schritt 2: ID und neue Daten auslesen

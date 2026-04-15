@@ -2,6 +2,464 @@
 
 ---
 
+Eintrag Nr.: 44
+Datum: 2026-04-15
+Prompt: |
+  kann man das nicht somachen das sich das dashboard automatisch aktuallisiert und was wird getestet wenn ich den button alles testen klicke wird das auch gespeichert?
+Aktion: GEAENDERT
+Datei / Komponente: |
+  Dashboard-Aktualisierung und Komplettlauf
+  - .gitignore
+  - package.json
+  - dashboard/app.py
+  - dashboard/README.md
+  - tests/README.md
+  - docs/prompt-log.md
+Schnittstelle: |
+  Neue lokale Nutzung:
+  - npm-Script `test:all`
+  - Dashboard-Sidebar mit optionalem Auto-Refresh
+  - Dashboard-Button `Alles testen` fuer:
+    - lint
+    - typecheck
+    - test:coverage
+    - dashboard:prepare
+Beschreibung: |
+  Das lokale Dashboard wurde so erweitert, dass es neue Daten ohne manuellen Browser-Refresh anzeigen kann und der Komplettlauf die Dashboard-Daten direkt mitschreibt.
+
+  Geaendert wurde:
+  - neues npm-Script `test:all` als lokaler Komplettlauf
+  - Dashboard-Teststeuerung um den Button `Alles testen` erweitert
+  - `Alles testen` fuehrt jetzt nacheinander `lint`, `typecheck`, `test:coverage` und `dashboard:prepare` aus
+  - Sidebar mit optionalem Auto-Refresh und Intervallwahl
+  - Doku in `dashboard/README.md` und `tests/README.md` auf den neuen Ablauf erweitert
+
+  Verifikation:
+  - py -3.13 -m py_compile dashboard\app.py dashboard\parser.py dashboard\schema.py dashboard\storage.py dashboard\run_dashboard.py
+  - npm run test:all
+
+  Ergebnis:
+  - Dashboard-Daten werden nach dem Komplettlauf automatisch in `dashboard/data/latest.json`, `dashboard/data/history.jsonl` und `dashboard/data/snapshots/` gespeichert
+  - `npm run test:all` lief erfolgreich durch; ESLint meldet dabei weiter nur bestehende Warnings, aber keine Fehler
+
+---
+
+Eintrag Nr.: 43
+Datum: 2026-04-15
+Prompt: |
+  kannst du den rest auch noch abdecken
+Aktion: GEAENDERT
+Datei / Komponente: |
+  Zusaetzlicher Testausbau fuer restliche UI- und Infrastrukturbereiche
+  - tests/component/goals/GoalForm.test.tsx
+  - tests/component/goals/GoalList.test.tsx
+  - tests/component/goals/GoalsPage.test.tsx
+  - tests/component/stats/CustomTooltip.test.tsx
+  - tests/component/stats/KeywordBarChart.test.tsx
+  - tests/component/stats/StatsFilterBar.test.tsx
+  - tests/component/stats/TimelineLineChart.test.tsx
+  - tests/component/stats/StatsPage.test.tsx
+  - tests/component/keywords/KeywordsPage.test.tsx
+  - tests/component/home/StartPage.test.tsx
+  - tests/component/auth/AuthLogo.test.tsx
+  - tests/component/auth/AuthIllustration.test.tsx
+  - tests/component/auth/AuthLayout.test.tsx
+  - tests/component/auth/LoginPage.test.tsx
+  - tests/component/auth/RegisterPage.test.tsx
+  - tests/component/auth/ResetPasswordPage.test.tsx
+  - tests/component/layout/RootLayout.test.tsx
+  - tests/component/ui/DateNavigation.test.tsx
+  - tests/component/calendar/CalendarPage.test.tsx
+  - tests/unit/hooks/useGoals.test.ts
+  - tests/unit/utils/env.test.ts
+  - tests/unit/utils/proxy.test.ts
+  - tests/setup/vitest.setup.ts
+  - docs/prompt-log.md
+Schnittstelle: |
+  Neue Testabdeckung fuer:
+  - Auth-Seiten und Auth-Layout
+  - geschuetzte Dashboard-Seiten: Startseite, Ziele, Keywords, Statistiken
+  - Goal- und Stats-Komponenten
+  - Root- und Kalender-Seite
+  - Hook useGoals
+  - env-Helper und proxy
+  - ResizeObserver-Setup fuer Radix-basierte Tests
+Beschreibung: |
+  Der zweite Ausbau hat die restlichen sinnvoll testbaren Bereiche der UI- und Infrastrukturgrundlage abgedeckt.
+
+  Geaendert wurde:
+  - Seiten-Tests fuer Login, Registrierung, Passwort-Reset, Startseite, GoalsPage, KeywordsPage und StatsPage
+  - weitere Component-Tests fuer GoalForm, GoalList, Stats-Diagramme, DateNavigation und Layouts
+  - Unit-Tests fuer useGoals, env und proxy
+  - zentrales Vitest-Setup um einen ResizeObserver-Stub erweitert, damit Radix-Komponenten stabil testbar bleiben
+
+  Verifikation:
+  - npm run test:run
+  - npm run typecheck
+  - npm run test:coverage
+
+  Ergebnis:
+  - 139 Tests bestanden, 1 E2E-Vorlage bewusst skipped
+  - Coverage: 70.71 Prozent Lines, 70.11 Prozent Statements, 73.86 Prozent Functions, 58.31 Prozent Branches
+
+---
+
+Eintrag Nr.: 42
+Datum: 2026-04-15
+Prompt: |
+  baue die restlichen fehlenden test bitte
+Aktion: GEÃ„NDERT
+Datei / Komponente: |
+  Ausbau fehlender API-, Hook- und Component-Tests
+  - src/app/api/events/[id]/route.ts
+  - src/app/api/keywords/[id]/route.ts
+  - tests/api/auth/register.route.test.ts
+  - tests/api/auth/reset.route.test.ts
+  - tests/api/auth/logout.route.test.ts
+  - tests/api/auth/callback.route.test.ts
+  - tests/api/events/detail.route.test.ts
+  - tests/api/events/aggregate.route.test.ts
+  - tests/api/goals/detail.route.test.ts
+  - tests/api/keywords/detail.route.test.ts
+  - tests/component/calendar/EventDetails.test.tsx
+  - tests/component/events/TimeRangePicker.test.tsx
+  - tests/component/goals/GoalCard.test.tsx
+  - tests/unit/hooks/useCalendar.test.ts
+  - tests/unit/hooks/useStats.test.ts
+  - docs/prompt-log.md
+Schnittstelle: |
+  Neue Testabdeckung fuer:
+  - Auth-Routen: register, reset, logout, callback
+  - Detail-Routen: events/[id], goals/[id], keywords/[id]
+  - Aggregate-Route: /api/events/aggregate
+  - Komponenten: EventDetails, TimeRangePicker, GoalCard
+  - Hooks: useCalendar, useStats
+Beschreibung: |
+  Die groessten verbliebenen Testluecken aus Phase 1 wurden geschlossen.
+
+  Geaendert wurde:
+  - fehlende Route-Tests fuer Auth- und Detail-Endpunkte
+  - ein eigener Test fuer die Aggregations-API mit Keyword- und Zeitraumpruefung
+  - neue Component-Tests fuer Event-Details, Zeitbereichsauswahl und Goal-Card
+  - echte Hook-Tests fuer Kalender- und Statistikdaten
+  - minimale Produktionskorrektur: fehlende User bei events/[id] und keywords/[id] liefern jetzt korrekt 401 statt 200
+
+  Verifikation:
+  - npm run test:run
+  - npm run typecheck
+  - npm run test:coverage
+
+---
+
+Eintrag Nr.: 41
+Datum: 2026-04-15
+Prompt: |
+  bitte mache das noch
+
+  ein echter Integrations-Test für Event-Erstellung
+  mindestens ein sinnvoller Calendar-Component-Test
+  optional ein sehr kleiner E2E-Smoke-Test
+  optional echte Fixture-Dateien statt nur Platzhalter
+Aktion: GEÄNDERT
+Datei / Komponente: |
+  Restpunkte Phase 1 Tests
+  - tests/integration/events/create-event-flow.test.ts
+  - tests/component/calendar/CalendarView.test.tsx
+  - tests/e2e/dashboard-navigation.smoke.test.ts
+  - tests/fixtures/events/create-event-request.json
+  - tests/fixtures/events/created-event-record.json
+  - tests/fixtures/calendar/calendar-event.json
+  - tests/README.md
+  - tests/e2e/README.md
+  - docs/prompt-log.md
+Schnittstelle: |
+  Neue Tests und Fixtures:
+  - Integrationsflow fuer Event-Erstellung ueber Route + Service
+  - Calendar-Component-Test fuer Monatsladen, Termin-Auswahl und Detailoeffnung
+  - kleiner bewusst geskipter E2E-Smoke-Test als Vorlage
+  - echte JSON-Fixtures fuer Event-Request, Event-Record und Kalender-Event
+Beschreibung: |
+  Die noch offenen Restpunkte fuer Phase 1 wurden ergaenzt.
+
+  Geaendert wurde:
+  - ein echter Integrations-Test fuer die Event-Erstellung ueber mehrere Schichten
+  - ein sinnvoller Calendar-Component-Test fuer die Kerninteraktionen der Kalenderansicht
+  - echte Fixture-Dateien statt reiner Platzhalter im fixtures-Ordner
+  - eine kleine E2E-Smoke-Vorlage ohne schwere neue Infrastruktur
+  - Testdokumentation fuer Fixtures und den E2E-Smoke-Template erweitert
+
+  Bewusst weiterhin nicht umgesetzt:
+  - keine GitHub Actions
+  - keine CI/CD-Automatisierung
+  - keine grosse E2E-Infrastruktur mit Playwright oder aehnlichem
+
+---
+
+Eintrag Nr.: 40
+Datum: 2026-04-15
+Prompt: |
+  2026-04-15 19:40:22.892 Please replace `use_container_width` with `width`.
+
+  `use_container_width` will be removed after 2025-12-31.
+
+  For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+Aktion: GEÄNDERT
+Datei / Komponente: |
+  Streamlit-Kompatibilität im Dashboard
+  - dashboard/app.py
+  - docs/prompt-log.md
+Schnittstelle: |
+  Streamlit-Aufrufe angepasst:
+  - st.dataframe(..., width="stretch")
+  - st.button(..., width="stretch")
+Beschreibung: |
+  Die veralteten Streamlit-Aufrufe mit `use_container_width` im Dashboard wurden
+  auf die neue API mit `width="stretch"` umgestellt.
+
+  Geändert wurde:
+  - betroffene `st.dataframe`-Aufrufe
+  - betroffene `st.button`-Aufrufe
+
+  Ziel:
+  - die Warnung im lokalen Dashboard entfernen
+  - kompatibel mit der aktuellen Streamlit-Empfehlung bleiben
+
+---
+
+Eintrag Nr.: 39
+Datum: 2026-04-15
+Prompt: |
+  ne ich hätte gerne das ich bei  fehlgelaufenden test mir der code der test funktion angezeigt wird damit ich sehe was die test eingabe und ausgabe war und was bei dem test passiet ist + füge zu der seite wo ich die test ausführen kann auch eine info jeweil an was bei dieser test art passiert bzw. getestet wird
+Aktion: GEÄNDERT
+Datei / Komponente: |
+  Dashboard-Fehlerdetails und Teststeuerung
+  - dashboard/app.py
+  - dashboard/README.md
+  - docs/prompt-log.md
+Schnittstelle: |
+  Erweiterte Fehleransicht:
+  - Anzeige der passenden test(...) / it(...)-Funktion
+  - Anzeige der Assertions aus dem Testblock
+  - Anzeige der Lauf-Fehlermeldung direkt neben dem Testcode
+
+  Erweiterte Teststeuerung:
+  - pro Testart zusätzliche Beschreibung, was konkret geprüft wird
+Beschreibung: |
+  Die Fehleransicht des Dashboards wurde genauer auf den eigentlichen Testfall ausgerichtet.
+
+  Geändert wurde:
+  - Bei fehlgeschlagenen Tests wird jetzt nicht nur ein Dateiausschnitt, sondern möglichst die betroffene Testfunktion angezeigt.
+  - Zusätzlich werden die im Test enthaltenen Assertions separat zusammengefasst, damit schneller sichtbar ist, welche Eingaben und Erwartungen geprüft wurden.
+  - Die Fehlermeldung aus dem Lauf bleibt direkt daneben sichtbar, damit Soll und Ist leichter verglichen werden können.
+  - Die Seite `Teststeuerung` erklärt jetzt pro Testart klarer, was genau geprüft oder ausgeführt wird.
+
+  Bewusst unverändert:
+  - keine GitHub Actions
+  - keine CI/CD-Automatisierung
+  - keine Datenbankanbindung für das Dashboard
+
+---
+
+Eintrag Nr.: 38
+Datum: 2026-04-15
+Prompt: |
+  wenn beim letzten testen kein fehler kam dann muss der nicht angezeigt wird da dieser ja nicht mehr auftritt sowie hätte ich gerne eine historie
+
+  zusätzlich hätte ich gerne auch das nicht nur der fehler angezeigt wird sondern auch den test als quelcode um besser zu sehen was getestet wurde
+
+  kannst du das so machen dass das dahsboard verscheidene seiten hat und nicht alles auf einer ist damit es übersichtlicher ist
+Aktion: GEÄNDERT
+Datei / Komponente: |
+  Dashboard-Navigation und Historien-Detailansicht
+  - dashboard/app.py
+  - dashboard/README.md
+  - docs/prompt-log.md
+Schnittstelle: |
+  Neue Dashboard-Seiten:
+  - Übersicht
+  - Aktiver Lauf
+  - Historie
+  - Teststeuerung
+
+  Neue Dashboard-Logik:
+  - aktive Fehleransicht zeigt nur Fehler aus dem letzten Lauf
+  - Historie mit auswählbaren gespeicherten Läufen
+  - Anzeige von Test-Quellcode zu Fehlern und auswählbaren Testdateien
+Beschreibung: |
+  Das Dashboard wurde übersichtlicher in mehrere Seitenbereiche aufgeteilt.
+
+  Geändert wurde:
+  - Die Ansicht `Aktiver Lauf` zeigt nur noch aktuelle Fehler aus dem letzten Testlauf.
+  - Wenn der letzte Lauf erfolgreich war, werden keine alten Fehler mehr eingeblendet.
+  - Eine eigene Seite `Historie` zeigt gespeicherte Läufe, Trends, Meilensteine und Fehlerhistorie.
+  - Für einen ausgewählten historischen Lauf kann jetzt eine Detailansicht geöffnet werden.
+  - Zu Fehlern und Testdateien wird zusätzlich Quellcode aus dem Repository angezeigt, damit schneller nachvollziehbar ist, was genau getestet wurde.
+
+  Bewusst unverändert:
+  - keine GitHub Actions
+  - keine CI/CD-Automatisierung
+  - keine Datenbankanbindung für das Dashboard
+
+---
+
+Eintrag Nr.: 5
+Datum: 2026-04-15
+Prompt: |
+  kannst du das dasshboard irgendwie für neue leute intuitiver gestallten so bisschen zeigen was falsch gelaufen ist und in unseren meileinstein system also welcher meilenstein betroffen ist und welche datei ich ändern soll geht das ?
+Aktion: GEÄNDERT
+Datei / Komponente: |
+  Dashboard-UX und Fehlerdiagnose
+  - dashboard/app.py
+  - dashboard/README.md
+  - docs/prompt-log.md
+Schnittstelle: |
+  Neue Dashboard-Bereiche:
+  - Action Center
+  - Milestones
+
+  Neue Dashboard-Logik:
+  - heuristische Zuordnung von Fehlern zu M1-M6
+  - Ableitung einer empfohlenen Startdatei aus dem Testpfad
+  - kurze fachliche Einordnung, was wahrscheinlich schiefgelaufen ist
+Beschreibung: |
+  Das Dashboard wurde inhaltlich intuitiver gemacht, damit neue Teammitglieder
+  nicht nur rohe Testdaten sehen, sondern direkt eine erste Diagnose erhalten.
+
+  Neu ist ein Action Center, das den letzten bekannten Fehlerlauf analysiert und
+  pro Fehler drei Dinge zeigt:
+  - betroffener Meilenstein
+  - zuerst anzusehende Datei im Repo
+  - kurze Erklärung, welche Schicht wahrscheinlich betroffen ist
+
+  Zusätzlich wurde eine Milestone-Ansicht ergänzt, die historische Fehler auf
+  M1 bis M6 abbildet. Die Zuordnung erfolgt heuristisch über Test- und Zielpfade
+  wie tests/api/goals/... -> src/app/api/goals/route.ts -> M6.
+
+  Die README des Dashboards wurde passend erweitert.
+
+---
+
+Eintrag Nr.: 4
+Datum: 2026-04-15
+Prompt: |
+  PS C:\Users\aanto\Projekte\Timewise> npm run dashboard:run
+
+  > timewise@0.1.0 dashboard:run
+  > python -m streamlit run dashboard/app.py
+
+  C:\Users\aanto\AppData\Local\Programs\Python\Python39-32\python.exe: No module named streamlit
+Aktion: GEÄNDERT
+Datei / Komponente: |
+  Dashboard-Startlogik
+  - dashboard/run_dashboard.py
+  - package.json
+  - dashboard/README.md
+  - docs/prompt-log.md
+Schnittstelle: |
+  Geaenderter Startbefehl:
+  - npm run dashboard:run -> python dashboard/run_dashboard.py
+
+  Neuer Wrapper:
+  - prueft Python-Architektur
+  - prueft Streamlit-Import
+  - startet bei passender Umgebung streamlit.web.cli
+  - gibt bei 32-Bit-Windows eine klare Diagnose mit Folgeschritten aus
+Beschreibung: |
+  Den nackten Streamlit-Start durch einen Python-Wrapper ersetzt, damit der
+  Dashboard-Start in ungueltigen lokalen Umgebungen nicht mit einer unklaren
+  Import-Fehlermeldung endet.
+
+  Speziell fuer den aktuellen Workspace wird jetzt sauber erkannt, dass nur
+  eine 32-Bit-Python-Installation vorhanden ist. Statt "No module named streamlit"
+  wird eine projektbezogene Diagnose mit Ursache und naechsten Schritten ausgegeben.
+
+  Die README des Dashboards wurde passend ergaenzt.
+
+---
+
+Eintrag Nr.: 3
+Datum: 2026-04-15
+Prompt: |
+  schau dir das projekt an und setze danach folgendes um
+
+  Arbeite in diesem Repository und setze die Test- und Dashboard-Grundlage sauber um.
+
+  Wichtige Rahmenbedingungen:
+  - Das Projekt ist in aktiver Entwicklung.
+  - Noch KEINE GitHub Actions, KEINE CI/CD-Automatisierung bauen.
+  - Erst lokale, manuelle Ausführung sauber aufsetzen.
+  - Das Dashboard soll im Git-Repo liegen.
+  - Testdateien sollen NICHT neben der Fachlogik liegen, sondern zentral in einem separaten tests/-Ordner.
+  - Bestehende Tests sollen in die neue Struktur überführt oder konsistent angebunden werden.
+  - Keine Emojis verwenden.
+  - Sauber, verständlich und wartbar umsetzen.
+  - Bestehenden Produktivcode nur ändern, wenn es für die Testbarkeit oder die neue Struktur nötig ist.
+  - Wenn du etwas verschiebst, passe Imports, Configs und Skripte entsprechend an.
+
+  Ziel:
+  1. Zentrale Test-Ordnerstruktur einführen
+  2. Erstes lokales Python-Dashboard einführen
+  3. JSON-basierte Historie und Logs einführen
+  4. Sinnvolle erste Tests für die wichtigsten Bereiche anlegen
+  5. Alles lokal manuell ausführbar machen
+  6. Noch keine Automatisierung mit GitHub Actions
+
+  dAS dashboard soll keine Emojys haben
+Aktion: GEÄNDERT
+Datei / Komponente: |
+  Test- und Dashboard-Grundlage (mehrere Dateien)
+  - vitest.config.ts
+  - tests/** (unit, api, component, integration, factories, mocks, setup, README, e2e)
+  - dashboard/** (app.py, parser.py, schema.py, storage.py, README.md, requirements.txt, data, sample_data)
+  - package.json / package-lock.json / eslint.config.mjs
+  - src/lib/validators/event.validator.ts
+  - src/components/events/EventForm.tsx
+  - docs/prompt-log.md
+Schnittstelle: |
+  Neue npm-Skripte:
+  - typecheck
+  - test:unit
+  - test:api
+  - test:component
+  - test:integration
+  - test:coverage
+  - dashboard:prepare
+  - dashboard:run
+
+  Neues Dashboard-Schema:
+  - schema_version
+  - timestamp
+  - workflow
+  - run_id
+  - branch
+  - commit
+  - status
+  - summary { total, passed, failed, skipped, duration_seconds }
+  - coverage { lines, functions, branches, statements }
+  - suites[]
+  - failures[]
+Beschreibung: |
+  Zentrale Teststruktur unter tests/ eingeführt und bestehende Colocation-Tests aus src/ dorthin verschoben.
+  Vitest auf die neue Struktur ausgerichtet, Coverage-Provider ergänzt und lokale Skripte für Unit-, API-, Component-, Integration- und Coverage-Läufe ergänzt.
+
+  Neue erste Tests für Validatoren, Services, API-Routen, UI-Komponenten und zwei Integrationsflüsse rund um Goal-Erstellung und Goal-Fortschritt angelegt.
+  Gemeinsame Testdaten über factories/ und mocks/ zentralisiert.
+
+  Lokales Python-Dashboard unter dashboard/ eingeführt:
+  - robustes JSON-Schema
+  - Parser für Vitest- und Coverage-Reports mit Sample-Fallback
+  - Storage für latest.json, history.jsonl und Snapshots
+  - Streamlit-App für Overview, History, Trends und Failures
+
+  Zusätzlich Sample-Daten und initiale JSON-Historie angelegt, damit das Dashboard sofort mit Daten startet.
+  Produktivcode nur gezielt angepasst:
+  - Event-Validierung vervollständigt (Keyword-Pflicht, robustere Datumsprüfung)
+  - EventForm für stabile Fehlerbehandlung beim Keyword-Laden bereinigt
+
+  Bewusst keine GitHub-Actions- oder CI/CD-Dateien ergänzt.
+
+---
+
 Eintrag Nr.: 36
 Datum: 2026-04-15
 Prompt: kannst du bei der login page den hinteren kreis größer machen als die 4 icon sodass die 4 icons in dem kreis sind
@@ -851,5 +1309,47 @@ Beschreibung: |
   - src/components/ui/button.tsx (shadcn/ui Button)
   - src/types/index.ts (Zentrale Typen – Platzhalter)
   - docs/prompt-log.md (diese Datei)
+
+---
+
+Eintrag Nr.: 37
+Datum: 2026-04-15
+Prompt: |
+  bitte nutze farben rot und grün sowie umlaute und mach das ich die verscheidenen test auch starten darf
+Aktion: GEÄNDERT
+Datei / Komponente: |
+  Dashboard-UI und lokale Teststeuerung
+  - dashboard/app.py
+  - dashboard/run_dashboard.py
+  - dashboard/README.md
+  - docs/prompt-log.md
+Schnittstelle: |
+  Neue Dashboard-Bereiche und Interaktionen:
+  - farbige Statuskarten in Rot/Grün
+  - deutschsprachige Oberfläche mit Umlauten
+  - Teststeuerung mit Buttons für:
+    - lint
+    - typecheck
+    - test:run
+    - test:unit
+    - test:api
+    - test:component
+    - test:integration
+    - test:coverage
+    - dashboard:prepare
+Beschreibung: |
+  Das lokale Dashboard wurde für neue Teammitglieder direkter lesbar gemacht.
+
+  Geändert wurde:
+  - sichtbare Rot-/Grün-Signale für Status, Fehler und Hinweise
+  - deutschsprachige Beschriftungen mit Umlauten statt ASCII-Umschreibungen
+  - lokale Teststeuerung direkt im Dashboard, um einzelne Testarten manuell starten zu können
+  - Konsolen-Ausgabe und letzter Lauf werden nach dem Start eines Scripts direkt im Dashboard angezeigt
+  - README und Python-Wrapper sprachlich an die neue Dashboard-Oberfläche angepasst
+
+  Bewusst weiterhin nicht ergänzt:
+  - keine GitHub Actions
+  - keine CI/CD-Automatisierung
+  - keine Datenbankanbindung für das Dashboard
 
 ---
