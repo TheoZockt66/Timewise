@@ -8,15 +8,17 @@ import {
     Tooltip,
     ResponsiveContainer,
 } from "recharts";
-import CustomTooltip from "@/components/stats/CustomTooltip";
+import { LineTooltip } from "@/components/stats/CustomTooltip";
 
-type DataPoint = {
+type TimelinePoint = {
     period: string;
-    total_minutes: number;
+    total: number;
+    [key: string]: string | number;
 };
 
 type Props = {
-    data: DataPoint[];
+    data: TimelinePoint[];
+    keywordColors: Record<string, string>;
 };
 
 /**
@@ -29,7 +31,7 @@ type Props = {
  * - X-Achse: Zeitraum (Tag/Woche/Monat)
  * - Y-Achse: Minuten
  */
-export default function TimelineLineChart({ data }: Props) {
+export default function TimelineLineChart({ data, keywordColors }: Props) {
     return (
         <div className="w-full h-[360px]">
             <ResponsiveContainer width="100%" height="100%">
@@ -70,16 +72,43 @@ export default function TimelineLineChart({ data }: Props) {
                         }}
                     />
 
-                    <Tooltip content={<CustomTooltip />} />
+                    <Tooltip content={<LineTooltip />} />
 
+                    {/* Gesamtlinie (immer anzeigen, etwas dicker) */}
                     <Line
                         type="linear"
-                        dataKey="total_minutes"
+                        dataKey="total"
                         stroke="#7700F4"
-                        strokeWidth={2}
-                        dot={{ r: 6 }}
+                        strokeWidth={3}
+                        dot={{ r: 5 }}
                         connectNulls={true}
                     />
+
+                    {/* Keyword-Linien (alle Keys über alle Datenpunkte sammeln) */}
+                    {(() => {
+                        const keywordKeys = Array.from(
+                            new Set(
+                                data.flatMap((entry) =>
+                                    Object.keys(entry).filter(
+                                        (key) => key !== "period" && key !== "total"
+                                    )
+                                )
+                            )
+                        );
+
+                        return keywordKeys.map((key) => (
+                            <Line
+                                key={key}
+                                type="linear"
+                                dataKey={key}
+                                stroke={keywordColors[key] ?? "#8884d8"}
+                                strokeWidth={2}
+                                dot={{ r: 3 }}
+                                opacity={0.75}
+                                connectNulls={true}
+                            />
+                        ));
+                    })()}
                 </LineChart>
             </ResponsiveContainer>
         </div>

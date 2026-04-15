@@ -1,7 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
-import type { AggregatedTime } from "@/types";
-import type { ApiResponse } from "@/types";
-import { fetchEvents } from "@/lib/services/event.service";
+import type { AggregatedTime, ApiResponse } from "@/types";
 
 /**
  * Parameter für den useStats Hook.
@@ -19,20 +17,120 @@ type UseStatsParams = {
 };
 
 /**
+ * Eine Zeitreihen-Zeile für das Liniendiagramm.
+ *
+ * Struktur:
+ * - period → Beschriftung auf der X-Achse
+ * - total → Gesamtlernzeit
+ * - weitere Keys → Minuten pro Keyword
+ */
+type TimelinePoint = {
+    period: string;
+    total: number;
+    [key: string]: string | number;
+};
+
+/**
  * Rückgabewerte des useStats Hooks für die UI.
  *
  * - data → aggregierte Lernzeiten
+ * - timelineData → Zeitverlauf für das Liniendiagramm
  * - loading → Ladezustand
  * - error → Fehlermeldung (falls vorhanden)
  * - refetch → manuelles Neuladen der Daten
  */
 type UseStatsResult = {
     data: AggregatedTime[];
-    timelineData: { period: string; total_minutes: number }[];
+    timelineData: TimelinePoint[];
     loading: boolean;
     error: string | null;
     refetch: () => Promise<void>;
 };
+
+/**
+ * Sammelt alle Keyword-Labels aus den Events.
+ *
+ * Die Labels werden alphabetisch sortiert, damit die Reihenfolge stabil bleibt.
+ */
+function getKeywordLabels(events: any[]) {
+    return Array.from(
+        new Set(
+            events.flatMap((event) =>
+                (event.keywords ?? []).map((kw: any) => kw.label)
+            )
+        )
+    ).sort((a, b) => a.localeCompare(b, "de"));
+}
+
+/**
+ * Erzeugt einen leeren Timeline-Punkt mit allen Keyword-Feldern auf 0.
+ */
+function createTimelinePoint(
+    period: string,
+    keywordLabels: string[]
+): TimelinePoint {
+    const point: TimelinePoint = {
+        period,
+        total: 0,
+    };
+
+    keywordLabels.forEach((label) => {
+        point[label] = 0;
+    });
+
+    return point;
+}
+
+/**
+ * Fügt ein Event zu einem Timeline-Punkt hinzu.
+ */
+function addEventToTimelinePoint(point: TimelinePoint, event: any) {
+    const minutes = Number(event.duration_minutes) || 0;
+
+    point.total += minutes;
+
+    (event.keywords ?? []).forEach((kw: any) => {
+        const label = kw.label;
+
+        if (typeof point[label] !== "number") {
+            point[label] = 0;
+        }
+
+        point[label] = (point[label] as number) + minutes;
+    });
+}
+
+/**
+ * Hilfsfunktion zur Berechnung der Kalenderwoche
+ * (ISO-Standard → Woche beginnt Montag)
+ */
+function getCalendarWeek(dateInput: Date) {
+    const date = new Date(dateInput);
+    date.setHours(0, 0, 0, 0);
+
+    date.setDate(date.getDate() + 4 - (date.getDay() || 7));
+
+    const yearStart = new Date(date.getFullYear(), 0, 1);
+
+    return Math.ceil(
+        (((date.getTime() - yearStart.getTime()) / 86400000) + 1) / 7
+    );
+}
+
+/**
+ * Liefert den Montag der jeweiligen Woche.
+ */
+function getWeekStartDate(dateInput: Date) {
+    const date = new Date(dateInput);
+    date.setHours(0, 0, 0, 0);
+
+    const day = date.getDay();
+    const diffToMonday = day === 0 ? -6 : 1 - day;
+
+    date.setDate(date.getDate() + diffToMonday);
+
+    return date;
+}
 
 /**
  * Custom Hook zum Laden von Statistikdaten.
@@ -41,11 +139,6 @@ type UseStatsResult = {
  *
  * Architektur:
  * UI → Hook → API → Service → Datenbank
- *
- * Verhalten:
- * - Lädt Daten von /api/events/aggregate basierend auf den Filtern
- * - Verwaltet Ladezustand und Fehler
- * - Gibt immer ein stabiles Datenformat an die UI zurück
  */
 export function useStats({
     startDate,
@@ -54,35 +147,24 @@ export function useStats({
     keywordIds = [],
 }: UseStatsParams): UseStatsResult {
     const [data, setData] = useState<AggregatedTime[]>([]);
-
-    // State für die geladenen Statistikdaten
-    const [timelineData, setTimelineData] = useState<
-        { period: string; total_minutes: number }[]
-    >([]);
-
-    // State für Ladezustand (z. B. Spinner in UI)
+    const [timelineData, setTimelineData] = useState<TimelinePoint[]>([]);
     const [loading, setLoading] = useState(false);
-
-    // State für Fehler (z. B. Anzeige im UI)
     const [error, setError] = useState<string | null>(null);
 
     // Stabilisiert das Dependency Array, da Arrays sonst bei jedem Render eine neue Referenz haben
     const keywordIdsKey = keywordIds.join(",");
 
-    // ─── Timeline Builder Funktionen ───
-
     // Woche → Mo–So
     const buildWeekTimeline = (events: any[]) => {
         const days = ["Mo", "Di", "Mi", "Do", "Fr", "Sa", "So"];
-        const grouped: Record<string, number> = {
-            Mo: 0,
-            Di: 0,
-            Mi: 0,
-            Do: 0,
-            Fr: 0,
-            Sa: 0,
-            So: 0,
-        };
+        const keywordLabels = getKeywordLabels(events);
+
+        // Struktur: pro Tag → Gesamt + Keywords
+        const grouped: Record<string, TimelinePoint> = {};
+
+        days.forEach((day) => {
+            grouped[day] = createTimelinePoint(day, keywordLabels);
+        });
 
         const map = ["So", "Mo", "Di", "Mi", "Do", "Fr", "Sa"];
 
@@ -91,116 +173,105 @@ export function useStats({
             const jsDay = date.getDay();
             const dayName = map[jsDay] ?? "Mo";
 
-            grouped[dayName] += event.duration_minutes;
+            addEventToTimelinePoint(grouped[dayName], event);
         });
 
-        return days.map((d) => ({
-            period: d,
-            total_minutes: grouped[d],
-        }));
+        return days.map((day) => grouped[day]);
     };
 
-    // Monat → KWs (ALLE Wochen im Zeitraum anzeigen)
+    // Monat → Kalenderwochen mit Gesamt + Keywords
     const buildMonthTimeline = (events: any[]) => {
-
-        const grouped: Record<string, number> = {};
-
-        /**
-         * Hilfsfunktion zur Berechnung der Kalenderwoche
-         * (ISO-Standard → Woche beginnt Montag)
-         */
-        const getCalendarWeek = (d: Date) => {
-            const date = new Date(d);
-            date.setHours(0, 0, 0, 0);
-
-            date.setDate(date.getDate() + 4 - (date.getDay() || 7));
-
-            const yearStart = new Date(date.getFullYear(), 0, 1);
-
-            return Math.ceil((((date.getTime() - yearStart.getTime()) / 86400000) + 1) / 7);
-        };
+        const keywordLabels = getKeywordLabels(events);
+        const grouped: Record<string, TimelinePoint> = {};
 
         /**
-         * 1. Events auf Wochen aggregieren
+         * 1. Events auf Wochen aggregieren (Gesamt + Keywords)
          */
         events.forEach((event) => {
             const date = new Date(event.start_time);
             const week = getCalendarWeek(date);
             const key = `KW ${week}`;
 
-            grouped[key] = (grouped[key] || 0) + event.duration_minutes;
+            if (!grouped[key]) {
+                grouped[key] = createTimelinePoint(key, keywordLabels);
+            }
+
+            addEventToTimelinePoint(grouped[key], event);
         });
 
         /**
          * 2. Start- und Enddatum aus dem Filter verwenden
          */
-        const start = new Date(startDate);
-        const end = new Date(endDate);
+        const startWeekStart = getWeekStartDate(new Date(startDate));
+        const endWeekStart = getWeekStartDate(new Date(endDate));
 
         /**
-         * 3. Erste und letzte KW bestimmen
+         * 3. Vollständige Timeline erzeugen (inkl. leerer Wochen)
          */
-        const startWeek = getCalendarWeek(start);
-        const endWeek = getCalendarWeek(end);
+        const fullTimeline: TimelinePoint[] = [];
+        const cursor = new Date(startWeekStart);
 
-        /**
-         * 4. ALLE Wochen im Bereich erzeugen
-         */
-        const fullTimeline = [];
+        while (cursor <= endWeekStart) {
+            const key = `KW ${getCalendarWeek(cursor)}`;
 
-        for (let w = startWeek; w <= endWeek; w++) {
-            const key = `KW ${w}`;
+            fullTimeline.push(
+                grouped[key] ?? createTimelinePoint(key, keywordLabels)
+            );
 
-            fullTimeline.push({
-                period: key,
-                total_minutes: grouped[key] || 0,
-            });
+            cursor.setDate(cursor.getDate() + 7);
         }
 
         return fullTimeline;
     };
 
-    // Tag → Stunden
+    // Tag → Stunden mit Gesamt + Keywords
     const buildDayTimeline = (events: any[]) => {
-        const grouped: Record<string, number> = {};
+        const keywordLabels = getKeywordLabels(events);
+
+        // Struktur: pro Stunde → Gesamt + Keywords
+        const grouped: Record<string, TimelinePoint> = {};
 
         events.forEach((event) => {
             const date = new Date(event.start_time);
             const key = `${date.getHours()}:00`;
 
-            grouped[key] = (grouped[key] || 0) + event.duration_minutes;
+            if (!grouped[key]) {
+                grouped[key] = createTimelinePoint(key, keywordLabels);
+            }
+
+            addEventToTimelinePoint(grouped[key], event);
         });
 
-        return Object.entries(grouped).map(([period, total_minutes]) => ({
-            period,
-            total_minutes,
-        }));
+        return Object.values(grouped).sort((a, b) => {
+            const hourA = Number.parseInt(a.period, 10);
+            const hourB = Number.parseInt(b.period, 10);
+
+            return hourA - hourB;
+        });
     };
 
     /**
-    * Lädt die Statistikdaten vom Backend basierend auf den aktuellen Filtern.
-    *
-    * useCallback verhindert unnötige Neudefinitionen und reduziert Re-Renders.
-    */
+     * Lädt die Statistikdaten vom Backend basierend auf den aktuellen Filtern.
+     */
     const fetchStats = useCallback(async () => {
         setLoading(true);
         setError(null);
 
         try {
-            // Query-Parameter für die API zusammenstellen
             const params = new URLSearchParams({
                 start_date: startDate,
                 end_date: endDate,
                 granularity,
             });
 
-            // Optional: mehrere Keywords hinzufügen
             keywordIds?.forEach((id) => {
                 params.append("keyword_ids", id);
             });
 
-            // API-Aufruf
-            const response = await fetch(`/api/events/aggregate?${params.toString()}`);
+            const response = await fetch(
+                `/api/events/aggregate?${params.toString()}`
+            );
+
             let result: ApiResponse<AggregatedTime[]>;
 
             try {
@@ -209,55 +280,39 @@ export function useStats({
                 throw new Error("Ungültige Serverantwort.");
             }
 
-            // Fehlerhandling (HTTP oder API-Fehler)
             if (!response.ok || result.error) {
                 throw new Error(
                     result.error?.message || "Statistiken konnten nicht geladen werden."
                 );
             }
 
-            // Erfolgsfall: Daten im State speichern
             setData(result.data ?? []);
 
-            // ─── Timeline Daten (fein granular) ───
-            /**
-            * Lädt Events für die Timeline (inkl. Keyword-Filter)
-            */
             const paramsEvents = new URLSearchParams({
                 start_date: startDate,
                 end_date: endDate,
             });
 
-            // Keyword-Filter hinzufügen (wie beim Aggregate-Endpunkt)
             keywordIds?.forEach((id) => {
                 paramsEvents.append("keyword_ids", id);
             });
 
-            const responseEvents = await fetch(
-                `/api/events?${paramsEvents.toString()}`
-            );
-
+            const responseEvents = await fetch(`/api/events?${paramsEvents.toString()}`);
             const eventsResponse = await responseEvents.json();
 
-            console.log("EVENTS:", eventsResponse.data);
+            const events = eventsResponse.data ?? [];
+            let timeline: TimelinePoint[] = [];
 
-            if (eventsResponse.data) {
-                let timeline: { period: string; total_minutes: number }[] = [];
-
-                if (granularity === "week") {
-                    timeline = buildWeekTimeline(eventsResponse.data);
-                } else if (granularity === "month") {
-                    timeline = buildMonthTimeline(eventsResponse.data);
-                } else {
-                    timeline = buildDayTimeline(eventsResponse.data);
-                }
-
-                console.log("TIMELINE DATA:", timeline);
-
-                setTimelineData(timeline);
+            if (granularity === "week") {
+                timeline = buildWeekTimeline(events);
+            } else if (granularity === "month") {
+                timeline = buildMonthTimeline(events);
+            } else {
+                timeline = buildDayTimeline(events);
             }
+
+            setTimelineData(timeline);
         } catch (err) {
-            // Fehler sauber behandeln und UI stabil halten
             const message =
                 err instanceof Error
                     ? err.message
@@ -265,19 +320,16 @@ export function useStats({
 
             setError(message);
             setData([]);
+            setTimelineData([]);
         } finally {
             setLoading(false);
         }
     }, [startDate, endDate, granularity, keywordIdsKey]);
 
-    /**
-    * Lädt die Daten initial und bei Änderung der Filterparameter neu.
-    */
     useEffect(() => {
         void fetchStats();
     }, [fetchStats]);
 
-    // Rückgabe für die UI
     return {
         data,
         timelineData,

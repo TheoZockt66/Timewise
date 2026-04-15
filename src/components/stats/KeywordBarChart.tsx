@@ -9,7 +9,7 @@ import {
     ResponsiveContainer,
     Cell,
 } from "recharts";
-import CustomTooltip from "@/components/stats/CustomTooltip";
+import { BarTooltip } from "@/components/stats/CustomTooltip";
 
 type KeywordData = {
     keyword_id: string;
@@ -72,7 +72,7 @@ export default function KeywordBarChart({ data }: Props) {
                     {/* Custom Tooltip:
                     - zeigt Keyword-Name und Minuten
                     - ersetzt die Standard-Darstellung von Recharts */}
-                    <Tooltip content={<CustomTooltip />} />
+                    <Tooltip content={<BarTooltip />} />
 
                     <Bar
                         dataKey="minutes"

@@ -1,63 +1,110 @@
 "use client";
 
 /**
- * Props für den CustomTooltip.
- *
- * Beschreibung:
- * - active → zeigt an, ob der Tooltip gerade sichtbar ist (Hover-Zustand)
- * - payload → enthält die Daten des aktuellen Punktes / Balkens (z. B. Minutenwert)
- * - label → Bezeichnung des aktuellen Werts (z. B. Keyword-Name oder Wochentag)
+ * Gemeinsame Payload-Struktur für Recharts-Tooltips.
  */
-type TooltipPayload = {
-    value?: number;
+type TooltipEntry = {
+    name?: string;
+    dataKey?: string;
+    value?: number | string;
+    color?: string;
 };
 
-type Props = {
+type BaseProps = {
     active?: boolean;
-    payload?: TooltipPayload[];
+    payload?: TooltipEntry[];
     label?: string;
 };
 
 /**
- * CustomTooltip
- *
- * Ziel:
- * Gemeinsame Darstellung des Tooltips für mehrere Diagramme.
- *
- * Vorteil:
- * - dieselbe Tooltip-Optik für Balken- und Liniendiagramm
- * - weniger doppelter Code
- * - zentrale Änderung, falls das Design später angepasst werden soll
+ * Wandelt kurze Wochentags-Kürzel in ausgeschriebene Namen um.
  */
-export default function CustomTooltip({ active, payload, label }: Props) {
+function formatLabel(label?: string) {
+    if (!label) {
+        return "";
+    }
 
-    /**
-     * Tooltip wird nur angezeigt, wenn:
-     * - er aktiv ist (Hover)
-     * - Daten vorhanden sind
-     *
-     * Andernfalls: nichts rendern
-     * -> verhindert leere oder kaputte Tooltips
-     */
+    const weekdayMap: Record<string, string> = {
+        Mo: "Montag",
+        Di: "Dienstag",
+        Mi: "Mittwoch",
+        Do: "Donnerstag",
+        Fr: "Freitag",
+        Sa: "Samstag",
+        So: "Sonntag",
+    };
+
+    return weekdayMap[label] ?? label;
+}
+
+/**
+ * Tooltip für das Balkendiagramm.
+ *
+ * Verhalten:
+ * - zeigt genau einen Wert
+ * - bleibt bewusst schlicht
+ * - entspricht dem alten, einfachen Verhalten
+ */
+export function BarTooltip({ active, payload, label }: BaseProps) {
     if (!active || !payload || payload.length === 0) {
         return null;
     }
 
-    /**
-     * Extrahiert den Wert aus dem Payload.
-     * Wenn kein Wert vorhanden ist, wird 0 verwendet.
-     */
-    const value = payload[0]?.value ?? 0;
+    const item = payload[0];
+    const value = item.value ?? 0;
+    const name = label ?? item.name ?? item.dataKey ?? "Wert";
 
     return (
         <div className="rounded-md border bg-white p-2 shadow">
-
-            {/* Bezeichnung des aktuellen Datenpunkts */}
-            <p className="font-medium">{label}</p>
-
-            {/* Wert in Minuten */}
+            <p className="font-medium">{name}</p>
             <p>{value} Minuten</p>
+        </div>
+    );
+}
 
+/**
+ * Tooltip für das Liniendiagramm.
+ *
+ * Verhalten:
+ * - zeigt die Beschriftung ausgeschrieben an
+ * - zeigt Gesamtlernzeit plus alle Keyword-Werte
+ * - bleibt übersichtlich trotz mehrerer Linien
+ */
+export function LineTooltip({ active, payload, label }: BaseProps) {
+    if (!active || !payload || payload.length === 0) {
+        return null;
+    }
+
+    return (
+        <div className="rounded-md border bg-white p-3 shadow-sm">
+            <p className="font-medium">{formatLabel(label)}</p>
+
+            <div className="mt-2 space-y-1">
+                {payload.map((entry, index) => {
+                    const rawName = entry.name ?? entry.dataKey ?? "Wert";
+                    const displayName =
+                        rawName === "total" ? "Gesamtlernzeit" : rawName;
+
+                    const value = entry.value ?? 0;
+
+                    return (
+                        <div
+                            key={`${displayName}-${index}`}
+                            className="flex items-center justify-between gap-4"
+                        >
+                            <div className="flex items-center gap-2">
+                                <span
+                                    className="h-2.5 w-2.5 rounded-full"
+                                    style={{ backgroundColor: entry.color ?? "#7700F4" }}
+                                />
+                                <span>{displayName}</span>
+                            </div>
+
+                            <span>{value} Minuten</span>
+                        </div>
+                    );
+                })}
+            </div>
         </div>
     );
 }

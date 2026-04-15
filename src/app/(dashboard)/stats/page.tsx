@@ -101,7 +101,7 @@ export default function StatsPage() {
     * (Summe aller Werte im Verlauf)
     */
     const totalTimelineMinutes = timelineData.reduce(
-        (sum, entry) => sum + entry.total_minutes,
+        (sum, entry: any) => sum + (entry.total || 0),
         0
     );
 
@@ -133,6 +133,10 @@ export default function StatsPage() {
     };
 
     const [keywords, setKeywords] = useState<Keyword[]>([]);
+
+    const keywordColorMap = Object.fromEntries(
+        keywords.map((keyword) => [keyword.label, keyword.color])
+    );
 
     // Lädt alle verfügbaren Keywords für den Filter (Initial Load)
     useEffect(() => {
@@ -219,8 +223,14 @@ export default function StatsPage() {
                                     });
 
                                 } else {
-                                    // Tag bleibt wie ausgewählt
-                                    setFilters(newFilters);
+                                    // Tag → Start- und Enddatum auf denselben Tag setzen
+                                    const selectedDate = new Date(newFilters.startDate);
+
+                                    setFilters({
+                                        ...newFilters,
+                                        startDate: formatDate(selectedDate),
+                                        endDate: formatDate(selectedDate),
+                                    });
                                 }
                             }}
                         />
@@ -321,7 +331,7 @@ export default function StatsPage() {
                                     </p>
 
                                     <div className="w-full h-[360px]">
-                                        <TimelineLineChart data={timelineData} />
+                                        <TimelineLineChart data={timelineData} keywordColors={keywordColorMap} />
                                     </div>
                                 </div>
                             </>
