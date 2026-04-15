@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { ArrowLeft } from "lucide-react";
 import { GoalForm } from "@/components/goals/GoalForm";
 import { GoalList } from "@/components/goals/GoalList";
 import { Button } from "@/components/ui/button";
@@ -45,7 +46,7 @@ export default function GoalsPage() {
     const result = await createGoalEntry(newGoalValues);
 
     if (result.error) {
-      toast({ title: "Fehler", description: result.error.message });
+      toast({ title: "Fehler", description: result.error.message, variant: "destructive" });
       return;
     }
 
@@ -57,7 +58,7 @@ export default function GoalsPage() {
     const result = await updateGoalEntry(id, editValues);
 
     if (result.error) {
-      toast({ title: "Fehler", description: result.error.message });
+      toast({ title: "Fehler", description: result.error.message, variant: "destructive" });
       return;
     }
 
@@ -66,16 +67,10 @@ export default function GoalsPage() {
   }
 
   async function handleDelete(id: string) {
-    const confirmed = window.confirm(
-      "Möchtest du dieses Ziel wirklich löschen? Diese Aktion kann nicht rückgängig gemacht werden."
-    );
-
-    if (!confirmed) return;
-
     const result = await deleteGoalEntry(id);
 
     if (result.error) {
-      toast({ title: "Fehler", description: result.error.message });
+      toast({ title: "Fehler", description: result.error.message, variant: "destructive" });
       return;
     }
 
@@ -89,7 +84,13 @@ export default function GoalsPage() {
   return (
     <main className="min-h-screen bg-muted/30 px-4 py-8">
       <div className="mx-auto max-w-4xl space-y-6">
-        <div className="mb-6 flex items-center justify-between">
+        <div className="mb-6 flex items-center gap-3">
+          <Button asChild type="button" variant="outline" className="min-h-11">
+            <Link href="/">
+              <ArrowLeft className="mr-2 h-4 w-4" />
+              Zurück
+            </Link>
+          </Button>
           <Link href="/" className="inline-block">
             <Image
               src="/timewise-logo.svg"

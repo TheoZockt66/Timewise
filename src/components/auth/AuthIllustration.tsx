@@ -13,8 +13,8 @@ export function AuthIllustration() {
       {/* Icon-Grid als abstrakte Illustration */}
       <div className="relative">
         {/* Hintergrund-Kreis als dekoratives Element */}
-        <div className="h-64 w-64 rounded-full bg-white/10 flex items-center justify-center">
-          <div className="grid grid-cols-2 gap-6">
+        <div className="flex h-80 w-80 items-center justify-center rounded-full bg-white/10">
+          <div className="grid grid-cols-2 gap-5">
             {/* Vier thematische Icons repräsentieren die Hauptfunktionen */}
             <div className="flex h-24 w-24 items-center justify-center rounded-2xl bg-white/15 backdrop-blur-sm">
               <Clock className="h-12 w-12 text-white" />

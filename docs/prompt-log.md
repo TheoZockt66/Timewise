@@ -2,6 +2,210 @@
 
 ---
 
+Eintrag Nr.: 36
+Datum: 2026-04-15
+Prompt: kannst du bei der login page den hinteren kreis größer machen als die 4 icon sodass die 4 icons in dem kreis sind
+Aktion: GEÄNDERT
+Datei / Komponente: Auth-Illustration
+Schnittstelle: |
+  src/components/auth/AuthIllustration.tsx → Hintergrundkreis der Login-/Auth-Illustration vergrößert und Icon-Abstände leicht angepasst
+Beschreibung: |
+  Die Auth-Illustration so angepasst, dass die vier Icon-Kacheln klar innerhalb des dekorativen Kreises liegen.
+
+  Geänderte Punkte:
+  - Der Hintergrundkreis wurde von 256px auf 320px vergrößert.
+  - Der Abstand zwischen den vier Icon-Kacheln wurde leicht reduziert.
+  - Die eigentlichen Icon-Kacheln und deren Farben bleiben unverändert.
+
+  Hinweis:
+  - Es wurde nur die Illustration der Auth-Seiten angepasst.
+
+Eintrag Nr.: 35
+Datum: 2026-04-15
+Prompt: Jeder Bereich ist als eigene Kachel aufgebaut, damit du schneller zwischen Planung, Struktur, Auswertung und Zielverfolgung wechseln kannst. diesen text kannst du auch wegnehmen
+Aktion: GEÄNDERT
+Datei / Komponente: Dashboard-Startseite
+Schnittstelle: |
+  src/app/page.tsx → erklärenden Begleittext im Navigationsbereich entfernt
+Beschreibung: |
+  Die vereinfachte Dashboard-Startseite weiter reduziert.
+
+  Geänderte Punkte:
+  - Der erklärende Text unter der Überschrift `Dein Arbeitsbereich` wurde entfernt.
+  - Die Navigation startet dadurch direkter und wirkt kompakter.
+
+  Hinweis:
+  - Es wurde nur Text auf der Startseite entfernt, keine Logik geändert.
+
+Eintrag Nr.: 34
+Datum: 2026-04-15
+Prompt: nehme den oberen bereich weg also das mit willkommen zurück und so und nehme sodass man dann nur die oben die bar hat und unten die navigation
+Aktion: GEÄNDERT
+Datei / Komponente: Dashboard-Startseite
+Schnittstelle: |
+  src/app/page.tsx → Hero-/Begrüßungsbereich entfernt; Startseite besteht jetzt aus Header und Navigationsbereich
+Beschreibung: |
+  Die testweise neue Dashboard-Startseite weiter vereinfacht.
+
+  Geänderte Punkte:
+  - Der obere Hero-Bereich mit Begrüßung, Schnellaktionen und Infokarten wurde entfernt.
+  - Die Seite besteht jetzt nur noch aus der oberen Leiste mit Logo/Abmelden und dem Navigationsbereich darunter.
+  - Nicht mehr benötigte Importe und Hilfsdaten der Hero-Sektion wurden entfernt.
+
+  Hinweis:
+  - Es wurde nur die Startseiten-UI vereinfacht, keine Navigations- oder Auth-Logik geändert.
+
+Eintrag Nr.: 33
+Datum: 2026-04-15
+Prompt: überlege dir eine neue startseite vom seitlichen layout mir gefällt das nicht so ganz hast du da eine gute idee / setze das einmal testweise um
+Aktion: GEÄNDERT
+Datei / Komponente: Dashboard-Startseite
+Schnittstelle: |
+  src/app/page.tsx → geschützte Startseite als kompakte Dashboard-Ansicht mit Header, Hero-Bereich, Navigationskacheln und Schnellaktionen
+Beschreibung: |
+  Die bisherige Split-Ansicht der Startseite testweise durch eine Dashboard-Startseite ersetzt.
+
+  Geänderte Punkte:
+  - Das Auth-ähnliche Seitenlayout mit seitlicher Illustration wurde entfernt.
+  - Stattdessen gibt es jetzt eine kompakte Kopfzeile mit Logo und Abmelden.
+  - Ein Hero-Bereich führt in die App ein und bietet Schnellaktionen.
+  - Die Hauptbereiche Kalender, Keywords, Statistiken und Ziele werden als große Navigationskacheln dargestellt.
+
+  Hinweis:
+  - Es wurde nur die Startseiten-UI geändert, keine Navigations- oder Auth-Logik.
+
+Eintrag Nr.: 32
+Datum: 2026-04-15
+Prompt: ich finde das bei weiß gut bitte mache das es nur bei weiß und sehr sehr änhlichen Farbstufen ist, nicht bei gelb zum beispiel
+Aktion: GEÄNDERT
+Datei / Komponente: Keyword-Darstellung in Goals
+Schnittstelle: |
+  src/lib/utils.ts → Sonderdarstellung für Keyword-Badges greift jetzt nur noch bei nahezu weißen Farbtönen; andere helle Farben behalten ihre echte Hintergrundfarbe
+Beschreibung: |
+  Die Hervorhebung heller Keywords enger auf echte Weißtöne und sehr ähnliche Abstufungen begrenzt.
+
+  Geänderte Punkte:
+  - Für Keywords wurde eine zusätzliche Erkennung für fast weiße Hex-Farben ergänzt.
+  - Die akzentuierte Sonderdarstellung wird nur noch bei nahezu weißen Tönen verwendet.
+  - Helle Farben wie Gelb behalten wieder ihre eigentliche Keyword-Farbe und erhalten nur eine lesbare dunkle Schrift sowie einen dezenten Rand.
+
+  Hinweis:
+  - Es wurde nur die visuelle Logik für Keyword-Chips und Badge-Kontraste angepasst.
+
+Eintrag Nr.: 31
+Datum: 2026-04-15
+Prompt: ne das gefällt mir nicht so ganz kannst du dir irgendetwas anderes zum hervorheben überlegen von weißen keywords damit das passt?
+Aktion: GEÄNDERT
+Datei / Komponente: Keyword-Darstellung in Goals
+Schnittstelle: |
+  src/lib/utils.ts → Hervorhebung für sehr helle Keyword-Farben auf eine akzentuierte Badge-Darstellung umgestellt
+  src/components/goals/GoalForm.tsx → ausgewählte helle Keywords nutzen jetzt eine subtile Akzentfläche mit kontrastreichem Punkt
+  src/components/goals/GoalCard.tsx → helle Keyword-Badges zeigen zusätzlich einen sichtbaren Farbpunk und dieselbe Akzentdarstellung
+Beschreibung: |
+  Die Darstellung weißer Keywords in der Goals-UI optisch überarbeitet.
+
+  Geänderte Punkte:
+  - Sehr helle Keywords werden nicht mehr nur mit dunklem Text auf hellem Badge dargestellt.
+  - Stattdessen erhalten sie eine leichte primärfarbene Akzentfläche und einen sichtbaren Farbpunk.
+  - Goal-Karten zeigen bei Keyword-Badges jetzt ebenfalls einen kleinen Farbpunkt, damit helle Farben eindeutiger zugeordnet werden können.
+
+  Hinweis:
+  - Es wurde nur die visuelle Hervorhebung der Keyword-Chips und Badges angepasst.
+
+Eintrag Nr.: 30
+Datum: 2026-04-15
+Prompt: Wenn die farbe bei keywords weiß ist dann wird das wenn man es auswählt wie folgt angezeigt können wir das so machen das der text wenn die farbe weiß ist schwaz oder irgendwie angezeigt wird
+Aktion: GEÄNDERT
+Datei / Komponente: Keyword-Darstellung in Goals
+Schnittstelle: |
+  src/lib/utils.ts → Kontrast-Helfer für helle und dunkle Keyword-Farben ergänzt
+  src/components/goals/GoalForm.tsx → ausgewählte Keyword-Chips nutzen jetzt kontrastabhängige Text- und Randfarben
+  src/components/goals/GoalCard.tsx → Keyword-Badges auf Goal-Karten nutzen jetzt dieselbe Kontrastlogik
+Beschreibung: |
+  Die Darstellung weißer und sehr heller Keywords in der Goals-UI lesbar gemacht.
+
+  Geänderte Punkte:
+  - Für Keyword-Farben wird jetzt geprüft, ob sie hell sind.
+  - Helle Keywords erhalten dunklen Text und einen sichtbaren Rand statt weißen Text auf hellem Hintergrund.
+  - Dunkle Keywords behalten weiße Schrift.
+  - Die Logik wird sowohl im Goal-Formular als auch in den Goal-Karten wiederverwendet.
+
+  Hinweis:
+  - Es wurde nur die visuelle Darstellung der Keyword-Chips und Badges angepasst.
+
+Eintrag Nr.: 29
+Datum: 2026-04-15
+Prompt: wenn ich etwas abbrechen will soll der button rot sein geht das
+Aktion: GEÄNDERT
+Datei / Komponente: Goal-Formular
+Schnittstelle: |
+  src/components/goals/GoalForm.tsx → der optionale Abbrechen-Button nutzt jetzt die destructive-Variante statt outline
+Beschreibung: |
+  Die Abbrechen-Aktion im Goals-Formular visuell deutlicher gemacht.
+
+  Geänderte Punkte:
+  - Der `Abbrechen`-Button im Goal-Formular verwendet jetzt den roten `destructive`-Buttonstil.
+  - Die eigentliche Abbruchlogik und Formulardaten bleiben unverändert.
+
+  Hinweis:
+  - Es wurde nur die Darstellung des Buttons geändert.
+
+Eintrag Nr.: 28
+Datum: 2026-04-15
+Prompt: nehme die lösche bestätigung aus goals raus und ich möchte das wenn keine zielzeit definiert ist soll dort die aufsummierte zeit da stehen die ich bisher dafür gebraucht habe
+Aktion: GEÄNDERT
+Datei / Komponente: Goals-Seite und Goal-Karte
+Schnittstelle: |
+  src/app/(dashboard)/goals/page.tsx → Löschen eines Goals erfolgt jetzt ohne vorherige Browser-Bestätigung
+  src/components/goals/GoalCard.tsx → Ziele ohne Zielzeit zeigen jetzt die aufsummierte bisherige Lernzeit statt eines Platzhaltertexts
+Beschreibung: |
+  Die Bedienung der Goals-Seite weiter vereinfacht und die Anzeige für Ziele ohne Zielzeit aussagekräftiger gemacht.
+
+  Geänderte Punkte:
+  - Die `window.confirm`-Abfrage vor dem Löschen eines Ziels wurde entfernt.
+  - Goal-Karten ohne definierte Zielzeit zeigen jetzt die bereits aufgelaufene Lernzeit in Stunden/Minuten an.
+  - Für die neue Anzeige wurde eine kleine Formatierungsfunktion für Minutenwerte ergänzt.
+
+  Hinweis:
+  - Es wurde nur die Goals-UI geändert, keine Service- oder API-Logik.
+
+Eintrag Nr.: 27
+Datum: 2026-04-15
+Prompt: Kannst du dbei der goal seite oben link vor dem logo ein zurück bztton hinzufügen? Den Punkte bei den Goals entfernen und die Fehlerpopups rot machen so wie bei der eventspage
+Aktion: GEÄNDERT
+Datei / Komponente: Goals-Seite und Goal-Karte
+Schnittstelle: |
+  src/app/(dashboard)/goals/page.tsx → Kopfzeile mit Zurück-Button ergänzt, Fehler-Toasts nutzen jetzt die destructive-Variante
+  src/components/goals/GoalCard.tsx → farbigen Punkt vor dem Goal-Titel entfernt
+Beschreibung: |
+  Die Bedienung und Fehlerrückmeldung auf der Goals-Seite an die übrige App angeglichen.
+
+  Geänderte Punkte:
+  - In der Kopfzeile der Goals-Seite wurde vor dem Logo ein Zurück-Button zur Startseite ergänzt.
+  - Die Fehler-Popups beim Erstellen, Speichern und Löschen von Goals nutzen jetzt dieselbe rote destructive-Toast-Variante wie bei den Events.
+  - Der farbige Punkt vor dem Titel einer Goal-Karte wurde entfernt.
+
+  Hinweis:
+  - Es wurde nur die Goals-UI angepasst, keine Service- oder API-Logik geändert.
+
+Eintrag Nr.: 26
+Datum: 2026-04-15
+Prompt: Kannst du auf der Startseite es so machen das so ist wie bei den anderen verlinkten seiten also nicht lila ausgefüllt geht das?
+Aktion: GEÄNDERT
+Datei / Komponente: Startseite Navigation
+Schnittstelle: |
+  src/app/page.tsx → NavCard-Aufruf für den Kalender-Link nutzt jetzt denselben Standardstil wie die übrigen Navigationskarten
+Beschreibung: |
+  Die hervorgehobene lila Kalender-Karte auf der geschützten Startseite entfernt.
+
+  Geänderte Punkte:
+  - Der Kalender-Link nutzt nicht mehr den primary-Variant-Zustand.
+  - Dadurch erscheint die Karte wie die anderen verlinkten Seiten als weiße Standardkarte.
+  - Die übrige Startseitenstruktur und Navigationslogik bleiben unverändert.
+
+  Hinweis:
+  - Es wurde keine Laufzeitlogik geändert, nur die Darstellung der Startseiten-Navigation.
+
 Eintrag Nr.: 25
 Datum: 2026-04-14
 Prompt: nehme die agents.md datei und ergänze die lücken

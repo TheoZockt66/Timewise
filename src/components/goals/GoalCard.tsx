@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import { GoalForm } from "@/components/goals/GoalForm";
 import { GoalProgressBar } from "@/components/goals/GoalProgressBar";
 import type { GoalFormValues } from "@/hooks/useGoals";
+import { getKeywordBadgeStyles, getKeywordDotStyles } from "@/lib/utils";
 import type { GoalWithProgress, Keyword } from "@/types";
 
 type GoalCardProps = {
@@ -19,6 +20,21 @@ type GoalCardProps = {
 
 function formatGoalDate(iso?: string | null): string | null {
   return iso ? new Date(iso).toLocaleDateString("de-DE") : null;
+}
+
+function formatLoggedMinutes(minutes: number): string {
+  if (minutes < 60) {
+    return `${minutes} Minute${minutes === 1 ? "" : "n"}`;
+  }
+
+  const hours = Math.floor(minutes / 60);
+  const remainingMinutes = minutes % 60;
+
+  if (remainingMinutes === 0) {
+    return `${hours} Stunde${hours === 1 ? "" : "n"}`;
+  }
+
+  return `${hours} Stunde${hours === 1 ? "" : "n"} ${remainingMinutes} Minute${remainingMinutes === 1 ? "" : "n"}`;
 }
 
 export function GoalCard({
@@ -54,12 +70,6 @@ export function GoalCard({
       <div className="flex flex-col gap-3">
         <div className="flex items-center justify-between gap-2">
           <div className="flex min-w-0 items-center gap-2">
-            {goal.keywords.length > 0 ? (
-              <span
-                className="h-3 w-3 flex-shrink-0 rounded-full"
-                style={{ backgroundColor: goal.keywords[0].color }}
-              />
-            ) : null}
             <span className="truncate text-base font-semibold">
               {goal.label || "Unbenanntes Ziel"}
             </span>
@@ -81,9 +91,13 @@ export function GoalCard({
             {goal.keywords.map((keyword) => (
               <span
                 key={keyword.id}
-                className="rounded-full px-2 py-0.5 text-xs font-medium text-white"
-                style={{ backgroundColor: keyword.color }}
+                className="inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-xs font-medium"
+                style={getKeywordBadgeStyles(keyword.color)}
               >
+                <span
+                  className="h-2 w-2 flex-shrink-0 rounded-full"
+                  style={getKeywordDotStyles(keyword.color)}
+                />
                 {keyword.label}
               </span>
             ))}
@@ -97,7 +111,9 @@ export function GoalCard({
             percentage={goal.percentage}
           />
         ) : (
-          <p className="text-sm text-muted-foreground">Keine Zielzeit definiert.</p>
+          <p className="text-sm text-muted-foreground">
+            Bisher aufgewendete Zeit: {formatLoggedMinutes(goal.logged_minutes)}
+          </p>
         )}
 
         <div className="flex flex-wrap gap-3 text-xs text-muted-foreground">

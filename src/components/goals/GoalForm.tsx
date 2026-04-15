@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { getKeywordBadgeStyles, getSelectedKeywordDotStyles } from "@/lib/utils";
 import type { Keyword } from "@/types";
 import type { GoalFormValues } from "@/hooks/useGoals";
 
@@ -115,6 +116,7 @@ export function GoalForm({
           <div className="flex flex-wrap gap-2">
             {availableKeywords.map((keyword) => {
               const isSelected = values.keywordIds.includes(keyword.id);
+              const selectedKeywordStyles = getKeywordBadgeStyles(keyword.color);
 
               return (
                 <button
@@ -123,15 +125,19 @@ export function GoalForm({
                   onClick={() => onChange(toggleKeyword(values, keyword.id))}
                   className={`flex items-center gap-2 rounded-full border px-3 py-1 text-sm transition-colors ${
                     isSelected
-                      ? "border-transparent text-white"
+                      ? ""
                       : "border-border bg-background text-foreground hover:bg-muted"
                   }`}
-                  style={isSelected ? { backgroundColor: keyword.color } : {}}
+                  style={isSelected ? selectedKeywordStyles : {}}
                   disabled={disabled}
                 >
                   <span
                     className="h-2 w-2 flex-shrink-0 rounded-full"
-                    style={{ backgroundColor: isSelected ? "white" : keyword.color }}
+                    style={{
+                      ...(isSelected
+                        ? getSelectedKeywordDotStyles(keyword.color)
+                        : { backgroundColor: keyword.color }),
+                    }}
                   />
                   {keyword.label}
                 </button>
@@ -148,7 +154,7 @@ export function GoalForm({
         {onCancel ? (
           <Button
             type="button"
-            variant="outline"
+            variant="destructive"
             onClick={onCancel}
             className="min-h-11"
             disabled={disabled}
