@@ -144,7 +144,7 @@ export async function createEvent(
  * Ruft Events für einen Zeitraum ab (serverseitig).
  * Wird von API-Route GET /api/events verwendet.
  */
-export async function fetchEventsServer(
+export async function fetchEvents(
   params?: EventQueryParams
 ) {
   const supabase = await createClient();
@@ -290,7 +290,7 @@ export async function updateEvent(
       const endDate = data.end_time ? new Date(data.end_time).toISOString().split('T')[0] :
         new Date(currentEvent.end_time).toISOString().split('T')[0];
 
-      const existingEvents = await fetchEventsServer({
+      const existingEvents = await fetchEvents({
         start_date: startDate,
         end_date: endDate,
       });
@@ -430,7 +430,7 @@ async function getEventWithKeywords(eventId: string, userId: string) {
 /**
  * Ruft Events für einen Zeitraum ab.
  * GET /api/events?start_date=...&end_date=...
- */
+ *
 export async function fetchEvents(
   params?: EventQueryParams
 ): Promise<ApiResponse<EventWithKeywords[]>> {
@@ -471,6 +471,7 @@ export async function fetchEvents(
     };
   }
 }
+  */
 
 /**
  * Löscht ein Event.
