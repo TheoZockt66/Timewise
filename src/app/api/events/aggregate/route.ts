@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { fetchEventsServer } from "@/lib/services/event.service";
+import { fetchEvents } from "@/lib/services/event.service";
 
 /**
  * GET /api/events/aggregate
@@ -20,7 +20,7 @@ export async function GET(request: Request) {
     // Events aus Service laden (WICHTIG: keine direkte DB-Abfrage hier!)
     const keyword_ids = searchParams.getAll("keyword_ids");
 
-    const result = await fetchEventsServer({
+    const result = await fetchEvents({
         start_date,
         end_date,
         keyword_ids,

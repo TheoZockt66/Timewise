@@ -426,53 +426,6 @@ async function getEventWithKeywords(eventId: string, userId: string) {
   };
 }
 
-
-/**
- * Ruft Events für einen Zeitraum ab.
- * GET /api/events?start_date=...&end_date=...
- *
-export async function fetchEvents(
-  params?: EventQueryParams
-): Promise<ApiResponse<EventWithKeywords[]>> {
-  try {
-    const queryParams = new URLSearchParams();
-    if (params?.start_date) queryParams.append("start_date", params.start_date);
-    if (params?.end_date) queryParams.append("end_date", params.end_date);
-    if (params?.keyword_ids?.length) {
-      queryParams.append("keyword_ids", params.keyword_ids.join(","));
-    }
-
-    const query = queryParams.toString();
-    const url = `/api/events${query ? `?${query}` : ""}`;
-
-    const response = await fetch(url, {
-      method: "GET",
-      credentials: "include",
-      mode: "same-origin",
-    });
-
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => null);
-      return {
-        data: null,
-        error: errorData?.error || handleApiError(response),
-      };
-    }
-
-    return await response.json();
-  } catch (error) {
-    return {
-      data: null,
-      error: {
-        code: "NETWORK_ERROR",
-        message: "Fehler beim Abrufen der Events.",
-        details: error instanceof Error ? error.message : undefined,
-      },
-    };
-  }
-}
-  */
-
 /**
  * Löscht ein Event.
  * DELETE /api/events/:id
