@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
-import { createEvent, fetchEventsServer } from "@/lib/services/event.service";
+import { createEvent, fetchEvents } from "@/lib/services/event.service";
 
 // ─── API-Endpunkte für Events ───
 
@@ -102,7 +102,7 @@ export async function GET(request: Request) {
   const keyword_ids = searchParams.get("keyword_ids")?.split(",") || undefined;
 
   // Schritt 4: Events über den Service laden
-  const result = await fetchEventsServer({
+  const result = await fetchEvents({
     start_date,
     end_date,
     keyword_ids,

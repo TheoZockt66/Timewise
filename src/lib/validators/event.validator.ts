@@ -106,7 +106,7 @@ export function validateNoOverlap(
       if (newStart < existEnd && newEnd > existStart) {
         return {
           field: "overlap",
-          message: `Zeitliche Überschneidung erkannt (${event.label || "Kein Label"}).`,
+          message: `Zeitliche Überschneidung mit bestehender Lernzeit erkannt.`,
           code: "OVERLAP",
         };
       }
