@@ -4,87 +4,95 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
-import { Calendar, Tag, BarChart3, Target, LogOut } from "lucide-react";
-import { AuthIllustration } from "@/components/auth/AuthIllustration";
+import {
+  ArrowRight,
+  BarChart3,
+  Calendar,
+  LogOut,
+  Tag,
+  Target,
+  type LucideIcon,
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
 
-/**
- * Navigationskarte – zeigt eine Seite als klickbare Karte an.
- * Single Responsibility: nur für die Darstellung einer einzelnen Navigationskarte.
- */
-function NavCard({
+type NavigationTile = {
+  href: string;
+  icon: LucideIcon;
+  title: string;
+  description: string;
+  eyebrow: string;
+};
+
+const navigationTiles: NavigationTile[] = [
+  {
+    href: "/calendar",
+    icon: Calendar,
+    title: "Kalender",
+    description: "Lernzeiten erfassen, bearbeiten und direkt aus der Wochen- oder Monatsansicht verwalten.",
+    eyebrow: "Planen",
+  },
+  {
+    href: "/keywords",
+    icon: Tag,
+    title: "Keywords",
+    description: "Fächer und Themen strukturieren, Farben vergeben und deine Einträge klar ordnen.",
+    eyebrow: "Struktur",
+  },
+  {
+    href: "/stats",
+    icon: BarChart3,
+    title: "Statistiken",
+    description: "Lernfortschritt auswerten, Zeitverläufe vergleichen und Schwerpunkte erkennen.",
+    eyebrow: "Analyse",
+  },
+  {
+    href: "/goals",
+    icon: Target,
+    title: "Ziele",
+    description: "Lernziele definieren, Keyword-basiert verfolgen und Fortschritte im Blick behalten.",
+    eyebrow: "Fokus",
+  },
+];
+
+function NavigationCard({
   href,
   icon: Icon,
   title,
   description,
-  variant = "default",
-}: {
-  href: string;
-  icon: React.ElementType;
-  title: string;
-  description: string;
-  // "default" = weiße Karte, "primary" = lila Karte (für Haupt-CTAs)
-  variant?: "default" | "primary";
-}) {
-  const isPrimary = variant === "primary";
-
+  eyebrow,
+}: NavigationTile) {
   return (
     <Link
       href={href}
-      className={[
-        // Mindestgröße 44px für interaktive Elemente (UI-Anforderung)
-        "flex items-center gap-4 rounded-xl border p-4 transition-all duration-200",
-        isPrimary
-          ? "border-primary bg-primary text-primary-foreground hover:bg-primary/90"
-          : "border-border bg-white text-foreground hover:border-primary/40 hover:shadow-sm",
-      ].join(" ")}
+      className="group relative overflow-hidden rounded-[1.5rem] border border-border bg-white p-5 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-primary/30 hover:shadow-md"
     >
-      {/* Icon-Container */}
-      <div
-        className={[
-          "flex h-11 w-11 shrink-0 items-center justify-center rounded-lg",
-          isPrimary ? "bg-white/20" : "bg-[var(--tw-surface)]",
-        ].join(" ")}
-      >
-        <Icon
-          className={[
-            "h-5 w-5",
-            isPrimary ? "text-white" : "text-primary",
-          ].join(" ")}
-        />
+      <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-primary/70 via-primary to-accent/80 opacity-0 transition-opacity duration-200 group-hover:opacity-100" />
+      <div className="flex items-start justify-between gap-4">
+        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-[var(--tw-surface)] text-primary">
+          <Icon className="h-5 w-5" />
+        </div>
+        <ArrowRight className="mt-1 h-4 w-4 text-muted-foreground transition-transform duration-200 group-hover:translate-x-0.5 group-hover:text-primary" />
       </div>
 
-      {/* Text */}
-      <div>
-        <p className="font-semibold text-base">{title}</p>
-        <p
-          className={[
-            "text-sm",
-            isPrimary ? "text-white/70" : "text-muted-foreground",
-          ].join(" ")}
-        >
-          {description}
-        </p>
+      <div className="mt-6 space-y-3">
+        <p className="text-xs font-semibold uppercase tracking-[0.24em] text-primary/80">{eyebrow}</p>
+        <div className="space-y-2">
+          <h2 className="text-xl font-semibold text-foreground">{title}</h2>
+          <p className="text-sm leading-6 text-muted-foreground">{description}</p>
+        </div>
       </div>
     </Link>
   );
 }
 
 /**
- * StartPage – Geschützte Startseite von Timewise (nur für eingeloggte User).
- *
- * Aufbau (analog zur Login-Seite):
- * - Linke Seite: Logo, Begrüßung, Navigationskarten zu allen Funktionen, Logout
- * - Rechte Seite: Dekorative Illustration auf lila Hintergrund
- *
- * Anforderungsbezug: U1 (max. 3 Klicks), F5 (Logout)
+ * Dashboard-Startseite für eingeloggte User.
+ * Fokus: schneller Zugang zu allen Hauptbereichen ohne Auth-Splitlayout.
  */
 export default function StartPage() {
   const router = useRouter();
   const [isLoggingOut, setIsLoggingOut] = useState(false);
 
-  /**
-   * handleLogout – Ruft die Logout-API auf und leitet zu /login weiter.
-   */
   const handleLogout = async () => {
     setIsLoggingOut(true);
     try {
@@ -96,88 +104,49 @@ export default function StartPage() {
   };
 
   return (
-    // Gleiches Split-Layout wie AuthLayout
-    <div className="flex min-h-screen bg-[var(--tw-primary-300)]">
-
-      {/* Linke Seite: Navigation auf weißem Hintergrund */}
-      <div className="flex w-full items-center justify-center bg-white p-6 lg:w-1/2 lg:rounded-r-[2rem]">
-        <div className="w-full max-w-md flex flex-col gap-8">
-
-          {/* Logo – identisch zur Login-Seite */}
-          <Image
-            src="/timewise-logo.svg"
-            alt="Timewise Logo"
-            width={180}
-            height={47}
-            priority
-          />
-
-          {/* Begrüßung */}
-          <div>
-            <h1 className="text-3xl font-bold text-foreground">Willkommen</h1>
-            <p className="mt-2 text-muted-foreground">
-              Erfasse deine Lernzeiten, setze Ziele und behalte deinen Fortschritt im Blick.
-            </p>
-          </div>
-
-          {/* Funktionen-Bereich */}
-          <div className="flex flex-col gap-3">
-            <p className="text-sm font-medium text-muted-foreground uppercase tracking-wide">
-              Funktionen
-            </p>
-            <NavCard
-              href="/calendar"
-              icon={Calendar}
-              title="Kalender"
-              description="Lernzeiten erfassen und verwalten"
+    <main className="min-h-screen bg-[linear-gradient(180deg,#f7f4ff_0%,#ffffff_28%,#ffffff_100%)] px-4 py-6 md:px-6 lg:px-8">
+      <div className="mx-auto flex w-full max-w-6xl flex-col gap-6">
+        <header className="flex flex-col gap-4 rounded-[1.75rem] border border-white/80 bg-white/85 p-4 shadow-sm backdrop-blur md:flex-row md:items-center md:justify-between md:p-5">
+          <Link href="/" className="inline-flex items-center">
+            <Image
+              src="/timewise-logo.svg"
+              alt="Timewise Logo"
+              width={216}
+              height={56}
+              className="h-12 w-[185px] object-contain md:h-14 md:w-[216px]"
+              priority
             />
-            <NavCard
-              href="/keywords"
-              icon={Tag}
-              title="Keywords"
-              description="Kategorien erstellen und bearbeiten"
-            />
-            <NavCard
-              href="/stats"
-              icon={BarChart3}
-              title="Statistiken"
-              description="Lernfortschritt visualisieren"
-            />
-            <NavCard
-              href="/goals"
-              icon={Target}
-              title="Ziele"
-              description="Lernziele definieren und verfolgen"
-            />
-          </div>
+          </Link>
 
-          {/* Logout-Button */}
-          <button
+          <Button
+            type="button"
+            variant="outline"
             onClick={handleLogout}
             disabled={isLoggingOut}
-            className="flex items-center gap-4 rounded-xl border border-border p-4 text-left transition-all duration-200 hover:border-destructive/40 hover:bg-destructive/5 disabled:opacity-50"
+            className="min-h-11 rounded-full border-destructive/20 bg-destructive/5 px-5 text-destructive hover:bg-destructive/10 hover:text-destructive"
           >
-            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-destructive/10">
-              <LogOut className="h-5 w-5 text-destructive" />
-            </div>
+            <LogOut className="mr-2 h-4 w-4" />
+            {isLoggingOut ? "Wird abgemeldet..." : "Abmelden"}
+          </Button>
+        </header>
+
+        <section className="space-y-4">
+          <div>
             <div>
-              <p className="font-semibold text-base text-destructive">
-                {isLoggingOut ? "Wird abgemeldet..." : "Abmelden"}
+              <p className="text-xs font-semibold uppercase tracking-[0.24em] text-muted-foreground">
+                Navigation
               </p>
-              <p className="text-sm text-muted-foreground">
-                Sicher aus Timewise ausloggen
-              </p>
+              <h2 className="mt-2 text-2xl font-semibold text-foreground">Dein Arbeitsbereich</h2>
             </div>
-          </button>
+          </div>
 
-        </div>
+          <div className="grid gap-4 md:grid-cols-2">
+            {navigationTiles.map((tile) => (
+              <NavigationCard key={tile.href} {...tile} />
+            ))}
+          </div>
+        </section>
       </div>
-
-      {/* Rechte Seite: Illustration – nur auf Desktop sichtbar */}
-      <div className="hidden w-1/2 items-center justify-center lg:flex">
-        <AuthIllustration />
-      </div>
-
-    </div>
+    </main>
   );
 }

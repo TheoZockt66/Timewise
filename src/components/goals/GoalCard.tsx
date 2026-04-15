@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import { GoalForm } from "@/components/goals/GoalForm";
 import { GoalProgressBar } from "@/components/goals/GoalProgressBar";
 import type { GoalFormValues } from "@/hooks/useGoals";
+import { getKeywordBadgeStyles, getKeywordDotStyles } from "@/lib/utils";
 import type { GoalWithProgress, Keyword } from "@/types";
 
 type GoalCardProps = {
@@ -90,9 +91,13 @@ export function GoalCard({
             {goal.keywords.map((keyword) => (
               <span
                 key={keyword.id}
-                className="rounded-full px-2 py-0.5 text-xs font-medium text-white"
-                style={{ backgroundColor: keyword.color }}
+                className="inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-xs font-medium"
+                style={getKeywordBadgeStyles(keyword.color)}
               >
+                <span
+                  className="h-2 w-2 flex-shrink-0 rounded-full"
+                  style={getKeywordDotStyles(keyword.color)}
+                />
                 {keyword.label}
               </span>
             ))}
