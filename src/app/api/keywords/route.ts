@@ -67,7 +67,7 @@ export async function POST(request: Request) {
  *
  * Ablauf:
  * 1. Aktuellen Benutzer über Supabase Auth ermitteln
- * 2. Alle Keywords dieses Users aus der Datenbank laden
+ * 2. Alle Keywords dieses Users alphabetisch sortiert nach Label aus der Datenbank laden
  * 3. Ergebnis zurückgeben
  *
  * Randfall:
@@ -97,11 +97,12 @@ export async function GET() {
     );
   }
 
-  // Schritt 3: Alle Keywords des Users laden
+  // Schritt 3: Alle Keywords des Users alphabetisch sortiert laden
   const { data, error } = await supabase
     .from("keywords")
     .select("*")
-    .eq("user_id", user.id);
+    .eq("user_id", user.id)
+    .order("label", { ascending: true });
 
   // Schritt 4: Ergebnis zurückgeben
   return NextResponse.json({
