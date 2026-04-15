@@ -251,6 +251,57 @@ export default function StatsPage() {
                 {/* Datenanzeige */}
                 {loading && <p>Lade Daten...</p>}
 
+                {/* INFO-KACHEL: Kontextdaten */}
+                {!loading && !error && (
+                    <div className="rounded-xl border bg-white p-6 shadow-sm">
+                        <h2 className="text-lg font-semibold mb-2">
+                            Statistikübersicht
+                        </h2>
+
+                        {/* Zeitraum */}
+                        <p>
+                            <strong>Zeitraum:</strong>{" "}
+                            {timelinePeriodLabel}
+                        </p>
+
+                        {/* Gesamtlernzeit */}
+                        <p>
+                            <strong>Gesamtlernzeit:</strong>{" "}
+                            {Math.floor(totalTimelineMinutes / 60)}h {totalTimelineMinutes % 60}min
+                        </p>
+
+                        {/* Keywords */}
+                        <div className="mt-3">
+                            <strong>Ausgewählte Keywords:</strong>
+
+                            {filters.keywordIds.length === 0 ? (
+                                <p className="mt-2 text-gray-500 italic">
+                                    Alle Keywords ausgewählt
+                                </p>
+                            ) : (
+                                <div className="mt-2 grid grid-cols-2 md:grid-cols-3 gap-2">
+                                    {keywords
+                                        .filter((k) => filters.keywordIds.includes(k.id))
+                                        .map((k) => (
+                                            <div key={k.id} className="flex items-center gap-2">
+                                                <span
+                                                    className="h-3 w-3 rounded-full"
+                                                    style={{ backgroundColor: k.color }}
+                                                />
+                                                <span
+                                                    className="truncate max-w-[160px] cursor-default"
+                                                    title={k.label}
+                                                >
+                                                    {k.label}
+                                                </span>
+                                            </div>
+                                        ))}
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                )}
+
                 {/* Fehleranzeige */}
                 {error && <p className="text-red-500">{error}</p>}
 
@@ -265,24 +316,8 @@ export default function StatsPage() {
                                 {data.map((entry) => (
                                     <div key={entry.period} className="rounded-xl border bg-white p-6 shadow-sm">
                                         <h2 className="text-lg font-semibold mb-2">
-                                            Lernzeit nach Fächern
+                                            Lernzeit nach Keywords
                                         </h2>
-                                        <p>
-                                            <strong>Zeitraum:</strong>{" "}
-                                            {filters.granularity === "month"
-                                                ? new Date(filters.startDate).toLocaleDateString("de-DE", {
-                                                    month: "long",
-                                                    year: "numeric",
-                                                })
-                                                : formatGermanDate(filters.startDate) +
-                                                " bis " +
-                                                formatGermanDate(filters.endDate)}
-                                        </p>
-
-                                        <p>
-                                            <strong>Gesamtlernzeit:</strong>{" "}
-                                            {Math.floor(entry.total_minutes / 60)}h {entry.total_minutes % 60}min
-                                        </p>
 
                                         {entry.by_keyword.length > 0 && (
                                             <>
@@ -319,19 +354,14 @@ export default function StatsPage() {
                                         Lernzeit im Zeitverlauf
                                     </h2>
 
-                                    {/* Zeitraum + Gesamtzeit wie beim Balkendiagramm */}
-                                    <p>
-                                        <strong>Zeitraum:</strong>{" "}
-                                        {timelinePeriodLabel}
-                                    </p>
-
-                                    <p>
-                                        <strong>Gesamtlernzeit:</strong>{" "}
-                                        {Math.floor(totalTimelineMinutes / 60)}h {totalTimelineMinutes % 60}min
-                                    </p>
-
                                     <div className="w-full h-[360px]">
-                                        <TimelineLineChart data={timelineData} keywordColors={keywordColorMap} />
+                                        <TimelineLineChart
+                                            data={timelineData}
+                                            keywordColors={keywordColorMap}
+                                            selectedKeywords={keywords
+                                                .filter((k) => filters.keywordIds.includes(k.id))
+                                                .map((k) => k.label)}
+                                        />
                                     </div>
                                 </div>
                             </>
