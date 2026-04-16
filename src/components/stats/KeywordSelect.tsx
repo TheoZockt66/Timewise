@@ -90,15 +90,20 @@ export default function KeywordSelect({
                                         setTempSelected(newIds);
                                     }}
                                 />
-                                <div className="flex items-center gap-2">
+                                <div className="flex items-center gap-2 min-w-0">
                                     {/* Farbpunkt */}
                                     <span
-                                        className="w-3 h-3 rounded-full"
+                                        className="w-3 h-3 rounded-full shrink-0"
                                         style={{ backgroundColor: k.color }}
                                     />
 
                                     {/* Label */}
-                                    <span>{k.label}</span>
+                                    <span
+                                        className="truncate max-w-[160px]"
+                                        title={k.label}
+                                    >
+                                        {k.label}
+                                    </span>
                                 </div>
                             </label>
                         ))}

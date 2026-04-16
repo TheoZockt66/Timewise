@@ -81,7 +81,7 @@ export function LineTooltip({ active, payload, label }: BaseProps) {
     }
 
     return (
-        <div className="rounded-md border bg-white p-3 shadow-sm max-w-xs break-words">
+        <div className="rounded-md border bg-white p-4 shadow-sm max-w-sm">
             <p className="font-medium">{formatLabel(label)}</p>
 
             <div className="mt-2 space-y-1">
@@ -95,22 +95,22 @@ export function LineTooltip({ active, payload, label }: BaseProps) {
                     return (
                         <div
                             key={`${displayName}-${index}`}
-                            className="flex items-start justify-between gap-4 min-w-0"
+                            className="flex items-start justify-between gap-4 pl-1"
                         >
-                            <div className="flex items-center gap-2 min-w-0">
+                            <div className="flex items-center gap-2 min-w-0 pl-1">
                                 <span
-                                    className="h-2.5 w-2.5 rounded-full"
+                                    className="h-3 w-3 rounded-full shrink-0"
                                     style={{ backgroundColor: entry.color ?? "#7700F4" }}
                                 />
                                 <span
-                                    className="max-w-[180px] whitespace-normal break-words"
+                                    className="break-all"
                                     title={displayName}
                                 >
                                     {displayName}
                                 </span>
                             </div>
 
-                            <span>{value} Minuten</span>
+                            <span className="whitespace-nowrap">{value} Minuten</span>
                         </div>
                     );
                 })}
