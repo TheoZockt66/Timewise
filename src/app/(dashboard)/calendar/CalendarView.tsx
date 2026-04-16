@@ -112,6 +112,12 @@ export default function CalendarView() {
           select={handleSelect}
           eventClick={handleEventClick}
           
+          // NEU: Ganztags-Spalte ("all-day") ausblenden
+          allDaySlot={false}
+          
+          // NEU: Monat in der Überschrift voll ausschreiben
+          titleFormat={{ year: 'numeric', month: 'long', day: 'numeric' }}
+
           // Lokalisierung (Deutsch & Wochenstart)
           locale="de"
           firstDay={1}                 // 1 = Montag (0 wäre Sonntag)
@@ -128,7 +134,7 @@ export default function CalendarView() {
             center: 'title',
             right: 'dayGridMonth,timeGridWeek,timeGridDay'
           }}
-          // Hier werden die Termine an den Kalender übergeben und mit eurer Primärfarbe versehen
+          // Hier werden die Termine an den Kalender übergeben und mit der Primärfarbe versehen
           events={events.map((event: EventWithKeywords) => ({
             id: event.id,
             title: event.label || 'Unbenannt',
