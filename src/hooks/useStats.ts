@@ -42,6 +42,7 @@ type TimelinePoint = {
 type UseStatsResult = {
     data: AggregatedTime[];
     timelineData: TimelinePoint[];
+    events: any[];
     loading: boolean;
     error: string | null;
     refetch: () => Promise<void>;
@@ -148,6 +149,7 @@ export function useStats({
 }: UseStatsParams): UseStatsResult {
     const [data, setData] = useState<AggregatedTime[]>([]);
     const [timelineData, setTimelineData] = useState<TimelinePoint[]>([]);
+    const [events, setEvents] = useState<any[]>([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
@@ -228,26 +230,26 @@ export function useStats({
     const buildDayTimeline = (events: any[]) => {
         const keywordLabels = getKeywordLabels(events);
 
-        // Struktur: pro Stunde → Gesamt + Keywords
+        // Alle Stunden von 0–23 vorbereiten
+        const hours = Array.from({ length: 24 }, (_, i) => `${i}:00`);
+
         const grouped: Record<string, TimelinePoint> = {};
 
+        // Jede Stunde initialisieren (auch wenn keine Daten vorhanden sind)
+        hours.forEach((hour) => {
+            grouped[hour] = createTimelinePoint(hour, keywordLabels);
+        });
+
+        // Events hinzufügen (aktuell: komplette Dauer in Start-Stunde)
         events.forEach((event) => {
             const date = new Date(event.start_time);
             const key = `${date.getHours()}:00`;
 
-            if (!grouped[key]) {
-                grouped[key] = createTimelinePoint(key, keywordLabels);
-            }
-
             addEventToTimelinePoint(grouped[key], event);
         });
 
-        return Object.values(grouped).sort((a, b) => {
-            const hourA = Number.parseInt(a.period, 10);
-            const hourB = Number.parseInt(b.period, 10);
-
-            return hourA - hourB;
-        });
+        // Reihenfolge bleibt stabil (0 → 23)
+        return hours.map((hour) => grouped[hour]);
     };
 
     /**
@@ -258,9 +260,16 @@ export function useStats({
         setError(null);
 
         try {
+            // Enddatum auf Ende des Tages setzen, damit alle Events enthalten sind
+            const endDateObj = new Date(endDate);
+
+            if (granularity === "day") {
+                endDateObj.setHours(23, 59, 59, 999);
+            }
+
             const params = new URLSearchParams({
                 start_date: startDate,
-                end_date: endDate,
+                end_date: endDateObj.toISOString(),
                 granularity,
             });
 
@@ -290,7 +299,7 @@ export function useStats({
 
             const paramsEvents = new URLSearchParams({
                 start_date: startDate,
-                end_date: endDate,
+                end_date: endDateObj.toISOString(),
             });
 
             keywordIds?.forEach((id) => {
@@ -301,6 +310,7 @@ export function useStats({
             const eventsResponse = await responseEvents.json();
 
             const events = eventsResponse.data ?? [];
+            setEvents(events);
             let timeline: TimelinePoint[] = [];
 
             if (granularity === "week") {
@@ -308,7 +318,9 @@ export function useStats({
             } else if (granularity === "month") {
                 timeline = buildMonthTimeline(events);
             } else {
-                timeline = buildDayTimeline(events);
+                // Für Tagesansicht wird die Timeline nicht benötigt,
+                // da DayTimeline direkt mit Events arbeitet
+                timeline = [];
             }
 
             setTimelineData(timeline);
@@ -333,6 +345,7 @@ export function useStats({
     return {
         data,
         timelineData,
+        events,
         loading,
         error,
         refetch: fetchStats,

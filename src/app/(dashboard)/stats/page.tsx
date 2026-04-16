@@ -11,6 +11,7 @@ import KeywordSelect from "@/components/stats/KeywordSelect";
 import TimelineLineChart from "@/components/stats/TimelineLineChart";
 import { formatDate } from "@/lib/utils";
 import DateNavigation from "@/components/ui/DateNavigation";
+import DayTimeline from "@/components/stats/DayTimeline";
 
 /**
  * StatsPage
@@ -94,7 +95,7 @@ export default function StatsPage() {
      * - loading → Ladezustand
      * - error → Fehlerzustand
      */
-    const { data, timelineData, loading, error } = useStats(filters);
+    const { data, timelineData, events, loading, error } = useStats(filters);
 
     /**
     * Berechnet die Gesamtlernzeit für die Timeline
@@ -345,7 +346,7 @@ export default function StatsPage() {
                                                     ))}
                                                 </div>
 
-                                                <div className="mt-6 w-full min-h-[300px]">
+                                                <div className="mt-6 w-full h-[260px]">
                                                     <KeywordBarChart data={entry.by_keyword} />
                                                 </div>
                                             </>
@@ -354,21 +355,31 @@ export default function StatsPage() {
                                 ))}
 
                                 {/* Liniendiagramm: zeigt Verlauf der Lernzeit über den gewählten Zeitraum */}
-                                <div className="rounded-xl border bg-white p-6 shadow-sm">
-                                    <h2 className="text-lg font-semibold mb-2">
-                                        Lernzeit im Zeitverlauf
-                                    </h2>
+                                {filters.granularity === "day" ? (
+                                    <div className="rounded-xl border bg-white p-6 shadow-sm min-h-[700px]">
+                                        <h2 className="text-lg font-semibold mb-4">
+                                            Lernzeit im Zeitverlauf
+                                        </h2>
 
-                                    <div className="w-full h-[360px]">
-                                        <TimelineLineChart
-                                            data={timelineData}
-                                            keywordColors={keywordColorMap}
-                                            selectedKeywords={keywords
-                                                .filter((k) => filters.keywordIds.includes(k.id))
-                                                .map((k) => k.label)}
-                                        />
+                                        <DayTimeline events={events} />
                                     </div>
-                                </div>
+                                ) : (
+                                    <div className="rounded-xl border bg-white p-6 shadow-sm">
+                                        <h2 className="text-lg font-semibold mb-2">
+                                            Lernzeit im Zeitverlauf
+                                        </h2>
+
+                                        <div className="w-full h-[350px]">
+                                            <TimelineLineChart
+                                                data={timelineData}
+                                                keywordColors={keywordColorMap}
+                                                selectedKeywords={keywords
+                                                    .filter((k) => filters.keywordIds.includes(k.id))
+                                                    .map((k) => k.label)}
+                                            />
+                                        </div>
+                                    </div>
+                                )}
                             </>
                         )}
                     </div>

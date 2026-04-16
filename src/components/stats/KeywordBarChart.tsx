@@ -34,8 +34,8 @@ type Props = {
  */
 export default function KeywordBarChart({ data }: Props) {
     return (
-        <div className="w-full h-[360px]">
-            <ResponsiveContainer width="100%" height={300}>
+        <div className="w-full h-full">
+            <ResponsiveContainer width="100%" height="100%">
                 <BarChart
                     data={data}
                     barCategoryGap="50%"
