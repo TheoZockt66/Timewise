@@ -325,14 +325,19 @@ export default function StatsPage() {
                                                     {entry.by_keyword.map((k) => (
                                                         <div
                                                             key={k.keyword_id}
-                                                            className="flex items-center justify-between"
+                                                            className="flex items-center justify-between max-w-xs"
                                                         >
-                                                            <div className="flex items-center gap-2">
+                                                            <div className="flex items-center gap-2 min-w-0">
                                                                 <div
                                                                     className="h-3 w-3 rounded-full"
                                                                     style={{ backgroundColor: k.keyword_color }}
                                                                 />
-                                                                <span>{k.keyword_label}</span>
+                                                                <span
+                                                                    className="truncate max-w-[160px]"
+                                                                    title={k.keyword_label}
+                                                                >
+                                                                    {k.keyword_label}
+                                                                </span>
                                                             </div>
 
                                                             <span>{k.minutes} min</span>

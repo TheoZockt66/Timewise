@@ -55,8 +55,13 @@ export function BarTooltip({ active, payload, label }: BaseProps) {
     const name = label ?? item.name ?? item.dataKey ?? "Wert";
 
     return (
-        <div className="rounded-md border bg-white p-2 shadow">
-            <p className="font-medium">{name}</p>
+        <div className="rounded-md border bg-white p-2 shadow max-w-xs break-words">
+            <p
+                className="font-medium break-words"
+                title={name}
+            >
+                {name}
+            </p>
             <p>{value} Minuten</p>
         </div>
     );
@@ -76,7 +81,7 @@ export function LineTooltip({ active, payload, label }: BaseProps) {
     }
 
     return (
-        <div className="rounded-md border bg-white p-3 shadow-sm">
+        <div className="rounded-md border bg-white p-3 shadow-sm max-w-xs break-words">
             <p className="font-medium">{formatLabel(label)}</p>
 
             <div className="mt-2 space-y-1">
@@ -90,14 +95,19 @@ export function LineTooltip({ active, payload, label }: BaseProps) {
                     return (
                         <div
                             key={`${displayName}-${index}`}
-                            className="flex items-center justify-between gap-4"
+                            className="flex items-start justify-between gap-4 min-w-0"
                         >
-                            <div className="flex items-center gap-2">
+                            <div className="flex items-center gap-2 min-w-0">
                                 <span
                                     className="h-2.5 w-2.5 rounded-full"
                                     style={{ backgroundColor: entry.color ?? "#7700F4" }}
                                 />
-                                <span>{displayName}</span>
+                                <span
+                                    className="max-w-[180px] whitespace-normal break-words"
+                                    title={displayName}
+                                >
+                                    {displayName}
+                                </span>
                             </div>
 
                             <span>{value} Minuten</span>

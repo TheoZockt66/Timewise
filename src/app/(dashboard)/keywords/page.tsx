@@ -18,11 +18,32 @@ export default function KeywordsPage() {
   const [editLabel, setEditLabel] = useState("");
   const [editColor, setEditColor] = useState("");
 
+  // State für Fehlermeldungen beim Bearbeiten eines Keywords
+  const [editError, setEditError] = useState("");
+
   // State für neues Keyword
   const [newLabel, setNewLabel] = useState("");
   const [newColor, setNewColor] = useState("#000000");
 
+  // State für Fehlermeldungen beim Erstellen eines Keywords
+  const [createError, setCreateError] = useState("");
+
   const { toast } = useToast();
+
+  /**
+ * Setzt den Bearbeitungsmodus zurück.
+ *
+ * Ziel:
+ * - verlässt den Edit-Modus
+ * - leert Eingabefelder
+ * - entfernt Fehlermeldungen
+ */
+  const resetEditState = () => {
+    setEditingId(null);
+    setEditLabel("");
+    setEditColor("");
+    setEditError("");
+  };
 
   // Lädt beim ersten Rendern alle Keywords vom Backend
   useEffect(() => {
@@ -33,15 +54,15 @@ export default function KeywordsPage() {
 
   // Erstellt ein neues Keyword und lädt danach die Liste neu
   const handleCreate = async () => {
+    // Fehlermeldung zurücksetzen, bevor ein neuer Versuch startet
+    setCreateError("");
+
     // verhindert leere Eingaben
     if (!newLabel.trim()) {
-      toast({
-        title: "Fehler",
-        description: "Bitte gib einen Namen ein",
-      });
-
+      setCreateError("Bitte gib einen Namen ein.");
       return;
     }
+
     const res = await fetch("/api/keywords", {
       method: "POST",
       headers: {
@@ -55,23 +76,27 @@ export default function KeywordsPage() {
 
     const result = await res.json();
 
-    if (!result.error) {
-      // nach Erstellung: Liste neu laden (synchron mit Backend)
-      const refreshed = await fetch("/api/keywords");
-      const refreshedData = await refreshed.json();
-
-      setKeywords(refreshedData.data || []);
-
-      toast({
-        title: "Erfolg",
-        description: "Keyword erfolgreich erstellt",
-        duration: 3000,
-      });
-
-      // Eingabefelder zurücksetzen
-      setNewLabel("");
-      setNewColor("#000000");
+    // Fehler aus dem Backend direkt im UI anzeigen
+    if (!res.ok || result.error) {
+      setCreateError(result.error?.message ?? "Keyword konnte nicht erstellt werden.");
+      return;
     }
+
+    // nach Erstellung: Liste neu laden (synchron mit Backend)
+    const refreshed = await fetch("/api/keywords");
+    const refreshedData = await refreshed.json();
+
+    setKeywords(refreshedData.data || []);
+
+    toast({
+      title: "Erfolg",
+      description: "Keyword erfolgreich erstellt",
+      duration: 3000,
+    });
+
+    // Eingabefelder zurücksetzen
+    setNewLabel("");
+    setNewColor("#000000");
   };
 
   // Löscht ein Keyword und entfernt es direkt aus dem lokalen State
@@ -100,41 +125,49 @@ export default function KeywordsPage() {
 
   // Aktualisiert ein Keyword und passt den lokalen State entsprechend an
   const handleUpdate = async (id: string) => {
+    // Fehlermeldung zurücksetzen, bevor ein neuer Versuch startet
+    setEditError("");
+
+    // verhindert leere Eingaben
+    if (!editLabel.trim()) {
+      setEditError("Bitte gib einen Namen ein.");
+      return;
+    }
+
     const res = await fetch(`/api/keywords/${id}`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        label: editLabel,
+        label: editLabel.trim(),
         color: editColor,
       }),
     });
 
     const result = await res.json();
 
-    if (!result.error) {
-      // nur das betroffene Keyword im State aktualisieren
-      setKeywords((prev) =>
-        prev.map((k) =>
-          k.id === id
-            ? { ...k, label: editLabel, color: editColor }
-            : k
-        )
-      );
-
-      setEditingId(null);
-
-      toast({
-        title: "Erfolg",
-        description: "Keyword gespeichert",
-      });
-    } else {
-      toast({
-        title: "Fehler",
-        description: "Keyword konnte nicht gespeichert werden",
-      });
+    // Fehler aus dem Backend direkt im UI anzeigen
+    if (!res.ok || result.error) {
+      setEditError(result.error?.message ?? "Keyword konnte nicht gespeichert werden.");
+      return;
     }
+
+    // nur das betroffene Keyword im State aktualisieren
+    setKeywords((prev) =>
+      prev.map((k) =>
+        k.id === id
+          ? { ...k, label: editLabel.trim(), color: editColor }
+          : k
+      )
+    );
+
+    resetEditState();
+
+    toast({
+      title: "Erfolg",
+      description: "Keyword gespeichert",
+    });
   };
 
   return (
@@ -168,7 +201,17 @@ export default function KeywordsPage() {
             <div className="flex flex-col gap-3 md:flex-row md:items-center">
               <Input
                 value={newLabel}
-                onChange={(e) => setNewLabel(e.target.value)}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  setNewLabel(value);
+
+                  // Live-Validierung: Länge prüfen
+                  if (value.trim().length > 50) {
+                    setCreateError("Label darf maximal 50 Zeichen lang sein");
+                  } else {
+                    setCreateError("");
+                  }
+                }}
                 placeholder="Neues Keyword"
                 className="md:flex-1"
               />
@@ -185,11 +228,15 @@ export default function KeywordsPage() {
               <Button
                 onClick={handleCreate}
                 className="min-h-11"
-                disabled={!newLabel.trim()}
+                disabled={!newLabel.trim() || newLabel.trim().length > 50}
               >
                 Hinzufügen
               </Button>
             </div>
+
+            {createError && (
+              <p className="mt-2 text-sm text-red-500">{createError}</p>
+            )}
           </CardContent>
         </Card>
 
@@ -221,7 +268,17 @@ export default function KeywordsPage() {
                       <>
                         <Input
                           value={editLabel}
-                          onChange={(e) => setEditLabel(e.target.value)}
+                          onChange={(e) => {
+                            const value = e.target.value;
+                            setEditLabel(value);
+
+                            // Live-Validierung: Länge prüfen
+                            if (value.trim().length > 50) {
+                              setEditError("Label darf maximal 50 Zeichen lang sein");
+                            } else {
+                              setEditError("");
+                            }
+                          }}
                           className="w-full md:w-56"
                         />
 
@@ -232,21 +289,25 @@ export default function KeywordsPage() {
                           className="h-11 w-11 cursor-pointer rounded border bg-background p-1"
                         />
 
-                        <Button onClick={() => handleUpdate(k.id)} className="min-h-11">
+                        <Button
+                          onClick={() => handleUpdate(k.id)}
+                          className="min-h-11"
+                          disabled={!editLabel.trim() || editLabel.trim().length > 50}
+                        >
                           Speichern
                         </Button>
 
                         <Button
                           variant="outline"
-                          onClick={() => {
-                            setEditingId(null);
-                            setEditLabel("");
-                            setEditColor("");
-                          }}
+                          onClick={resetEditState}
                           className="min-h-11"
                         >
                           Abbrechen
                         </Button>
+
+                        {editError && (
+                          <p className="w-full text-sm text-red-500">{editError}</p>
+                        )}
                       </>
                     ) : (
                       <>
@@ -256,6 +317,7 @@ export default function KeywordsPage() {
                             setEditingId(k.id);
                             setEditLabel(k.label);
                             setEditColor(k.color);
+                            setEditError("");
                           }}
                           className="min-h-11"
                         >

@@ -45,6 +45,9 @@ export default function KeywordBarChart({ data }: Props) {
                         dataKey="keyword_label"
                         tick={{ fontSize: 12, fill: "#374151" }}
                         tickMargin={12}
+                        tickFormatter={(value) =>
+                            value.length > 16 ? value.slice(0, 16) + "…" : value
+                        }
                         label={{
                             value: "Keyword",
                             position: "bottom",
