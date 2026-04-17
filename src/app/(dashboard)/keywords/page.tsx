@@ -203,11 +203,13 @@ export default function KeywordsPage() {
                 value={newLabel}
                 onChange={(e) => {
                   const value = e.target.value;
-                  setNewLabel(value);
 
-                  // Live-Validierung: Länge prüfen
-                  if (value.trim().length > 50) {
-                    setCreateError("Label darf maximal 50 Zeichen lang sein");
+                  if (value.length <= 50) {
+                    setNewLabel(value);
+                  }
+
+                  if (value.length >= 50) {
+                    setCreateError("Maximale Länge erreicht (50 Zeichen)");
                   } else {
                     setCreateError("");
                   }
@@ -228,7 +230,7 @@ export default function KeywordsPage() {
               <Button
                 onClick={handleCreate}
                 className="min-h-11"
-                disabled={!newLabel.trim() || newLabel.trim().length > 50}
+                disabled={!newLabel.trim()}
               >
                 Hinzufügen
               </Button>
@@ -263,51 +265,61 @@ export default function KeywordsPage() {
                     <span className="text-base font-medium">{k.label}</span>
                   </div>
 
-                  <div className="flex flex-wrap gap-2">
+                  <div className="flex flex-wrap items-center justify-end gap-2">
                     {editingId === k.id ? (
                       <>
-                        <Input
-                          value={editLabel}
-                          onChange={(e) => {
-                            const value = e.target.value;
-                            setEditLabel(value);
+                        {/* obere Zeile */}
+                        <div className="flex items-center gap-2">
+                          <div className="flex flex-col">
+                            <Input
+                              value={editLabel}
+                              onChange={(e) => {
+                                const value = e.target.value;
 
-                            // Live-Validierung: Länge prüfen
-                            if (value.trim().length > 50) {
-                              setEditError("Label darf maximal 50 Zeichen lang sein");
-                            } else {
-                              setEditError("");
-                            }
-                          }}
-                          className="w-full md:w-56"
-                        />
+                                if (value.length <= 50) {
+                                  setEditLabel(value);
+                                }
 
-                        <input
-                          type="color"
-                          value={editColor}
-                          onChange={(e) => setEditColor(e.target.value)}
-                          className="h-11 w-11 cursor-pointer rounded border bg-background p-1"
-                        />
+                                if (value.length >= 50) {
+                                  setEditError("Maximale Länge erreicht (50 Zeichen)");
+                                } else {
+                                  setEditError("");
+                                }
+                              }}
+                              className="w-full md:w-56"
+                            />
 
-                        <Button
-                          onClick={() => handleUpdate(k.id)}
-                          className="min-h-11"
-                          disabled={!editLabel.trim() || editLabel.trim().length > 50}
-                        >
-                          Speichern
-                        </Button>
+                            {/* Fehler direkt unter Input */}
+                            {editError && (
+                              <p className="w-full text-sm text-red-500 mt-1">
+                                {editError}
+                              </p>
+                            )}
+                          </div>
 
-                        <Button
-                          variant="outline"
-                          onClick={resetEditState}
-                          className="min-h-11"
-                        >
-                          Abbrechen
-                        </Button>
+                          <input
+                            type="color"
+                            value={editColor}
+                            onChange={(e) => setEditColor(e.target.value)}
+                            className="h-11 w-11 cursor-pointer rounded border bg-background p-1"
+                          />
 
-                        {editError && (
-                          <p className="w-full text-sm text-red-500">{editError}</p>
-                        )}
+                          <Button
+                            onClick={() => handleUpdate(k.id)}
+                            className="min-h-11"
+                            disabled={!editLabel.trim()}
+                          >
+                            Speichern
+                          </Button>
+
+                          <Button
+                            variant="outline"
+                            onClick={resetEditState}
+                            className="min-h-11"
+                          >
+                            Abbrechen
+                          </Button>
+                        </div>
                       </>
                     ) : (
                       <>
