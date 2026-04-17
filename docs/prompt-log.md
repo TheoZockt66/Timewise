@@ -2,6 +2,101 @@
 
 ---
 
+Eintrag Nr.: 53
+Datum: 2026-04-17
+Prompt: kannst du es wieder rechts orientieren das logo
+Aktion: GEAENDERT
+Datei / Komponente: |
+  Goals-Seite Header-Layout erneut angepasst
+  - src/app/(dashboard)/goals/page.tsx
+  - docs/prompt-log.md
+Schnittstelle: |
+  Kein API- oder Props-Change
+Beschreibung: |
+  Das Logo im Header der Goals-Seite wurde wieder nach rechts ausgerichtet.
+
+  Geaendert wurde:
+  - der Header-Container nutzt jetzt wieder `justify-end`
+  - der Zurueck-Button bleibt links ueber absolute Positionierung erhalten
+
+---
+
+Eintrag Nr.: 52
+Datum: 2026-04-17
+Prompt: und jetzt bitte in der mitte einmal
+Aktion: GEAENDERT
+Datei / Komponente: |
+  Goals-Seite Header-Layout erneut angepasst
+  - src/app/(dashboard)/goals/page.tsx
+  - docs/prompt-log.md
+Schnittstelle: |
+  Kein API- oder Props-Change
+Beschreibung: |
+  Der Header der Goals-Seite wurde so angepasst, dass das Logo mittig sitzt.
+
+  Geaendert wurde:
+  - der Header-Container ist jetzt relativ positioniert und zentriert den Logo-Link
+  - der Zurueck-Button bleibt links ueber absolute Positionierung erhalten
+
+---
+
+Eintrag Nr.: 51
+Datum: 2026-04-17
+Prompt: das logo nur
+Aktion: GEAENDERT
+Datei / Komponente: |
+  Goals-Seite Header-Ausrichtung korrigiert
+  - src/app/(dashboard)/goals/page.tsx
+  - docs/prompt-log.md
+Schnittstelle: |
+  Kein API- oder Props-Change
+Beschreibung: |
+  Die vorherige Header-Aenderung wurde praezisiert:
+
+  Geaendert wurde:
+  - der Header-Container nutzt jetzt `justify-between`, damit der Zurueck-Button links bleibt und nur das Logo rechts steht
+
+---
+
+Eintrag Nr.: 50
+Datum: 2026-04-17
+Prompt: |
+  <main className="min-h-screen bg-muted/30 px-4 py-8">
+        <div className="mx-auto max-w-4xl space-y-6">
+          <div className="mb-6 flex items-center gap-3">
+            <Button asChild type="button" variant="outline" className="min-h-11">
+              <Link href="/">
+                <ArrowLeft className="mr-2 h-4 w-4" />
+                Zurück
+              </Link>
+            </Button>
+            <Link href="/" className="inline-block">
+              <Image
+                src="/timewise-logo.svg"
+                alt="Timewise Logo"
+                width={216}
+                height={56}
+                className="h-14 w-[216px] object-contain"
+              />
+            </Link>
+          </div>
+
+  orientiere das rechts
+Aktion: GEAENDERT
+Datei / Komponente: |
+  Goals-Seite Header-Ausrichtung
+  - src/app/(dashboard)/goals/page.tsx
+  - docs/prompt-log.md
+Schnittstelle: |
+  Kein API- oder Props-Change
+Beschreibung: |
+  Der obere Navigationsblock auf der Goals-Seite wurde nach rechts ausgerichtet.
+
+  Geaendert wurde:
+  - der Header-Container nutzt jetzt `justify-end`, damit Logo und Zurueck-Button rechts stehen
+
+---
+
 Eintrag Nr.: 49
 Datum: 2026-04-17
 Prompt: |

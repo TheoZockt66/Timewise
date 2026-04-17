@@ -84,8 +84,13 @@ export default function GoalsPage() {
   return (
     <main className="min-h-screen bg-muted/30 px-4 py-8">
       <div className="mx-auto max-w-4xl space-y-6">
-        <div className="mb-6 flex items-center gap-3">
-          <Button asChild type="button" variant="outline" className="min-h-11">
+        <div className="relative mb-6 flex min-h-14 items-center justify-end">
+          <Button
+            asChild
+            type="button"
+            variant="outline"
+            className="absolute left-0 min-h-11"
+          >
             <Link href="/">
               <ArrowLeft className="mr-2 h-4 w-4" />
               Zurück
