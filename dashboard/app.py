@@ -7,9 +7,9 @@ from pathlib import Path
 import shutil
 import subprocess
 import sys
+import time
 
 import streamlit as st
-import streamlit.components.v1 as components
 
 from schema import Failure, RunRecord
 from storage import load_history, load_latest
@@ -511,27 +511,17 @@ def run_local_script(script: str, timeout_seconds: int) -> dict[str, object]:
 
 
 def enable_auto_refresh(interval_seconds: int) -> None:
-  interval_ms = max(interval_seconds, 5) * 1000
-  components.html(
-    f"""
-    <script>
-      const timerKey = "__timewise_dashboard_auto_refresh__";
-      const intervalMs = {interval_ms};
+  interval_seconds = max(interval_seconds, 5)
+  state_key = "__timewise_dashboard_last_full_refresh__"
+  st.session_state[state_key] = time.monotonic()
 
-      if (window.parent) {{
-        if (window.parent[timerKey]) {{
-          clearTimeout(window.parent[timerKey]);
-        }}
+  @st.fragment(run_every=interval_seconds)
+  def _auto_refresh_fragment() -> None:
+    last_full_refresh = st.session_state.get(state_key, 0.0)
+    if time.monotonic() - last_full_refresh >= interval_seconds:
+      st.rerun()
 
-        window.parent[timerKey] = setTimeout(() => {{
-          window.parent.location.reload();
-        }}, intervalMs);
-      }}
-    </script>
-    """,
-    height=0,
-    width=0,
-  )
+  _auto_refresh_fragment()
 
 
 def inject_styles() -> None:

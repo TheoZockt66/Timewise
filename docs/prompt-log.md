@@ -2,6 +2,244 @@
 
 ---
 
+Eintrag Nr.: 49
+Datum: 2026-04-17
+Prompt: |
+  comitte und pushe einmal unsere version
+
+  ok mach weiter
+Aktion: GEAENDERT
+Datei / Komponente: |
+  Testsuite nach Pull stabilisiert und Commit-Bereitschaft hergestellt
+  - tests/component/keywords/KeywordsPage.test.tsx
+  - tests/component/stats/StatsPage.test.tsx
+  - tests/unit/hooks/useStats.test.ts
+  - vitest.config.ts
+  - docs/prompt-log.md
+Schnittstelle: |
+  Angepasste Testabdeckung fuer:
+  - `KeywordsPage`
+  - `StatsPage`
+  - `useStats()`
+  - Vitest-Konfiguration `test.testTimeout`
+Beschreibung: |
+  Nach dem Pull auf `main` liefen einzelne lokale Tests nicht mehr gegen den aktuellen Produktionsstand und die Vollsuite riss unter Last das Standard-Timeout.
+
+  Geaendert wurde:
+  - `KeywordsPage`-Tests mocken jetzt erfolgreiche API-Responses mit `ok: true`, damit Create-/Update-Pfade dem echten Seitenverhalten entsprechen
+  - `StatsPage`-Tests beruecksichtigen jetzt die neue Tagesansicht ueber `DayTimeline` und geben dem Hook-Mock explizit `events`
+  - `useStats`-Tests erwarten fuer die Tagesgranularitaet jetzt korrekt rohe Events statt `timelineData`
+  - `vitest.config.ts` setzt `testTimeout` auf 15000 ms, damit die komponentenlastige Vollsuite stabil durchlaeuft
+
+  Verifikation:
+  - `npx vitest run tests/component/keywords/KeywordsPage.test.tsx tests/component/stats/StatsPage.test.tsx tests/unit/hooks/useStats.test.ts`
+  - `npm run test:run`
+
+  Ergebnis:
+  - gesamter Vitest-Lauf wieder gruen: 62 Testdateien bestanden, 1 Suite weiterhin skipped
+  - insgesamt 257 Tests bestanden, 1 Test weiterhin skipped
+
+---
+
+Eintrag Nr.: 48
+Datum: 2026-04-16
+Prompt: |
+  `st.components.v1.html` will be removed after 2026-06-01.
+  2026-04-16 13:59:32.223 Please replace `st.components.v1.html` with `st.iframe`.
+
+  `st.components.v1.html` will be removed after 2026-06-01.`
+
+  behebe das
+Aktion: GEAENDERT
+Datei / Komponente: |
+  Dashboard Auto-Refresh
+  - dashboard/app.py
+  - docs/prompt-log.md
+Schnittstelle: |
+  `enable_auto_refresh(interval_seconds: int) -> None`
+Beschreibung: |
+  Die veraltete Streamlit-Einbettung ueber `st.components.v1.html` wurde aus dem Dashboard entfernt.
+
+  Geaendert wurde:
+  - der Import von `streamlit.components.v1` wurde entfernt
+  - `enable_auto_refresh` nutzt jetzt einen nativen Streamlit-Refresh ueber `st.fragment(run_every=...)`
+  - bei jedem periodischen Fragment-Lauf wird per `st.rerun()` die App neu geladen, ohne deprecated HTML-JavaScript-Injektion
+
+  Verifikation:
+  - `python -m py_compile dashboard/app.py`
+  - Suche im Dashboard nach `components.html` bzw. `st.components.v1.html` liefert keine Treffer mehr
+
+---
+
+Eintrag Nr.: 47
+Datum: 2026-04-16
+Prompt: mach das
+Aktion: GEAENDERT
+Datei / Komponente: |
+  Goals- und Register-Testabdeckung weiter ausgebaut
+  - tests/api/goals/route.test.ts
+  - tests/api/goals/detail.route.test.ts
+  - tests/unit/services/goal.service.test.ts
+  - tests/unit/hooks/useGoals.helpers.test.ts
+  - tests/unit/hooks/useGoals.test.ts
+  - tests/component/auth/RegisterPage.test.tsx
+  - docs/prompt-log.md
+Schnittstelle: |
+  Neue bzw. erweiterte Testabdeckung fuer:
+  - `GET /api/goals`, `POST /api/goals`
+  - `PUT /api/goals/:id`, `DELETE /api/goals/:id`
+  - Goal-Service: `getGoals`, `createGoal`, `updateGoal`, `deleteGoal`
+  - Goal-Hook: `goalToFormValues`, `useGoals()`, `refetch`, `createGoalEntry`, `updateGoalEntry`, `deleteGoalEntry`
+  - Register-Seite: Passwort-Validierung, Passwort-Toggles, Erfolgs- und Fehlerpfade
+Beschreibung: |
+  Der naechste offene Coverage-Block fuer Goals und Registrierung wurde gezielt geschlossen.
+
+  Geaendert wurde:
+  - die Goals-Routen decken jetzt Unauthorized-, Invalid-JSON-, Validation-, Not-Found- und Erfolgsfaelle sauber ab
+  - `goal.service` testet jetzt weitere Fallbacks fuer Keyword- und Progress-Anreicherung, Validierungsfehler, Update-Fehler und den erfolgreichen Delete-Pfad
+  - `useGoals` deckt jetzt ungueltige API-Antworten, partielle Refetch-Fehler und die Fehler-Fallbacks der Create-/Update-/Delete-Helfer ab
+  - `RegisterPage` prueft jetzt zu kurzes Passwort, Passwort-Mismatch, beide Sichtbarkeits-Toggles, Serverfehler und Netzwerkfehler
+
+  Verifikation:
+  - `npx vitest run tests/api/goals/route.test.ts tests/api/goals/detail.route.test.ts tests/unit/services/goal.service.test.ts tests/unit/hooks/useGoals.helpers.test.ts tests/unit/hooks/useGoals.test.ts tests/component/auth/RegisterPage.test.tsx`
+  - `npm run test:run`
+  - `npm run test:coverage`
+
+  Ergebnis:
+  - gesamter Vitest-Lauf gruen: 62 Testdateien bestanden, 1 Suite weiterhin skipped
+  - insgesamt 257 Tests bestanden, 1 Test weiterhin skipped
+  - Gesamt-Coverage jetzt: 95.32 Prozent Statements, 84.89 Prozent Branches, 93.85 Prozent Functions, 95.44 Prozent Lines
+
+---
+
+Eintrag Nr.: 46
+Datum: 2026-04-16
+Prompt: |
+  Hoechste Prioritaet
+
+  goal.service.ts (line 33): Es fehlen fast alle Fehler- und Fallback-Pfade. Konkret: getGoals mit DB-Fehler und Catch-Fallback, createGoal bei Insert-Fehler und Rollback nach fehlgeschlagener Keyword-Zuordnung, updateGoal ohne Feldaenderung, NOT_FOUND, Fehler beim Loeschen alter Relations, deleteGoal Fehler- und Not-Found-Fall.
+  useStats.ts (line 47): Es fehlen Tests fuer alle anderen Timeline-Varianten ausser dem einen Day-Fall. Konkret: Week-Timeline, Month-Timeline mit leeren Kalenderwochen, leere Eventlisten, ungueltige JSON-Antworten, Event-Fetch-Probleme und refetch.
+  event.service.ts (line 35): Es fehlen Create-/Update-/Delete-Pfade fast komplett. Konkret: createEvent Erfolg, Unauthorized, DB-Insert-Fehler, Rollback wenn event_keywords fehlschlaegt; fetchEvents mit DB-Fehler; updateEvent mit Fetch-Fehler des aktuellen Events, Validation-Fehler, Update-Fehler, Keyword-Sync-Fehler, fehlendem Reload des aktualisierten Events; deleteEvent Erfolg/Fehler.
+  aggregate route (line 14): Es fehlen echte Tests fuer day, week, month und die Keyword-Aggregation pro Bucket, plus der Skip-Pfad if (eventKey !== period) return.
+  auth.service.ts (line 27): Es fehlen Validation-Branches und mehrere Servicefaelle. Konkret: Passwort leer/zu kurz, ungueltige Reset-Mail, register mit Supabase-Fehler und ohne user, logout Erfolg/Fehler, exchangeCodeForSession Erfolg/Fehler.
+  keyword.service.ts (line 25): Fast nur Grundfaelle abgedeckt. Es fehlen deleteKeyword Erfolg/Fehler, updateKeyword Validation/Erfolg/Fehler und fetchKeywords mit DB-Fehler.
+  Danach die UI-Luecken
+
+  stats page (line 65): Es fehlen Tests fuer shiftPeriod in allen Granularitaeten, Loading-State, Empty-State, Keyword-Fetch-Verhalten und Anzeige ausgewaehlter Keyword-Chips.
+  EventForm (line 87): Es fehlen Keyword-Load-Fehler, Edit-Modus mit updateEvent, Fehlertoast bei Save-Fehlern, Catch-Branch, selectedRange-Sync und Cancel-Pfad.
+  CalendarView (line 43): Es fehlen Loading-State, Klick auf unbekanntes Event, Close-Button im Create-Modal und Refresh nach erfolgreichem Speichern.
+  GoalCard (line 21): Es fehlen fast alle Formatierungszweige: 1 Minute, n Minuten, volle Stunden, Stunden+Minuten, Fallback ohne Zielzeit, Badge Ziel erreicht, keine Beschreibung/keine Keywords, Datums- und Resttage-Anzeige.
+  GoalForm (line 17): Es fehlen targetHours="", NaN/<1, Datums-/Beschreibung-Aenderungen, Branch ohne Keywords, unselected/selected Keyword-Styling und optionaler Cancel.
+  KeywordSelector (line 47): Es fehlen Empty-State, Deselect-Fall, Badge-Rendering fuer gewaehlte Keywords, Fehler-Alert und der Fall, dass selectedIds ein unbekanntes Keyword enthalten.
+  EventDetails (line 23): Es fehlen Delete-Abbruch, Delete-Fehler, Exception-Branch, Close-Button, "Keine Tags zugewiesen" und die Singular/Plural-Zweige der Daueranzeige.
+
+  Dann mach das
+Aktion: GEAENDERT
+Datei / Komponente: |
+  Fehlende Service-, Hook-, API- und UI-Tests fuer Coverage ausgebaut
+  - tests/unit/services/auth.service.test.ts
+  - tests/unit/services/keyword.service.test.ts
+  - tests/unit/services/goal.service.test.ts
+  - tests/unit/services/event.service.test.ts
+  - tests/unit/hooks/useStats.test.ts
+  - tests/api/events/aggregate.route.test.ts
+  - tests/component/stats/StatsPage.test.tsx
+  - tests/component/events/EventForm.test.tsx
+  - tests/component/calendar/CalendarView.test.tsx
+  - tests/component/goals/GoalCard.test.tsx
+  - tests/component/goals/GoalForm.test.tsx
+  - tests/component/events/KeywordSelector.test.tsx
+  - tests/component/calendar/EventDetails.test.tsx
+  - docs/prompt-log.md
+Schnittstelle: |
+  Neue oder erweiterte Testabdeckung fuer:
+  - Auth-Service: `login`, `register`, `logout`, `resetPassword`, `exchangeCodeForSession`
+  - Keyword-Service: `createKeyword`, `updateKeyword`, `deleteKeyword`, `fetchKeywords`
+  - Goal-Service: `getGoals`, `createGoal`, `updateGoal`, `deleteGoal`
+  - Event-Service: `fetchEvents`, `createEvent`, `updateEvent`, `deleteEvent`
+  - Stats-Hook: `useStats({ startDate, endDate, granularity, keywordIds })`
+  - Aggregate-Route: `GET /api/events/aggregate`
+  - UI-Komponenten und Seiten: `StatsPage`, `EventForm`, `CalendarView`, `GoalCard`, `GoalForm`, `KeywordSelector`, `EventDetails`
+Beschreibung: |
+  Der groesste offene Coverage-Block wurde in einem Zug auf fachliche Fehlerpfade und UI-Randfaelle erweitert.
+
+  Geaendert wurde:
+  - Service-Suiten decken jetzt Validierung, Fehlerpfade, Rollbacks, Not-Found-Faelle und Erfolgsfaelle fuer Auth, Keywords, Goals und Events ab
+  - `useStats` testet jetzt Day-, Week- und Month-Timelines, leere Eventlisten, kaputte JSON-Antworten, Event-Fetch-Fehler und `refetch`
+  - die Aggregate-Route prueft jetzt echte Aggregation fuer Tag, Woche und Monat inklusive sauber getrennten Keyword-Buckets
+  - `StatsPage` testet jetzt Shift-Navigation fuer day/week/month, Loading- und Empty-State, Keyword-Fetch-Verhalten und ausgewaehlte Keyword-Chips
+  - `EventForm`, `CalendarView`, `GoalCard`, `GoalForm`, `KeywordSelector` und `EventDetails` decken jetzt die fehlenden Fehler-, Callback- und Formatierungszweige ab
+
+  Verifikation:
+  - `npx vitest run tests/unit/services/auth.service.test.ts tests/unit/services/keyword.service.test.ts tests/unit/services/goal.service.test.ts tests/unit/services/event.service.test.ts tests/unit/hooks/useStats.test.ts tests/api/events/aggregate.route.test.ts`
+  - `npx vitest run tests/component/stats/StatsPage.test.tsx tests/component/events/EventForm.test.tsx tests/component/calendar/CalendarView.test.tsx tests/component/goals/GoalCard.test.tsx tests/component/goals/GoalForm.test.tsx tests/component/events/KeywordSelector.test.tsx tests/component/calendar/EventDetails.test.tsx`
+  - `npm run test:run`
+  - `npm run test:coverage`
+
+  Ergebnis:
+  - gesamter Vitest-Lauf gruen: 62 Testdateien bestanden, 1 Suite weiterhin skipped
+  - Gesamt-Coverage jetzt: 92.5 Prozent Statements, 77.95 Prozent Branches, 93.31 Prozent Functions, 93.13 Prozent Lines
+  - besonders stark gestiegen sind `auth.service.ts`, `event.service.ts`, `useStats.ts`, `StatsPage`, `EventForm`, `GoalCard`, `KeywordSelector` und `EventDetails`
+
+---
+
+Eintrag Nr.: 45
+Datum: 2026-04-16
+Prompt: |
+  bitte behebe das tests/component/stats/CustomTooltip.test.tsx:3 ist veraltet. src/components/stats/CustomTooltip.tsx:41 exportiert nur BarTooltip und LineTooltip, aber der Test importiert ein Default-Component. Die Suite muss erst auf die aktuellen Named Exports umgestellt werden.
+  tests/component/stats/TimelineLineChart.test.tsx:25-43 ist ebenfalls veraltet. src/components/stats/TimelineLineChart.tsx:17-18 verlangt keywordColors und selectedKeywords, und in src/components/stats/TimelineLineChart.tsx:84-86 wird selectedKeywords.includes(...) benutzt. Der Test uebergibt nur data und nutzt ausserdem total_minutes statt total.
+  tests/unit/hooks/useStats.test.ts:85-90 erwartet noch das alte Timeline-Format. src/hooks/useStats.ts:62-70 und src/hooks/useStats.ts:199-217 bauen Punkte mit total, nicht mit total_minutes.
+  Ohne jede echte Abdeckung sind diese sechs Dateien, fuer die komplett neue Tests fehlen:
+
+  src/hooks/use-toast.ts
+  src/components/ui/toast.tsx
+  src/components/ui/toaster.tsx
+  src/lib/supabase/client.ts
+  src/lib/supabase/server.ts
+  src/lib/supabase/middleware.ts
+Aktion: GEAENDERT
+Datei / Komponente: |
+  Veraltete Stats-Tests repariert und neue Infrastruktur-Tests ergaenzt
+  - tests/component/stats/CustomTooltip.test.tsx
+  - tests/component/stats/TimelineLineChart.test.tsx
+  - tests/unit/hooks/useStats.test.ts
+  - tests/unit/hooks/use-toast.test.ts
+  - tests/component/ui/toast.test.tsx
+  - tests/component/ui/toaster.test.tsx
+  - tests/unit/supabase/client.test.ts
+  - tests/unit/supabase/server.test.ts
+  - tests/unit/supabase/middleware.test.ts
+  - docs/prompt-log.md
+Schnittstelle: |
+  Neue bzw. angepasste Testabdeckung fuer:
+  - `BarTooltip` und `LineTooltip` statt altem Default-Tooltip
+  - `TimelineLineChart({ data, keywordColors, selectedKeywords })`
+  - `useStats(...).timelineData` mit `total` statt `total_minutes`
+  - `useToast`, `toast`, `reducer`
+  - UI-Wrapper `Toast*` und `Toaster`
+  - Supabase-Helfer `createClient()` fuer Browser und Server
+  - Middleware `updateSession(request)`
+Beschreibung: |
+  Die drei veralteten Tests fuer Stats und den Stats-Hook wurden auf die aktuelle Produktions-API angepasst.
+
+  Geaendert wurde:
+  - `CustomTooltip` testet jetzt die aktuellen Named Exports `BarTooltip` und `LineTooltip`
+  - `TimelineLineChart` bekommt in den Tests jetzt die aktuellen Props `keywordColors`, `selectedKeywords` und das neue Datenformat mit `total`
+  - `useStats` erwartet nun korrekt Timeline-Punkte mit `total` und dem Keyword-Key
+  - fuer die bisher ungetesteten Dateien `use-toast`, `toast`, `toaster`, `supabase/client`, `supabase/server` und `supabase/middleware` wurden neue isolierte Tests angelegt
+
+  Verifikation:
+  - `npx vitest run tests/component/stats/CustomTooltip.test.tsx tests/component/stats/TimelineLineChart.test.tsx tests/unit/hooks/useStats.test.ts tests/unit/hooks/use-toast.test.ts tests/component/ui/toast.test.tsx tests/component/ui/toaster.test.tsx tests/unit/supabase/client.test.ts tests/unit/supabase/server.test.ts tests/unit/supabase/middleware.test.ts`
+  - `npm run test:run`
+  - `npm run test:coverage`
+
+  Ergebnis:
+  - gesamter Vitest-Lauf gruen: 62 Testdateien bestanden, 1 Vorlage weiterhin skipped
+  - Coverage jetzt: 77.17 Prozent Statements, 61.83 Prozent Branches, 83.68 Prozent Functions, 77.8 Prozent Lines
+  - neue Vollabdeckung fuer `src/lib/supabase/client.ts`, `src/lib/supabase/server.ts`, `src/components/ui/toast.tsx` und sehr hohe Abdeckung fuer `src/hooks/use-toast.ts`
+
+---
+
 Eintrag Nr.: 44
 Datum: 2026-04-15
 Prompt: |

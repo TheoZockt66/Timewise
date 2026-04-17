@@ -35,4 +35,24 @@ describe("useGoals helpers", () => {
       keywordIds: ["keyword-2"],
     });
   });
+
+  test("maps nullable goal fields to empty form values", () => {
+    const goal = buildGoalWithProgress({
+      label: null,
+      description: null,
+      target_study_time: null,
+      start_time: null,
+      end_time: null,
+      keywords: [],
+    });
+
+    expect(goalToFormValues(goal)).toEqual({
+      label: "",
+      description: "",
+      targetHours: "",
+      startDate: "",
+      endDate: "",
+      keywordIds: [],
+    });
+  });
 });

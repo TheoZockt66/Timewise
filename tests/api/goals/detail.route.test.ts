@@ -18,9 +18,11 @@ const mockedCreateClient = vi.mocked(createClient);
 const mockedDeleteGoal = vi.mocked(deleteGoal);
 const mockedUpdateGoal = vi.mocked(updateGoal);
 
-const context = {
-  params: Promise.resolve({ id: "goal-1" }),
-};
+function createContext(id = "goal-1") {
+  return {
+    params: Promise.resolve({ id }),
+  };
+}
 
 describe("goals detail route", () => {
   beforeEach(() => {
@@ -36,7 +38,7 @@ describe("goals detail route", () => {
         method: "PUT",
         body: JSON.stringify({ label: "Update" }),
       }),
-      context
+      createContext()
     );
 
     expect(response.status).toBe(401);
@@ -63,11 +65,91 @@ describe("goals detail route", () => {
         method: "PUT",
         body: JSON.stringify(body),
       }),
-      context
+      createContext()
     );
 
     expect(response.status).toBe(200);
     expect(mockedUpdateGoal).toHaveBeenCalledWith("goal-1", "user-1", body);
+  });
+
+  test("PUT maps service unauthorized errors to 401", async () => {
+    const { client } = createSupabaseClientMock({ user: { id: "user-1" } });
+    mockedCreateClient.mockResolvedValue(client as never);
+    mockedUpdateGoal.mockResolvedValue({
+      data: null,
+      error: {
+        code: "UNAUTHORIZED",
+        message: "Nicht eingeloggt",
+      },
+    });
+
+    const response = await PUT(
+      new Request("http://localhost/api/goals/goal-1", {
+        method: "PUT",
+        body: JSON.stringify({ label: "Update" }),
+      }),
+      createContext()
+    );
+
+    expect(response.status).toBe(401);
+  });
+
+  test("PUT maps validation errors to 400", async () => {
+    const { client } = createSupabaseClientMock({ user: { id: "user-1" } });
+    mockedCreateClient.mockResolvedValue(client as never);
+    mockedUpdateGoal.mockResolvedValue({
+      data: null,
+      error: {
+        code: "KEYWORD_VALIDATION_FAILED",
+        message: "Keywords konnten nicht geprüft werden.",
+      },
+    });
+
+    const response = await PUT(
+      new Request("http://localhost/api/goals/goal-1", {
+        method: "PUT",
+        body: JSON.stringify({ label: "Update" }),
+      }),
+      createContext()
+    );
+
+    expect(response.status).toBe(400);
+  });
+
+  test("PUT returns 400 for invalid JSON bodies", async () => {
+    const { client } = createSupabaseClientMock({ user: { id: "user-1" } });
+    mockedCreateClient.mockResolvedValue(client as never);
+
+    const response = await PUT(
+      new Request("http://localhost/api/goals/goal-1", {
+        method: "PUT",
+        body: "{",
+      }),
+      createContext()
+    );
+
+    expect(response.status).toBe(400);
+    await expect(response.json()).resolves.toMatchObject({
+      data: null,
+      error: {
+        code: "INVALID_REQUEST",
+      },
+    });
+  });
+
+  test("DELETE returns 401 when no user is logged in", async () => {
+    const { client } = createSupabaseClientMock({ user: null });
+    mockedCreateClient.mockResolvedValue(client as never);
+
+    const response = await DELETE(
+      new Request("http://localhost/api/goals/goal-1", {
+        method: "DELETE",
+      }),
+      createContext()
+    );
+
+    expect(response.status).toBe(401);
+    expect(mockedDeleteGoal).not.toHaveBeenCalled();
   });
 
   test("DELETE maps service not-found errors to 404", async () => {
@@ -85,10 +167,31 @@ describe("goals detail route", () => {
       new Request("http://localhost/api/goals/goal-1", {
         method: "DELETE",
       }),
-      context
+      createContext()
     );
 
     expect(response.status).toBe(404);
     expect(mockedDeleteGoal).toHaveBeenCalledWith("goal-1", "user-1");
+  });
+
+  test("DELETE maps unhandled service errors to 500", async () => {
+    const { client } = createSupabaseClientMock({ user: { id: "user-1" } });
+    mockedCreateClient.mockResolvedValue(client as never);
+    mockedDeleteGoal.mockResolvedValue({
+      data: null,
+      error: {
+        code: "DELETE_FAILED",
+        message: "Ziel konnte nicht gelöscht werden.",
+      },
+    });
+
+    const response = await DELETE(
+      new Request("http://localhost/api/goals/goal-1", {
+        method: "DELETE",
+      }),
+      createContext()
+    );
+
+    expect(response.status).toBe(500);
   });
 });

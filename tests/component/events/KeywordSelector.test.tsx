@@ -17,12 +17,25 @@ describe("KeywordSelector", () => {
     expect(screen.getByText("Tags werden geladen...")).toBeInTheDocument();
   });
 
-  test("emits updated ids when a keyword is selected", () => {
-    const onSelectionChange = vi.fn();
-
+  test("shows an empty state when no keywords are available", () => {
     render(
       <KeywordSelector
-        keywords={[buildKeyword({ id: "keyword-1", label: "Mathe" })]}
+        keywords={[]}
+        selectedIds={[]}
+        onSelectionChange={vi.fn()}
+      />
+    );
+
+    expect(screen.getByText("Keine Tags verfügbar.")).toBeInTheDocument();
+  });
+
+  test("emits updated ids when a keyword is selected and deselected", () => {
+    const onSelectionChange = vi.fn();
+    const keyword = buildKeyword({ id: "keyword-1", label: "Mathe" });
+
+    const { rerender } = render(
+      <KeywordSelector
+        keywords={[keyword]}
         selectedIds={[]}
         onSelectionChange={onSelectionChange}
       />
@@ -31,5 +44,45 @@ describe("KeywordSelector", () => {
     fireEvent.click(screen.getByText("Mathe"));
 
     expect(onSelectionChange).toHaveBeenCalledWith(["keyword-1"]);
+
+    rerender(
+      <KeywordSelector
+        keywords={[keyword]}
+        selectedIds={["keyword-1"]}
+        onSelectionChange={onSelectionChange}
+      />
+    );
+
+    fireEvent.click(screen.getByRole("checkbox"));
+
+    expect(onSelectionChange).toHaveBeenLastCalledWith([]);
+  });
+
+  test("renders selected keyword badges and ignores unknown selected ids", () => {
+    render(
+      <KeywordSelector
+        keywords={[buildKeyword({ id: "keyword-1", label: "Mathe" })]}
+        selectedIds={["keyword-1", "missing-keyword"]}
+        onSelectionChange={vi.fn()}
+      />
+    );
+
+    expect(screen.getAllByText("Mathe")).toHaveLength(2);
+    expect(screen.queryByText("missing-keyword")).not.toBeInTheDocument();
+  });
+
+  test("renders the error alert when a validation error exists", () => {
+    render(
+      <KeywordSelector
+        keywords={[buildKeyword()]}
+        selectedIds={[]}
+        onSelectionChange={vi.fn()}
+        error="Bitte waehle mindestens ein Keyword."
+      />
+    );
+
+    expect(screen.getByRole("alert")).toHaveTextContent(
+      "Bitte waehle mindestens ein Keyword."
+    );
   });
 });

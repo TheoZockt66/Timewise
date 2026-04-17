@@ -57,7 +57,7 @@ vi.mock("@fullcalendar/react", () => ({
           })
         }
       >
-        Zeitraum auswählen
+        Zeitraum auswaehlen
       </button>
       <button
         type="button"
@@ -69,7 +69,19 @@ vi.mock("@fullcalendar/react", () => ({
           })
         }
       >
-        Termin öffnen
+        Termin oeffnen
+      </button>
+      <button
+        type="button"
+        onClick={() =>
+          props.eventClick({
+            event: {
+              id: "missing-event",
+            },
+          })
+        }
+      >
+        Unbekannten Termin oeffnen
       </button>
     </div>
   ),
@@ -78,13 +90,23 @@ vi.mock("@fullcalendar/react", () => ({
 vi.mock("@/components/events/EventForm", () => ({
   EventForm: ({
     selectedRange,
+    onSuccess,
+    onCancel,
   }: {
     selectedRange?: { start: string; end: string };
+    onSuccess?: () => void;
+    onCancel?: () => void;
   }) => (
     <div data-testid="event-form">
       {selectedRange
         ? `${selectedRange.start}__${selectedRange.end}`
         : "event-form"}
+      <button type="button" onClick={onSuccess}>
+        Form speichern
+      </button>
+      <button type="button" onClick={onCancel}>
+        Form abbrechen
+      </button>
     </div>
   ),
 }));
@@ -92,9 +114,18 @@ vi.mock("@/components/events/EventForm", () => ({
 vi.mock("@/components/calendar/EventDetails", () => ({
   EventDetails: ({
     event,
+    onClose,
   }: {
     event: { id: string };
-  }) => <div data-testid="event-details">{event.id}</div>,
+    onClose: () => void;
+  }) => (
+    <div data-testid="event-details">
+      {event.id}
+      <button type="button" onClick={onClose}>
+        Details schliessen
+      </button>
+    </div>
+  ),
 }));
 
 const mockedUseCalendar = vi.mocked(useCalendar);
@@ -130,7 +161,7 @@ describe("CalendarView", () => {
     expect(mockFetchEvents).toHaveBeenCalledWith(expectedStart, expectedEnd);
     expect(screen.getByText("Physikblock")).toBeInTheDocument();
 
-    fireEvent.click(screen.getByRole("button", { name: "Zeitraum auswählen" }));
+    fireEvent.click(screen.getByRole("button", { name: "Zeitraum auswaehlen" }));
 
     expect(screen.getByTestId("event-form")).toHaveTextContent(
       "2026-04-20T09:00:00.000Z__2026-04-20T10:00:00.000Z"
@@ -138,13 +169,74 @@ describe("CalendarView", () => {
     expect(screen.getByText("Neuer Termin")).toBeInTheDocument();
   });
 
+  test("shows the loading state while calendar events are being loaded", () => {
+    mockedUseCalendar.mockReturnValue({
+      events: [calendarEventFixture],
+      isLoading: true,
+      error: null,
+      fetchEvents: mockFetchEvents,
+    });
+
+    render(<CalendarView />);
+
+    expect(screen.getByText("Lade Termine...")).toBeInTheDocument();
+  });
+
+  test("closes the create modal through the dedicated close button", async () => {
+    render(<CalendarView />);
+
+    fireEvent.click(screen.getByRole("button", { name: "Zeitraum auswaehlen" }));
+    expect(screen.getByTestId("event-form")).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: /Modal/i }));
+
+    await waitFor(() => {
+      expect(screen.queryByTestId("event-form")).not.toBeInTheDocument();
+    });
+  });
+
+  test("refreshes the current month after the create form reports success", async () => {
+    const now = new Date();
+    const expectedStart = new Date(
+      now.getFullYear(),
+      now.getMonth(),
+      1
+    ).toISOString();
+    const expectedEnd = new Date(
+      now.getFullYear(),
+      now.getMonth() + 1,
+      0
+    ).toISOString();
+
+    render(<CalendarView />);
+
+    await waitFor(() => expect(mockFetchEvents).toHaveBeenCalledTimes(1));
+
+    fireEvent.click(screen.getByRole("button", { name: "Zeitraum auswaehlen" }));
+    fireEvent.click(screen.getByRole("button", { name: "Form speichern" }));
+
+    await waitFor(() => expect(mockFetchEvents).toHaveBeenCalledTimes(2));
+    expect(mockFetchEvents).toHaveBeenLastCalledWith(expectedStart, expectedEnd);
+    expect(screen.queryByTestId("event-form")).not.toBeInTheDocument();
+  });
+
   test("opens the details modal for an existing event", () => {
     render(<CalendarView />);
 
-    fireEvent.click(screen.getByRole("button", { name: "Termin öffnen" }));
+    fireEvent.click(screen.getByRole("button", { name: "Termin oeffnen" }));
 
     expect(screen.getByTestId("event-details")).toHaveTextContent(
       calendarEventFixture.id
     );
+  });
+
+  test("ignores clicks for unknown events", () => {
+    render(<CalendarView />);
+
+    fireEvent.click(
+      screen.getByRole("button", { name: "Unbekannten Termin oeffnen" })
+    );
+
+    expect(screen.queryByTestId("event-details")).not.toBeInTheDocument();
   });
 });

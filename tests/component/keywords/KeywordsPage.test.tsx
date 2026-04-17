@@ -39,6 +39,7 @@ describe("KeywordsPage", () => {
 
   test("loads the current keyword list on mount", async () => {
     fetchMock.mockResolvedValueOnce({
+      ok: true,
       json: async () => ({ data: [buildKeyword()], error: null }),
     });
 
@@ -52,12 +53,15 @@ describe("KeywordsPage", () => {
   test("creates a new keyword and refreshes the list", async () => {
     fetchMock
       .mockResolvedValueOnce({
+        ok: true,
         json: async () => ({ data: [], error: null }),
       })
       .mockResolvedValueOnce({
+        ok: true,
         json: async () => ({ error: null }),
       })
       .mockResolvedValueOnce({
+        ok: true,
         json: async () => ({
           data: [buildKeyword({ label: "Physik", color: "#00957F" })],
           error: null,
@@ -100,12 +104,15 @@ describe("KeywordsPage", () => {
 
     fetchMock
       .mockResolvedValueOnce({
+        ok: true,
         json: async () => ({ data: [keyword], error: null }),
       })
       .mockResolvedValueOnce({
+        ok: true,
         json: async () => ({ error: null }),
       })
       .mockResolvedValueOnce({
+        ok: true,
         json: async () => ({ error: null }),
       });
 

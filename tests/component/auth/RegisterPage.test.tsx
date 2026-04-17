@@ -58,6 +58,54 @@ describe("RegisterPage", () => {
     expect(fetchMock).not.toHaveBeenCalled();
   });
 
+  test("blocks submit when the password is too short", () => {
+    render(<RegisterPage />);
+
+    fireEvent.change(screen.getByPlaceholderText("name@example.com"), {
+      target: { value: "test@example.com" },
+    });
+    fireEvent.change(screen.getByPlaceholderText("Mindestens 8 Zeichen"), {
+      target: { value: "1234567" },
+    });
+    fireEvent.change(screen.getByPlaceholderText("Passwort wiederholen"), {
+      target: { value: "1234567" },
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Registrieren" }));
+
+    expect(
+      screen.getByText("Das Passwort muss mindestens 8 Zeichen lang sein.")
+    ).toBeInTheDocument();
+    expect(fetchMock).not.toHaveBeenCalled();
+  });
+
+  test("toggles both password fields independently", () => {
+    render(<RegisterPage />);
+
+    const passwordInput = screen.getByPlaceholderText(
+      "Mindestens 8 Zeichen"
+    ) as HTMLInputElement;
+    const confirmInput = screen.getByPlaceholderText(
+      "Passwort wiederholen"
+    ) as HTMLInputElement;
+
+    expect(passwordInput.type).toBe("password");
+    expect(confirmInput.type).toBe("password");
+
+    const showButtons = screen.getAllByLabelText("Passwort anzeigen");
+    fireEvent.click(showButtons[0]);
+    fireEvent.click(showButtons[1]);
+
+    expect(passwordInput.type).toBe("text");
+    expect(confirmInput.type).toBe("text");
+
+    const hideButtons = screen.getAllByLabelText("Passwort verbergen");
+    fireEvent.click(hideButtons[0]);
+    fireEvent.click(hideButtons[1]);
+
+    expect(passwordInput.type).toBe("password");
+    expect(confirmInput.type).toBe("password");
+  });
+
   test("registers a new user and redirects to the dashboard", async () => {
     fetchMock.mockResolvedValue({
       ok: true,
@@ -94,6 +142,89 @@ describe("RegisterPage", () => {
     await waitFor(() => {
       expect(refreshMock).toHaveBeenCalledTimes(1);
       expect(pushMock).toHaveBeenCalledWith("/");
+    });
+  });
+
+  test("shows the server error message when registration fails", async () => {
+    fetchMock.mockResolvedValue({
+      ok: false,
+      json: async () => ({
+        data: null,
+        error: {
+          message: "E-Mail ist bereits vergeben.",
+        },
+      }),
+    });
+
+    render(<RegisterPage />);
+
+    fireEvent.change(screen.getByPlaceholderText("name@example.com"), {
+      target: { value: "test@example.com" },
+    });
+    fireEvent.change(screen.getByPlaceholderText("Mindestens 8 Zeichen"), {
+      target: { value: "12345678" },
+    });
+    fireEvent.change(screen.getByPlaceholderText("Passwort wiederholen"), {
+      target: { value: "12345678" },
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Registrieren" }));
+
+    await waitFor(() => {
+      expect(screen.getByText("E-Mail ist bereits vergeben.")).toBeInTheDocument();
+    });
+  });
+
+  test("falls back to the generic server message when no API error message exists", async () => {
+    fetchMock.mockResolvedValue({
+      ok: false,
+      json: async () => ({
+        data: null,
+        error: null,
+      }),
+    });
+
+    render(<RegisterPage />);
+
+    fireEvent.change(screen.getByPlaceholderText("name@example.com"), {
+      target: { value: "test@example.com" },
+    });
+    fireEvent.change(screen.getByPlaceholderText("Mindestens 8 Zeichen"), {
+      target: { value: "12345678" },
+    });
+    fireEvent.change(screen.getByPlaceholderText("Passwort wiederholen"), {
+      target: { value: "12345678" },
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Registrieren" }));
+
+    await waitFor(() => {
+      expect(
+        screen.getByText("Registrierung fehlgeschlagen. Bitte versuche es erneut.")
+      ).toBeInTheDocument();
+    });
+  });
+
+  test("shows the network fallback when fetch rejects", async () => {
+    fetchMock.mockRejectedValue(new Error("offline"));
+
+    render(<RegisterPage />);
+
+    fireEvent.change(screen.getByPlaceholderText("name@example.com"), {
+      target: { value: "test@example.com" },
+    });
+    fireEvent.change(screen.getByPlaceholderText("Mindestens 8 Zeichen"), {
+      target: { value: "12345678" },
+    });
+    fireEvent.change(screen.getByPlaceholderText("Passwort wiederholen"), {
+      target: { value: "12345678" },
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Registrieren" }));
+
+    await waitFor(() => {
+      expect(
+        screen.getByText(
+          "Verbindung zum Server fehlgeschlagen. Bitte prüfe deine Internetverbindung."
+        )
+      ).toBeInTheDocument();
     });
   });
 });

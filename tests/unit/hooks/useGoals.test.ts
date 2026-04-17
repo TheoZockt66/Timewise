@@ -43,6 +43,58 @@ describe("useGoals", () => {
     expect(result.current.error).toBeNull();
   });
 
+  test("surfaces invalid goal JSON responses but still keeps valid keywords", async () => {
+    const keyword = buildKeyword();
+
+    fetchMock
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => {
+          throw new Error("broken json");
+        },
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({ data: [keyword], error: null }),
+      });
+
+    const { result } = renderHook(() => useGoals());
+
+    await waitFor(() => {
+      expect(result.current.loading).toBe(false);
+    });
+
+    expect(result.current.goals).toEqual([]);
+    expect(result.current.availableKeywords).toEqual([keyword]);
+    expect(result.current.error).toBe(
+      "Der Server hat keine gültige Antwort geliefert."
+    );
+  });
+
+  test("surfaces keyword fetch fallback errors and keeps previously read goals", async () => {
+    const goal = buildGoalWithProgress();
+
+    fetchMock
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({ data: [goal], error: null }),
+      })
+      .mockResolvedValueOnce({
+        ok: false,
+        json: async () => ({ data: null, error: null }),
+      });
+
+    const { result } = renderHook(() => useGoals());
+
+    await waitFor(() => {
+      expect(result.current.loading).toBe(false);
+    });
+
+    expect(result.current.goals).toEqual([goal]);
+    expect(result.current.availableKeywords).toEqual([]);
+    expect(result.current.error).toBe("Keywords konnten nicht geladen werden.");
+  });
+
   test("creates, updates and deletes a goal entry via the API helpers", async () => {
     const createdGoal = buildGoalWithProgress({
       id: "goal-1",
@@ -140,6 +192,91 @@ describe("useGoals", () => {
       method: "DELETE",
     });
     expect(result.current.goals).toEqual([]);
+    expect(result.current.deletingId).toBeNull();
+  });
+
+  test("returns fallback create, update and delete errors when the API response has no data", async () => {
+    fetchMock
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({ data: [], error: null }),
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({ data: [buildKeyword()], error: null }),
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({ data: null, error: null }),
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({ data: null, error: null }),
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({ data: null, error: null }),
+      });
+
+    const { result } = renderHook(() => useGoals());
+
+    await waitFor(() => {
+      expect(result.current.loading).toBe(false);
+    });
+
+    let createResult;
+    let updateResult;
+    let deleteResult;
+
+    await act(async () => {
+      createResult = await result.current.createGoalEntry({
+        label: "Klausur",
+        description: "",
+        targetHours: "",
+        startDate: "",
+        endDate: "",
+        keywordIds: [],
+      });
+    });
+
+    await act(async () => {
+      updateResult = await result.current.updateGoalEntry("goal-1", {
+        label: "Klausur",
+        description: "",
+        targetHours: "",
+        startDate: "",
+        endDate: "",
+        keywordIds: [],
+      });
+    });
+
+    await act(async () => {
+      deleteResult = await result.current.deleteGoalEntry("goal-1");
+    });
+
+    expect(createResult).toEqual({
+      data: null,
+      error: {
+        code: "CREATE_FAILED",
+        message: "Ziel konnte nicht erstellt werden.",
+      },
+    });
+    expect(updateResult).toEqual({
+      data: null,
+      error: {
+        code: "UPDATE_FAILED",
+        message: "Ziel konnte nicht aktualisiert werden.",
+      },
+    });
+    expect(deleteResult).toEqual({
+      data: null,
+      error: {
+        code: "DELETE_FAILED",
+        message: "Ziel konnte nicht gelöscht werden.",
+      },
+    });
+    expect(result.current.goals).toEqual([]);
+    expect(result.current.saving).toBe(false);
     expect(result.current.deletingId).toBeNull();
   });
 });

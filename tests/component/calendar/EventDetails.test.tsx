@@ -85,6 +85,37 @@ describe("EventDetails", () => {
     expect(screen.getByText("Physik")).toBeInTheDocument();
   });
 
+  test("renders fallback details without keywords and formats singular/plural durations", () => {
+    const { rerender } = render(
+      <EventDetails
+        event={buildEventWithKeywords({
+          start_time: "2026-04-10T09:00:00",
+          end_time: "2026-04-10T09:01:00",
+          keywords: [],
+        })}
+        onClose={vi.fn()}
+        onUpdate={vi.fn()}
+      />
+    );
+
+    expect(screen.getByText("1 Minuten")).toBeInTheDocument();
+    expect(screen.getByText("Keine Tags zugewiesen")).toBeInTheDocument();
+
+    rerender(
+      <EventDetails
+        event={buildEventWithKeywords({
+          start_time: "2026-04-10T09:00:00",
+          end_time: "2026-04-10T11:00:00",
+          keywords: [],
+        })}
+        onClose={vi.fn()}
+        onUpdate={vi.fn()}
+      />
+    );
+
+    expect(screen.getByText("2 Stunden")).toBeInTheDocument();
+  });
+
   test("switches into edit mode and wires the success callback back to the parent", () => {
     const onUpdate = vi.fn();
 
@@ -100,6 +131,94 @@ describe("EventDetails", () => {
     fireEvent.click(screen.getByRole("button", { name: "Form speichern" }));
 
     expect(onUpdate).toHaveBeenCalledTimes(1);
+  });
+
+  test("closes the modal through the close button", () => {
+    const onClose = vi.fn();
+
+    render(
+      <EventDetails
+        event={buildEventWithKeywords()}
+        onClose={onClose}
+        onUpdate={vi.fn()}
+      />
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: /Details/i }));
+
+    expect(onClose).toHaveBeenCalledTimes(1);
+  });
+
+  test("does not delete when the confirmation dialog is cancelled", async () => {
+    vi.stubGlobal("confirm", vi.fn(() => false));
+
+    render(
+      <EventDetails
+        event={buildEventWithKeywords({ id: "event-1" })}
+        onClose={vi.fn()}
+        onUpdate={vi.fn()}
+      />
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: /L.schen/i }));
+
+    await waitFor(() => {
+      expect(mockedDeleteEvent).not.toHaveBeenCalled();
+    });
+  });
+
+  test("shows a destructive toast when delete returns an application error", async () => {
+    mockedDeleteEvent.mockResolvedValue({
+      data: null,
+      error: {
+        code: "DELETE_FAILED",
+        message: "Delete kaputt",
+      },
+    });
+
+    render(
+      <EventDetails
+        event={buildEventWithKeywords({ id: "event-1" })}
+        onClose={vi.fn()}
+        onUpdate={vi.fn()}
+      />
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: /L.schen/i }));
+
+    await waitFor(() => {
+      expect(toastMock).toHaveBeenCalledWith(
+        expect.objectContaining({
+          title: "Fehler",
+          description: "Delete kaputt",
+          variant: "destructive",
+        })
+      );
+    });
+  });
+
+  test("shows a destructive toast when delete throws unexpectedly", async () => {
+    mockedDeleteEvent.mockRejectedValue(new Error("boom"));
+
+    render(
+      <EventDetails
+        event={buildEventWithKeywords({ id: "event-1" })}
+        onClose={vi.fn()}
+        onUpdate={vi.fn()}
+      />
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: /L.schen/i }));
+
+    await waitFor(() => {
+      expect(toastMock).toHaveBeenCalledWith(
+        expect.objectContaining({
+          title: "Fehler",
+          description: "Termin konnte nicht gelöscht werden.",
+          variant: "destructive",
+        })
+      );
+    });
   });
 
   test("deletes the event and closes the modal after a confirmed success", async () => {

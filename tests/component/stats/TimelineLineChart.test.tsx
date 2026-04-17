@@ -1,6 +1,6 @@
 import React from "react";
-import { describe, expect, test, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
+import { describe, expect, test, vi } from "vitest";
 import TimelineLineChart from "@/components/stats/TimelineLineChart";
 
 vi.mock("recharts", () => ({
@@ -10,7 +10,17 @@ vi.mock("recharts", () => ({
   LineChart: ({ children }: { children: React.ReactNode }) => (
     <div data-testid="line-chart">{children}</div>
   ),
-  Line: () => <span data-testid="line">line</span>,
+  Line: ({
+    dataKey,
+    stroke,
+  }: {
+    dataKey: string;
+    stroke?: string;
+  }) => (
+    <span data-testid={`line-${dataKey}`} data-stroke={stroke}>
+      {dataKey}
+    </span>
+  ),
   XAxis: ({ label }: { label: { value: string } }) => (
     <span data-testid="x-axis">{label.value}</span>
   ),
@@ -23,7 +33,11 @@ vi.mock("recharts", () => ({
 describe("TimelineLineChart", () => {
   test("uses the calendar-week label for KW series", () => {
     render(
-      <TimelineLineChart data={[{ period: "KW 15", total_minutes: 120 }]} />
+      <TimelineLineChart
+        data={[{ period: "KW 15", total: 120 }]}
+        keywordColors={{}}
+        selectedKeywords={[]}
+      />
     );
 
     expect(screen.getByTestId("x-axis")).toHaveTextContent("Kalenderwoche");
@@ -32,7 +46,11 @@ describe("TimelineLineChart", () => {
 
   test("uses the clock label for hourly series", () => {
     render(
-      <TimelineLineChart data={[{ period: "9:00", total_minutes: 60 }]} />
+      <TimelineLineChart
+        data={[{ period: "9:00", total: 60 }]}
+        keywordColors={{}}
+        selectedKeywords={[]}
+      />
     );
 
     expect(screen.getByTestId("x-axis")).toHaveTextContent("Uhrzeit");
@@ -40,9 +58,40 @@ describe("TimelineLineChart", () => {
 
   test("falls back to weekday labels for other periods", () => {
     render(
-      <TimelineLineChart data={[{ period: "Mo", total_minutes: 45 }]} />
+      <TimelineLineChart
+        data={[{ period: "Mo", total: 45 }]}
+        keywordColors={{}}
+        selectedKeywords={[]}
+      />
     );
 
     expect(screen.getByTestId("x-axis")).toHaveTextContent("Wochentag");
+  });
+
+  test("renders keyword lines only for selected keywords and uses their colors", () => {
+    render(
+      <TimelineLineChart
+        data={[
+          {
+            period: "KW 15",
+            total: 120,
+            Mathe: 120,
+            Physik: 30,
+          },
+        ]}
+        keywordColors={{ Mathe: "#00957F" }}
+        selectedKeywords={["Mathe"]}
+      />
+    );
+
+    expect(screen.getByTestId("line-total")).toHaveAttribute(
+      "data-stroke",
+      "#7700F4"
+    );
+    expect(screen.getByTestId("line-Mathe")).toHaveAttribute(
+      "data-stroke",
+      "#00957F"
+    );
+    expect(screen.queryByTestId("line-Physik")).not.toBeInTheDocument();
   });
 });
