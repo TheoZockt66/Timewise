@@ -9,6 +9,16 @@ import Link from "next/link";
 import Image from "next/image";
 import type { Keyword } from "@/types";
 
+const isColorTooLight = (hex: string) => {
+  const r = parseInt(hex.slice(1, 3), 16);
+  const g = parseInt(hex.slice(3, 5), 16);
+  const b = parseInt(hex.slice(5, 7), 16);
+
+  const brightness = (r * 299 + g * 587 + b * 114) / 1000;
+
+  return brightness > 200;
+};
+
 export default function KeywordsPage() {
   // State für alle Keywords (Anzeige im UI)
   const [keywords, setKeywords] = useState<Keyword[]>([]);
@@ -30,6 +40,9 @@ export default function KeywordsPage() {
 
   const { toast } = useToast();
 
+  const [createColorError, setCreateColorError] = useState("");
+  const [editColorError, setEditColorError] = useState("");
+
   /**
  * Setzt den Bearbeitungsmodus zurück.
  *
@@ -43,6 +56,7 @@ export default function KeywordsPage() {
     setEditLabel("");
     setEditColor("");
     setEditError("");
+    setEditColorError("");
   };
 
   // Lädt beim ersten Rendern alle Keywords vom Backend
@@ -56,6 +70,7 @@ export default function KeywordsPage() {
   const handleCreate = async () => {
     // Fehlermeldung zurücksetzen, bevor ein neuer Versuch startet
     setCreateError("");
+    setCreateColorError("");
 
     // verhindert leere Eingaben
     if (!newLabel.trim()) {
@@ -127,6 +142,7 @@ export default function KeywordsPage() {
   const handleUpdate = async (id: string) => {
     // Fehlermeldung zurücksetzen, bevor ein neuer Versuch startet
     setEditError("");
+    setEditColorError("");
 
     // verhindert leere Eingaben
     if (!editLabel.trim()) {
@@ -222,7 +238,16 @@ export default function KeywordsPage() {
                 <input
                   type="color"
                   value={newColor}
-                  onChange={(e) => setNewColor(e.target.value)}
+                  onChange={(e) => {
+                    const color = e.target.value;
+                    setNewColor(color);
+
+                    if (isColorTooLight(color)) {
+                      setCreateColorError("Farbe zu hell – möglicherweise schlecht sichtbar");
+                    } else {
+                      setCreateColorError("");
+                    }
+                  }}
                   className="h-11 w-11 cursor-pointer rounded border bg-background p-1"
                 />
               </div>
@@ -236,8 +261,10 @@ export default function KeywordsPage() {
               </Button>
             </div>
 
-            {createError && (
-              <p className="mt-2 text-sm text-red-500">{createError}</p>
+            {(createError || createColorError) && (
+              <p className="mt-2 text-sm text-red-500">
+                {createError || createColorError}
+              </p>
             )}
           </CardContent>
         </Card>
@@ -267,10 +294,11 @@ export default function KeywordsPage() {
 
                   <div className="flex flex-wrap items-center justify-end gap-2">
                     {editingId === k.id ? (
-                      <>
-                        {/* obere Zeile */}
+                      <div className="flex flex-col gap-1 w-full">
+
+                        {/* OBERE ZEILE */}
                         <div className="flex items-center gap-2">
-                          <div className="flex flex-col">
+                          <div className="flex-1">
                             <Input
                               value={editLabel}
                               onChange={(e) => {
@@ -286,21 +314,23 @@ export default function KeywordsPage() {
                                   setEditError("");
                                 }
                               }}
-                              className="w-full md:w-56"
+                              className="w-full"
                             />
-
-                            {/* Fehler direkt unter Input */}
-                            {editError && (
-                              <p className="w-full text-sm text-red-500 mt-1">
-                                {editError}
-                              </p>
-                            )}
                           </div>
 
                           <input
                             type="color"
                             value={editColor}
-                            onChange={(e) => setEditColor(e.target.value)}
+                            onChange={(e) => {
+                              const color = e.target.value;
+                              setEditColor(color);
+
+                              if (isColorTooLight(color)) {
+                                setEditColorError("Farbe zu hell – möglicherweise schlecht sichtbar");
+                              } else {
+                                setEditColorError("");
+                              }
+                            }}
                             className="h-11 w-11 cursor-pointer rounded border bg-background p-1"
                           />
 
@@ -320,17 +350,26 @@ export default function KeywordsPage() {
                             Abbrechen
                           </Button>
                         </div>
-                      </>
+
+                        {/* FEHLER UNTEN */}
+                        {(editError || editColorError) && (
+                          <p className="text-sm text-red-500">
+                            {editError || editColorError}
+                          </p>
+                        )}
+
+                      </div>
                     ) : (
                       <>
                         <Button
                           variant="outline"
-                          onClick={() => {
-                            setEditingId(k.id);
-                            setEditLabel(k.label);
-                            setEditColor(k.color);
-                            setEditError("");
-                          }}
+                          onClick={
+                            () => {
+                              setEditingId(k.id);
+                              setEditLabel(k.label);
+                              setEditColor(k.color);
+                              setEditError("");
+                            }}
                           className="min-h-11"
                         >
                           Bearbeiten
@@ -350,8 +389,8 @@ export default function KeywordsPage() {
               ))
             )}
           </CardContent>
-        </Card>
-      </div>
-    </main>
+        </Card >
+      </div >
+    </main >
   );
 }
