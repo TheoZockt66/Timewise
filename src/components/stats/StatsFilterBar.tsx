@@ -59,7 +59,7 @@ export default function StatsFilterBar({
     });
   };
   return (
-    <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+    <div className="flex flex-col gap-4 md:flex-row md:items-end">
 
       {/* Zeitraum-Auswahl (Start- und Enddatum) */}
       <div className="flex gap-2">
@@ -88,7 +88,7 @@ export default function StatsFilterBar({
       </div>
 
       {/* Auswahl der Gruppierung (Tag, Woche, Monat) */}
-      <div className="flex gap-2">
+      <div className="flex gap-2 md:ml-auto">
         <Button
           variant={granularity === "day" ? "default" : "outline"}
           className="h-11"

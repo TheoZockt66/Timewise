@@ -73,8 +73,19 @@ export default function StatsPage() {
             start.setDate(start.getDate() + factor * 7);
             end.setDate(end.getDate() + factor * 7);
         } else if (filters.granularity === "month") {
-            start.setMonth(start.getMonth() + factor);
-            end.setMonth(end.getMonth() + factor);
+            const newDate = new Date(start);
+            newDate.setMonth(newDate.getMonth() + factor);
+
+            const startOfMonth = new Date(newDate.getFullYear(), newDate.getMonth(), 1);
+            const endOfMonth = new Date(newDate.getFullYear(), newDate.getMonth() + 1, 0);
+
+            setFilters({
+                ...filters,
+                startDate: formatDate(startOfMonth),
+                endDate: formatDate(endOfMonth),
+            });
+
+            return;
         } else {
             start.setDate(start.getDate() + factor);
             end.setDate(end.getDate() + factor);
@@ -166,21 +177,32 @@ export default function StatsPage() {
 
                 {/* Seitenüberschrift */}
                 <div>
-                    <h1 className="text-3xl font-bold tracking-tight">Statistiken</h1>
-                </div>
+                    <div className="flex items-center justify-between">
+                        <h1 className="text-3xl font-bold tracking-tight">Statistiken</h1>
 
-                {/* Filter-Bar zur Steuerung der Daten */}
-                {/* Filter-Bereich */}
-                <div className="flex gap-6 items-start">
-
-                    {/* Links: Datum + Buttons */}
-                    <div className="flex-1">
-                        <div className="mb-2">
-                            <DateNavigation
-                                onPrev={() => shiftPeriod("prev")}
-                                onNext={() => shiftPeriod("next")}
+                        <div className="w-64 mt-2">
+                            <KeywordSelect
+                                keywords={keywords}
+                                selectedIds={filters.keywordIds}
+                                onChange={(ids) =>
+                                    setFilters((prev) => ({ ...prev, keywordIds: ids }))
+                                }
                             />
                         </div>
+                    </div>
+                </div>
+
+                {/* Filter-Bar kompakt in einer Reihe */}
+                <div className="flex items-end gap-6 w-full">
+
+                    {/* LINKS: Pfeile */}
+                    <DateNavigation
+                        onPrev={() => shiftPeriod("prev")}
+                        onNext={() => shiftPeriod("next")}
+                    />
+
+                    {/* RECHTS: Filter */}
+                    <div className="flex-1">
                         <StatsFilterBar
                             startDate={filters.startDate}
                             endDate={filters.endDate}
@@ -188,11 +210,9 @@ export default function StatsPage() {
                             keywordIds={filters.keywordIds}
                             onChange={(newFilters) => {
 
-                                // WOCHE → Montag bis Sonntag
                                 if (newFilters.granularity === "week") {
                                     const selectedDate = new Date(newFilters.startDate);
                                     const day = selectedDate.getDay();
-
                                     const diffToMonday = day === 0 ? -6 : 1 - day;
 
                                     const start = new Date(selectedDate);
@@ -207,14 +227,10 @@ export default function StatsPage() {
                                         endDate: formatDate(end),
                                     });
 
-                                    // MONAT → kompletter Monat
                                 } else if (newFilters.granularity === "month") {
                                     const selectedDate = new Date(newFilters.startDate);
 
-                                    // erster Tag des Monats
                                     const start = new Date(selectedDate.getFullYear(), selectedDate.getMonth(), 1);
-
-                                    // letzter Tag des Monats
                                     const end = new Date(selectedDate.getFullYear(), selectedDate.getMonth() + 1, 0);
 
                                     setFilters({
@@ -224,7 +240,6 @@ export default function StatsPage() {
                                     });
 
                                 } else {
-                                    // Tag → Start- und Enddatum auf denselben Tag setzen
                                     const selectedDate = new Date(newFilters.startDate);
 
                                     setFilters({
@@ -236,21 +251,10 @@ export default function StatsPage() {
                             }}
                         />
                     </div>
-
-                    {/* Rechts: Keyword Filter */}
-                    <div className="w-64">
-                        <KeywordSelect
-                            keywords={keywords}
-                            selectedIds={filters.keywordIds}
-                            onChange={(ids) =>
-                                setFilters((prev) => ({ ...prev, keywordIds: ids }))
-                            }
-                        />
-                    </div>
                 </div>
 
                 {/* Datenanzeige */}
-                {loading && <p>Lade Daten...</p>}
+                {loading && <p className="text-base text-gray-700">Lade Daten...</p>}
 
                 {/* INFO-KACHEL: Kontextdaten */}
                 {!loading && !error && (
@@ -267,7 +271,10 @@ export default function StatsPage() {
 
                         {/* Gesamtlernzeit */}
                         <p>
-                            <strong>Gesamtlernzeit:</strong>{" "}
+                            <strong>
+                                Gesamtlernzeit
+                                {filters.keywordIds.length > 0 ? " (Auswahl)" : ""}:
+                            </strong>{" "}
                             {Math.floor(totalTimelineMinutes / 60)}h {totalTimelineMinutes % 60}min
                         </p>
 
@@ -276,7 +283,7 @@ export default function StatsPage() {
                             <strong>Ausgewählte Keywords:</strong>
 
                             {filters.keywordIds.length === 0 ? (
-                                <p className="mt-2 text-gray-500 italic">
+                                <p className="mt-2 text-gray-600 italic text-base">
                                     Alle Keywords ausgewählt
                                 </p>
                             ) : (
@@ -290,7 +297,7 @@ export default function StatsPage() {
                                                     style={{ backgroundColor: k.color }}
                                                 />
                                                 <span
-                                                    className="truncate max-w-[160px] cursor-default"
+                                                    className="text-base truncate max-w-[160px] cursor-default"
                                                     title={k.label}
                                                 >
                                                     {k.label}
@@ -310,7 +317,7 @@ export default function StatsPage() {
                     <div className="space-y-4">
 
                         {data.length === 0 ? (
-                            <p>Keine Daten vorhanden</p>
+                            <p className="text-base text-gray-700">Keine Daten vorhanden</p>
                         ) : (
                             <>
                                 {/* Karten pro Zeitraum */}
@@ -334,14 +341,14 @@ export default function StatsPage() {
                                                                     style={{ backgroundColor: k.keyword_color }}
                                                                 />
                                                                 <span
-                                                                    className="truncate max-w-[160px]"
+                                                                    className="text-base truncate max-w-[160px]"
                                                                     title={k.keyword_label}
                                                                 >
                                                                     {k.keyword_label}
                                                                 </span>
                                                             </div>
 
-                                                            <span>{k.minutes} min</span>
+                                                            <span className="text-base">{k.minutes} min</span>
                                                         </div>
                                                     ))}
                                                 </div>
