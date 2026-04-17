@@ -60,7 +60,9 @@ export default function KeywordSelect({
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 onFocus={() => {
-                    setTempSelected(selectedIds); // sync mit Parent
+                    if (!open) {
+                        setTempSelected(selectedIds);
+                    }
                     setOpen(true);
                 }}
                 className="w-full rounded border px-2 py-1"
@@ -69,7 +71,26 @@ export default function KeywordSelect({
             {/* Dropdown */}
             {open && (
                 <div className="absolute z-10 mt-2 w-full rounded border bg-white shadow">
-
+                    {/* Alle auswählen Checkbox */}
+                    <label className="flex items-center gap-2 p-2 border-b cursor-pointer hover:bg-gray-100">
+                        <input
+                            type="checkbox"
+                            checked={
+                                filtered.length > 0 &&
+                                filtered.every((k) => tempSelected.includes(k.id))
+                            }
+                            onChange={(e) => {
+                                if (e.target.checked) {
+                                    setTempSelected(filtered.map((k) => k.id));
+                                } else {
+                                    setTempSelected([]);
+                                }
+                            }}
+                        />
+                        <span className="font-medium">
+                            {search ? "Gefilterte auswählen" : "Alle auswählen"}
+                        </span>
+                    </label>
                     <div className="max-h-60 overflow-y-auto">
                         {filtered.map((k) => (
                             <label
