@@ -1,5 +1,7 @@
 "use client";
 
+import { isColorTooLight } from "@/lib/color.utils";
+
 /**
  * Gemeinsame Payload-Struktur für Recharts-Tooltips.
  */
@@ -99,8 +101,13 @@ export function LineTooltip({ active, payload, label }: BaseProps) {
                         >
                             <div className="flex items-center gap-2 min-w-0 pl-1">
                                 <span
-                                    className="h-3 w-3 rounded-full shrink-0"
-                                    style={{ backgroundColor: entry.color ?? "#7700F4" }}
+                                    className="h-3 w-3 rounded-full shrink-0 border"
+                                    style={{
+                                        backgroundColor: entry.color ?? "#7700F4",
+                                        borderColor: isColorTooLight(entry.color ?? "#7700F4")
+                                            ? "#cfcfcf"
+                                            : "transparent",
+                                    }}
                                 />
                                 <span
                                     className="break-all"

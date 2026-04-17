@@ -12,6 +12,7 @@ import TimelineLineChart from "@/components/stats/TimelineLineChart";
 import { formatDate } from "@/lib/utils";
 import DateNavigation from "@/components/ui/DateNavigation";
 import DayTimeline from "@/components/stats/DayTimeline";
+import { isColorTooLight } from "@/lib/color.utils";
 
 /**
  * StatsPage
@@ -293,8 +294,11 @@ export default function StatsPage() {
                                         .map((k) => (
                                             <div key={k.id} className="flex items-center gap-2">
                                                 <span
-                                                    className="h-3 w-3 rounded-full"
-                                                    style={{ backgroundColor: k.color }}
+                                                    className="h-3 w-3 rounded-full border"
+                                                    style={{
+                                                        backgroundColor: k.color,
+                                                        borderColor: isColorTooLight(k.color) ? "#cfcfcf" : "transparent",
+                                                    }}
                                                 />
                                                 <span
                                                     className="text-base truncate max-w-[160px] cursor-default"
@@ -337,8 +341,11 @@ export default function StatsPage() {
                                                         >
                                                             <div className="flex items-center gap-2 min-w-0">
                                                                 <div
-                                                                    className="h-3 w-3 rounded-full"
-                                                                    style={{ backgroundColor: k.keyword_color }}
+                                                                    className="h-3 w-3 rounded-full border"
+                                                                    style={{
+                                                                        backgroundColor: k.keyword_color,
+                                                                        borderColor: isColorTooLight(k.keyword_color) ? "#cfcfcf" : "transparent",
+                                                                    }}
                                                                 />
                                                                 <span
                                                                     className="text-base truncate max-w-[160px]"

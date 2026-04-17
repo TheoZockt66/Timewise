@@ -10,6 +10,7 @@ import {
     Cell,
 } from "recharts";
 import { BarTooltip } from "@/components/stats/CustomTooltip";
+import { isColorTooLight } from "@/lib/color.utils";
 
 type KeywordData = {
     keyword_id: string;
@@ -80,12 +81,14 @@ export default function KeywordBarChart({ data }: Props) {
                     <Bar
                         dataKey="minutes"
                         barSize={30}
-                        radius={[8, 8, 0, 0]} // abgerundete Balken oben
+                        radius={[8, 8, 0, 0]}
                     >
                         {data.map((entry) => (
                             <Cell
                                 key={entry.keyword_id}
                                 fill={entry.keyword_color}
+                                stroke={isColorTooLight(entry.keyword_color) ? "#cfcfcf" : "none"}
+                                strokeWidth={isColorTooLight(entry.keyword_color) ? 1 : 0}
                             />
                         ))}
                     </Bar>
