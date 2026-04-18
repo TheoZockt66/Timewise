@@ -1,9 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import Image from "next/image";
-import Link from "next/link";
-import { ArrowLeft } from "lucide-react";
+import HeaderWithBack from "@/components/layout/HeaderWithBack";
 import { GoalForm } from "@/components/goals/GoalForm";
 import { GoalList } from "@/components/goals/GoalList";
 import { Button } from "@/components/ui/button";
@@ -84,29 +82,7 @@ export default function GoalsPage() {
   return (
     <main className="min-h-screen bg-muted/30 px-4 py-8">
       <div className="mx-auto max-w-4xl space-y-6">
-        <div className="relative mb-6 flex min-h-14 items-center justify-end">
-          <Button
-            asChild
-            type="button"
-            variant="outline"
-            className="absolute left-0 min-h-11"
-          >
-            <Link href="/">
-              <ArrowLeft className="mr-2 h-4 w-4" />
-              Zurück
-            </Link>
-          </Button>
-          <Link href="/" className="inline-block">
-            <Image
-              src="/timewise-logo.svg"
-              alt="Timewise Logo"
-              width={216}
-              height={56}
-              className="h-14 w-[216px] object-contain"
-            />
-          </Link>
-        </div>
-
+        <HeaderWithBack />
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Meine Ziele</h1>
           <p className="mt-1 text-sm text-muted-foreground">

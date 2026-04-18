@@ -5,8 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
-import Link from "next/link";
-import Image from "next/image";
+import HeaderWithBack from "@/components/layout/HeaderWithBack";
 import type { Keyword } from "@/types";
 
 const isColorTooLight = (hex: string) => {
@@ -190,18 +189,7 @@ export default function KeywordsPage() {
     <main className="min-h-screen bg-muted/30 px-4 py-8">
       <div className="mx-auto max-w-4xl space-y-6">
         {/* Logo dient als Navigation zurück zur Startseite */}
-        <div className="flex items-center justify-between mb-6">
-          <Link href="/" className="inline-block">
-            <Image
-              src="/timewise-logo.svg"
-              alt="Timewise Logo"
-              width={216}
-              height={56}
-              className="h-14 w-[216px] object-contain"
-              priority
-            />
-          </Link>
-        </div>
+        <HeaderWithBack />
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Meine Keywords</h1>
           <p className="mt-1 text-sm text-muted-foreground">

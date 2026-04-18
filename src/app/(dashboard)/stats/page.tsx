@@ -1,8 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
-import Image from "next/image";
+import HeaderWithBack from "@/components/layout/HeaderWithBack";
 import { useEffect } from "react";
 import { useStats } from "@/hooks/useStats";
 import KeywordBarChart from "@/components/stats/KeywordBarChart";
@@ -163,18 +162,7 @@ export default function StatsPage() {
             <div className="mx-auto max-w-4xl space-y-6">
 
                 {/* Logo → Navigation zurück zur Startseite */}
-                <div className="mb-6 flex items-center justify-between">
-                    <Link href="/" className="inline-block">
-                        <Image
-                            src="/timewise-logo.svg"
-                            alt="Timewise Logo"
-                            width={216}
-                            height={56}
-                            className="h-14 w-[216px] object-contain"
-                            priority
-                        />
-                    </Link>
-                </div>
+                <HeaderWithBack />
 
                 {/* Seitenüberschrift */}
                 <div>
