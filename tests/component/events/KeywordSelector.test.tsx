@@ -1,6 +1,6 @@
 import { describe, expect, test, vi } from "vitest";
 import { fireEvent, render, screen } from "@testing-library/react";
-import { KeywordSelector } from "@/components/events/KeywordSelector";
+import { KeywordSelector } from "@/components/ui/KeywordSelector";
 import { buildKeyword } from "../../factories/keywords";
 
 describe("KeywordSelector", () => {

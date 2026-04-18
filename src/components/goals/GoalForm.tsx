@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { getKeywordBadgeStyles, getSelectedKeywordDotStyles } from "@/lib/utils";
+import { KeywordSelector } from "@/components/ui/KeywordSelector";
 import type { Keyword } from "@/types";
 import type { GoalFormValues } from "@/hooks/useGoals";
 
@@ -13,14 +13,6 @@ type GoalFormProps = {
   onSubmit: () => void;
   onCancel?: () => void;
 };
-
-function toggleKeyword(values: GoalFormValues, keywordId: string): GoalFormValues {
-  const keywordIds = values.keywordIds.includes(keywordId)
-    ? values.keywordIds.filter((id) => id !== keywordId)
-    : [...values.keywordIds, keywordId];
-
-  return { ...values, keywordIds };
-}
 
 export function GoalForm({
   values,
@@ -110,42 +102,12 @@ export function GoalForm({
         </div>
       </div>
 
-      {availableKeywords.length > 0 && (
-        <div className="flex flex-col gap-2">
-          <span className="text-xs text-muted-foreground">Keywords (optional)</span>
-          <div className="flex flex-wrap gap-2">
-            {availableKeywords.map((keyword) => {
-              const isSelected = values.keywordIds.includes(keyword.id);
-              const selectedKeywordStyles = getKeywordBadgeStyles(keyword.color);
-
-              return (
-                <button
-                  key={keyword.id}
-                  type="button"
-                  onClick={() => onChange(toggleKeyword(values, keyword.id))}
-                  className={`flex items-center gap-2 rounded-full border px-3 py-1 text-sm transition-colors ${
-                    isSelected
-                      ? ""
-                      : "border-border bg-background text-foreground hover:bg-muted"
-                  }`}
-                  style={isSelected ? selectedKeywordStyles : {}}
-                  disabled={disabled}
-                >
-                  <span
-                    className="h-2 w-2 flex-shrink-0 rounded-full"
-                    style={{
-                      ...(isSelected
-                        ? getSelectedKeywordDotStyles(keyword.color)
-                        : { backgroundColor: keyword.color }),
-                    }}
-                  />
-                  {keyword.label}
-                </button>
-              );
-            })}
-          </div>
-        </div>
-      )}
+      <KeywordSelector
+        keywords={availableKeywords}
+        selectedIds={values.keywordIds}
+        onSelectionChange={(ids) => onChange({ ...values, keywordIds: ids })}
+        disabled={disabled}
+      />
 
       <div className="flex flex-wrap gap-2">
         <Button type="button" onClick={onSubmit} className="min-h-11" disabled={submitDisabled}>

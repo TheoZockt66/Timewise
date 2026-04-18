@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { TimeRangePicker } from "@/components/events/TimeRangePicker";
-import { KeywordSelector } from "@/components/events/KeywordSelector";
+import { KeywordSelector } from "@/components/ui/KeywordSelector";
 import { useToast } from "@/hooks/use-toast";
 import { validateEvent, type ValidationError } from "@/lib/validators/event.validator";
 import {
