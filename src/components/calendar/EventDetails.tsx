@@ -151,7 +151,7 @@ export function EventDetails({ event, onClose, onUpdate }: EventDetailsProps) {
           </div>
 
           <div>
-            <h3 className="font-medium text-text-primary mb-2">Tags</h3>
+            <h3 className="font-medium text-text-primary mb-2">Keywords</h3>
             {event.keywords && event.keywords.length > 0 ? (
               <div className="flex flex-wrap gap-2">
                 {event.keywords.map((keyword) => (
