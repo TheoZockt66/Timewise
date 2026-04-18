@@ -341,7 +341,7 @@ export function EventForm({
             type="button"
             onClick={onCancel}
             disabled={isLoading}
-            variant="outline"
+            variant="destructive"
             className="h-11 px-6 text-base font-medium"
           >
             Abbrechen

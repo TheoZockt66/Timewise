@@ -331,7 +331,7 @@ export default function KeywordsPage() {
                           </Button>
 
                           <Button
-                            variant="outline"
+                            variant="destructive"
                             onClick={resetEditState}
                             className="min-h-11"
                           >
