@@ -169,7 +169,7 @@ export function EventDetails({ event, onClose, onUpdate }: EventDetailsProps) {
                 ))}
               </div>
             ) : (
-              <p className="text-sm text-text-secondary">Keine Tags zugewiesen</p>
+              <p className="text-sm text-text-secondary">Keine Keywords zugewiesen</p>
             )}
           </div>
         </div>

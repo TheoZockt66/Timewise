@@ -104,7 +104,7 @@ export function EventForm({
       } catch {
         toast({
           title: "Fehler",
-          description: "Tags konnten nicht geladen werden.",
+          description: "Keywords konnten nicht geladen werden.",
           variant: "destructive",
         });
         setKeywords([]);
@@ -354,7 +354,7 @@ export function EventForm({
         <p className="font-semibold">💡 Tipps:</p>
         <ul className="list-disc list-inside space-y-1 text-xs md:text-sm">
           <li>Erfasse Lernzeiten zeitnah nach dem Lernen.</li>
-          <li>Mehrere Tags pro Eintrag sind möglich.</li>
+          <li>Mehrere Keywords pro Eintrag sind möglich.</li>
           <li>Überschneidungen werden automatisch erkannt.</li>
         </ul>
       </div>

@@ -210,6 +210,7 @@ export async function fetchEvents(
       (new Date(event.end_time).getTime() - new Date(event.start_time).getTime()) / (1000 * 60)
     ),
   }));
+  
   /**
  * Hinweis:
  * Supabase unterstützt Filter auf verschachtelten Relationen (event_keywords)

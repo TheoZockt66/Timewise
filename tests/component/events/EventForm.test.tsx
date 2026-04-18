@@ -152,7 +152,7 @@ describe("EventForm", () => {
       expect(toastMock).toHaveBeenCalledWith(
         expect.objectContaining({
           title: "Fehler",
-          description: "Tags konnten nicht geladen werden.",
+          description: "Keywords konnten nicht geladen werden.",
           variant: "destructive",
         })
       );
@@ -169,7 +169,7 @@ describe("EventForm", () => {
       expect(toastMock).toHaveBeenCalledWith(
         expect.objectContaining({
           title: "Fehler",
-          description: "Tags konnten nicht geladen werden.",
+          description: "Keywords konnten nicht geladen werden.",
           variant: "destructive",
         })
       );
