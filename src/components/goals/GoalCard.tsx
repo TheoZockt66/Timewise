@@ -1,8 +1,8 @@
 import { Button } from "@/components/ui/button";
+import { KeywordBadges } from "@/components/ui/KeywordBadges";
 import { GoalForm } from "@/components/goals/GoalForm";
 import { GoalProgressBar } from "@/components/goals/GoalProgressBar";
 import type { GoalFormValues } from "@/hooks/useGoals";
-import { getKeywordBadgeStyles, getKeywordDotStyles } from "@/lib/utils";
 import type { GoalWithProgress, Keyword } from "@/types";
 
 type GoalCardProps = {
@@ -86,23 +86,7 @@ export function GoalCard({
           <p className="text-sm text-muted-foreground">{goal.description}</p>
         ) : null}
 
-        {goal.keywords.length > 0 ? (
-          <div className="flex flex-wrap gap-1">
-            {goal.keywords.map((keyword) => (
-              <span
-                key={keyword.id}
-                className="inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-xs font-medium"
-                style={getKeywordBadgeStyles(keyword.color)}
-              >
-                <span
-                  className="h-2 w-2 flex-shrink-0 rounded-full"
-                  style={getKeywordDotStyles(keyword.color)}
-                />
-                {keyword.label}
-              </span>
-            ))}
-          </div>
-        ) : null}
+        <KeywordBadges keywords={goal.keywords} />
 
         {goal.target_minutes > 0 ? (
           <GoalProgressBar

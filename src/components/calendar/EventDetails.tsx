@@ -7,6 +7,8 @@ import { EventForm } from '@/components/events/EventForm';
 import { deleteEvent } from '@/lib/services/event.service';
 import { useToast } from '@/hooks/use-toast';
 import { useCalendar } from '@/hooks/useCalendar';
+import { Key } from 'lucide-react';
+import { KeywordBadges } from '../ui/KeywordBadges';
 
 interface EventDetailsProps {
   event: EventWithKeywords;
@@ -152,25 +154,7 @@ export function EventDetails({ event, onClose, onUpdate }: EventDetailsProps) {
 
           <div>
             <h3 className="font-medium text-text-primary mb-2">Keywords</h3>
-            {event.keywords && event.keywords.length > 0 ? (
-              <div className="flex flex-wrap gap-2">
-                {event.keywords.map((keyword) => (
-                  <span
-                    key={keyword.id}
-                    className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium"
-                    style={{
-                      backgroundColor: `${keyword.color}20`,
-                      color: keyword.color,
-                      border: `1px solid ${keyword.color}40`,
-                    }}
-                  >
-                    {keyword.label}
-                  </span>
-                ))}
-              </div>
-            ) : (
-              <p className="text-sm text-text-secondary">Keine Keywords zugewiesen</p>
-            )}
+            <KeywordBadges keywords={event.keywords} />
           </div>
         </div>
       </div>
