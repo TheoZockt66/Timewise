@@ -14,7 +14,7 @@ describe("KeywordSelector", () => {
       />
     );
 
-    expect(screen.getByText("Tags werden geladen...")).toBeInTheDocument();
+    expect(screen.getByText(/Keywords werden geladen/i)).toBeInTheDocument();
   });
 
   test("shows an empty state when no keywords are available", () => {
@@ -26,7 +26,8 @@ describe("KeywordSelector", () => {
       />
     );
 
-    expect(screen.getByText("Keine Tags verfügbar.")).toBeInTheDocument();
+    expect(screen.getByText(/Keine Keywords verf/i)).toBeInTheDocument();
+    expect(screen.getByText(/Erstelle zuerst/i)).toBeInTheDocument();
   });
 
   test("emits updated ids when a keyword is selected and deselected", () => {
@@ -41,7 +42,7 @@ describe("KeywordSelector", () => {
       />
     );
 
-    fireEvent.click(screen.getByText("Mathe"));
+    fireEvent.click(screen.getByRole("button", { name: "Mathe" }));
 
     expect(onSelectionChange).toHaveBeenCalledWith(["keyword-1"]);
 
@@ -53,7 +54,7 @@ describe("KeywordSelector", () => {
       />
     );
 
-    fireEvent.click(screen.getByRole("checkbox"));
+    fireEvent.click(screen.getByRole("button", { name: "Mathe" }));
 
     expect(onSelectionChange).toHaveBeenLastCalledWith([]);
   });
@@ -67,7 +68,7 @@ describe("KeywordSelector", () => {
       />
     );
 
-    expect(screen.getAllByText("Mathe")).toHaveLength(2);
+    expect(screen.getByRole("button", { name: "Mathe" })).toBeInTheDocument();
     expect(screen.queryByText("missing-keyword")).not.toBeInTheDocument();
   });
 

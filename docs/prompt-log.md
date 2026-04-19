@@ -2,6 +2,142 @@
 
 ---
 
+Eintrag Nr.: 45
+Datum: 2026-04-19
+Prompt: überprüfe das dashboard einmal und schau ob überall umlaute wie ü ö ä genutz wurden
+Aktion: GEÄNDERT
+Datei / Komponente: |
+  Dashboard-Texte auf echte Umlaute geprüft und vereinheitlicht
+  - dashboard/app.py
+  - dashboard/run_dashboard.py
+  - dashboard/README.md
+  - dashboard/storage.py
+  - docs/prompt-log.md
+Schnittstelle: |
+  Dashboard-UI und CLI-Hinweise:
+  - sichtbare Benutzertexte verwenden jetzt konsistent echte Umlaute statt `ae/oe/ue`
+  - verbliebene Mojibake-/ASCII-Fallbacks in Dashboard-Hilfstexten wurden bereinigt
+Beschreibung: |
+  Der Dashboard-Bereich wurde auf sichtbare deutsche Texte mit echten Umlauten geprüft.
+
+  Geändert wurde:
+  - Coverage-Hinweise in `dashboard/app.py` auf `aufgeschlüsselte`, `Für`, `Lücke`, `Schwächste` und `Größte` umgestellt
+  - CLI-Hinweise in `dashboard/run_dashboard.py` auf korrekte UTF-8-Umlaute bereinigt
+  - die Dashboard-Dokumentation in `dashboard/README.md` von ASCII-Fallbacks wie `fuer`/`ue` auf echte Umlaute umgestellt
+  - die Storage-Warnung in `dashboard/storage.py` auf `Ungültige` und `übersprungen` umgestellt
+
+---
+
+Eintrag Nr.: 44
+Datum: 2026-04-19
+Prompt: Wenn du willst, nehme ich als Nächstes direkt den Restblock Richtung 100%: goals/page.tsx, GoalProgressBar.tsx, KeywordBarChart.tsx, KeywordSelect.tsx, useCalendar.ts und danach die kleinen API-Branch-Lücken.
+Aktion: GEÄNDERT
+Datei / Komponente: |
+  Restblock für Goals, Stats, Calendar-Hook und Events-Route ergänzt
+  - tests/component/goals/GoalsPage.test.tsx
+  - tests/component/goals/GoalProgressBar.test.tsx
+  - tests/component/stats/KeywordBarChart.test.tsx
+  - tests/component/stats/KeywordSelect.test.tsx
+  - tests/unit/hooks/useCalendar.test.ts
+  - tests/api/events/route.test.ts
+  - docs/prompt-log.md
+Schnittstelle: |
+  GoalsPage-Tests:
+  - decken jetzt Loading-State sowie Fehlerpfade für Create, Update und Delete ab
+
+  GoalProgressBar-/KeywordBarChart-/KeywordSelect-Tests:
+  - decken zusätzliche Formatierungs-, Farb- und Auswahl-Branches ab
+
+  useCalendar-/events route-Tests:
+  - decken leere Daten, generische Fehler und den fehlenden POST-Unauthorized-Pfad ab
+Beschreibung: |
+  Der nächste Restblock Richtung 100% wurde gezielt erweitert.
+
+  Geändert wurde:
+  - `GoalsPage` um Loading-State und destruktive Toast-Pfade ergänzt
+  - `GoalProgressBar` um den Unter-1h-Formatierungszweig ergänzt
+  - `KeywordBarChart` um den Hellfarben-Stroke-Zweig ergänzt
+  - `KeywordSelect` um Deselect- und Select-All-Reset-Zweige ergänzt
+  - `useCalendar` um Empty-Payload- und Generic-Error-Fallbacks ergänzt
+  - `events/route` um den fehlenden Unauthorized-Test für `POST` ergänzt
+
+---
+
+Eintrag Nr.: 43
+Datum: 2026-04-19
+Prompt: Sinnvoller nächster Block wäre: keywords/page.tsx, StatsFilterBar.tsx, CustomTooltip.tsx, useStats.ts und danach CalendarView.tsx.
+Aktion: GEÄNDERT
+Datei / Komponente: |
+  Coverage-Block für Keywords, Stats und Kalender erweitert
+  - src/hooks/useStats.ts
+  - tests/component/keywords/KeywordsPage.test.tsx
+  - tests/component/stats/StatsFilterBar.test.tsx
+  - tests/component/stats/CustomTooltip.test.tsx
+  - tests/unit/hooks/useStats.test.ts
+  - tests/component/calendar/CalendarView.test.tsx
+  - docs/prompt-log.md
+Schnittstelle: |
+  useStats:
+  - liefert für `granularity: "day"` jetzt ebenfalls eine stündliche `timelineData`
+
+  KeywordsPage-Tests:
+  - decken jetzt Create-/Edit-Fehler, Farbwarnungen, Längenlimits und Delete-Fehler ab
+
+  StatsFilterBar-/CustomTooltip-Tests:
+  - decken zusätzliche UI-Branches, Fallbacks und Sonderfälle ab
+
+  CalendarView-Tests:
+  - decken nun Cancel-/Close- und Refresh-Pfade der Modals ab
+Beschreibung: |
+  Der nächste Coverage-Block wurde gezielt geschlossen.
+
+  Geändert wurde:
+  - `useStats` für die Tagesgranularität korrigiert, damit auch dort eine stündliche Timeline aufgebaut wird
+  - `KeywordsPage` um Fehlerpfade für Erstellen, Bearbeiten und Löschen ergänzt
+  - `StatsFilterBar` um aktive Varianten und den Sonntag-Sonderfall der Wochenberechnung ergänzt
+  - `CustomTooltip` um Fallback-Labels, Inaktiv-Zustände und helle Farbbereiche ergänzt
+  - `CalendarView` um Cancel-/Close- und `onUpdate`-Refresh-Fälle ergänzt
+
+---
+
+Eintrag Nr.: 42
+Datum: 2026-04-19
+Prompt: Wenn du willst, mache ich als Nächstes direkt den ersten Block: EventForm, KeywordSelector, GoalForm und EventDetails wieder grün.
+Aktion: GEÃ„NDERT
+Datei / Komponente: |
+  Veraltete Komponententests an aktuelle UI angepasst
+  - tests/component/events/EventForm.test.tsx
+  - tests/component/events/KeywordSelector.test.tsx
+  - tests/component/goals/GoalForm.test.tsx
+  - tests/component/calendar/EventDetails.test.tsx
+  - docs/prompt-log.md
+Schnittstelle: |
+  EventForm-Test:
+  - nutzt jetzt den realen `@/components/ui/KeywordSelector`
+  - prüft Alert-/Button-Verhalten statt veralteter Test-IDs
+
+  KeywordSelector-Test:
+  - prüft aktuelle Loading-/Empty-State-Texte
+  - selektiert und deselektiert über Buttons statt Checkboxes
+
+  GoalForm-Test:
+  - erwartet den gemeinsamen Empty-State des `KeywordSelector`
+
+  EventDetails-Test:
+  - prüft die aktuelle Darstellung ohne Fallback-Text für leere Keywords
+Beschreibung: |
+  Vier rote Testdateien waren gegen eine veraltete UI geschrieben und haben deshalb
+  den Coverage-Lauf mitgerissen. Die Suites wurden an den aktuellen Komponentenstand
+  angepasst, ohne die Produktionskomponenten unnötig umzubauen.
+
+  Geändert wurde:
+  - `EventForm`-Tests auf reale Keyword-Auswahl, aktuelle Toast-Texte und `role="alert"` umgestellt
+  - `KeywordSelector`-Tests auf Button-Interaktion und aktuelle Empty-/Loading-States umgestellt
+  - `GoalForm`-Test an den inzwischen immer gerenderten gemeinsamen Keyword-Selector angepasst
+  - `EventDetails`-Test an das aktuelle Verhalten bei leeren Keywords angepasst
+
+---
+
 Eintrag Nr.: 41
 Datum: 2026-04-19
 Prompt: Kannst du hier den Punkte entfernen vor den keywords

@@ -62,4 +62,37 @@ describe("useCalendar", () => {
     expect(result.current.error).toBe("Kalenderdaten konnten nicht geladen werden.");
     expect(result.current.isLoading).toBe(false);
   });
+
+  test("falls back to an empty event list when the api returns no data payload", async () => {
+    fetchMock.mockResolvedValue({
+      json: async () => ({
+        data: null,
+        error: null,
+      }),
+    });
+
+    const { result } = renderHook(() => useCalendar());
+
+    await act(async () => {
+      await result.current.fetchEvents("2026-04-01", "2026-04-30");
+    });
+
+    expect(result.current.events).toEqual([]);
+    expect(result.current.error).toBeNull();
+    expect(result.current.isLoading).toBe(false);
+  });
+
+  test("falls back to a generic error when a non-error value is thrown", async () => {
+    fetchMock.mockRejectedValue("kaputt");
+
+    const { result } = renderHook(() => useCalendar());
+
+    await act(async () => {
+      await result.current.fetchEvents("2026-04-01", "2026-04-30");
+    });
+
+    expect(result.current.events).toEqual([]);
+    expect(result.current.error).toBe("Fehler beim Laden der Kalenderdaten.");
+    expect(result.current.isLoading).toBe(false);
+  });
 });

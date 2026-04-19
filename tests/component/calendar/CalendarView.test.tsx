@@ -115,14 +115,19 @@ vi.mock("@/components/calendar/EventDetails", () => ({
   EventDetails: ({
     event,
     onClose,
+    onUpdate,
   }: {
     event: { id: string };
     onClose: () => void;
+    onUpdate: () => void;
   }) => (
     <div data-testid="event-details">
       {event.id}
       <button type="button" onClick={onClose}>
         Details schliessen
+      </button>
+      <button type="button" onClick={onUpdate}>
+        Details aktualisieren
       </button>
     </div>
   ),
@@ -195,6 +200,19 @@ describe("CalendarView", () => {
     });
   });
 
+  test("closes the create modal through the form cancel callback", async () => {
+    render(<CalendarView />);
+
+    fireEvent.click(screen.getByRole("button", { name: "Zeitraum auswaehlen" }));
+    expect(screen.getByTestId("event-form")).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: "Form abbrechen" }));
+
+    await waitFor(() => {
+      expect(screen.queryByTestId("event-form")).not.toBeInTheDocument();
+    });
+  });
+
   test("refreshes the current month after the create form reports success", async () => {
     const now = new Date();
     const expectedStart = new Date(
@@ -228,6 +246,46 @@ describe("CalendarView", () => {
     expect(screen.getByTestId("event-details")).toHaveTextContent(
       calendarEventFixture.id
     );
+  });
+
+  test("closes the details modal through the details component", async () => {
+    render(<CalendarView />);
+
+    fireEvent.click(screen.getByRole("button", { name: "Termin oeffnen" }));
+    expect(screen.getByTestId("event-details")).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: "Details schliessen" }));
+
+    await waitFor(() => {
+      expect(screen.queryByTestId("event-details")).not.toBeInTheDocument();
+    });
+  });
+
+  test("refreshes the current month when the details modal reports an update", async () => {
+    const now = new Date();
+    const expectedStart = new Date(
+      now.getFullYear(),
+      now.getMonth(),
+      1
+    ).toISOString();
+    const expectedEnd = new Date(
+      now.getFullYear(),
+      now.getMonth() + 1,
+      0
+    ).toISOString();
+
+    render(<CalendarView />);
+
+    await waitFor(() => expect(mockFetchEvents).toHaveBeenCalledTimes(1));
+
+    fireEvent.click(screen.getByRole("button", { name: "Termin oeffnen" }));
+    fireEvent.click(
+      screen.getByRole("button", { name: "Details aktualisieren" })
+    );
+
+    await waitFor(() => expect(mockFetchEvents).toHaveBeenCalledTimes(2));
+    expect(mockFetchEvents).toHaveBeenLastCalledWith(expectedStart, expectedEnd);
+    expect(screen.getByTestId("event-details")).toBeInTheDocument();
   });
 
   test("ignores clicks for unknown events", () => {

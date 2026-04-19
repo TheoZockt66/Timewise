@@ -1,6 +1,6 @@
 import React from "react";
 import { beforeEach, describe, expect, test, vi } from "vitest";
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import GoalsPage from "@/app/(dashboard)/goals/page";
 import { useGoals } from "@/hooks/useGoals";
 import { buildGoalWithProgress } from "../../factories/goals";
@@ -241,5 +241,97 @@ describe("GoalsPage", () => {
     fireEvent.click(screen.getByRole("button", { name: "Erneut laden" }));
 
     expect(refetch).toHaveBeenCalledTimes(1);
+  });
+
+  test("shows the loading state while goals are fetched", () => {
+    mockedUseGoals.mockReturnValue({
+      goals: [],
+      availableKeywords: [],
+      loading: true,
+      saving: false,
+      deletingId: null,
+      error: null,
+      refetch: vi.fn(),
+      createGoalEntry: vi.fn(),
+      updateGoalEntry: vi.fn(),
+      deleteGoalEntry: vi.fn(),
+    });
+
+    render(<GoalsPage />);
+
+    expect(screen.getByText(/Ziele werden geladen/i)).toBeInTheDocument();
+  });
+
+  test("shows destructive toasts when create, update and delete fail", async () => {
+    const goal = buildGoalWithProgress({ id: "goal-1", label: "Matheplan" });
+    const createGoalEntry = vi.fn().mockResolvedValue({
+      data: null,
+      error: { message: "Create kaputt" },
+    });
+    const updateGoalEntry = vi.fn().mockResolvedValue({
+      data: null,
+      error: { message: "Update kaputt" },
+    });
+    const deleteGoalEntry = vi.fn().mockResolvedValue({
+      data: null,
+      error: { message: "Delete kaputt" },
+    });
+
+    mockedUseGoals.mockReturnValue({
+      goals: [goal],
+      availableKeywords: [buildKeyword()],
+      loading: false,
+      saving: false,
+      deletingId: null,
+      error: null,
+      refetch: vi.fn(),
+      createGoalEntry,
+      updateGoalEntry,
+      deleteGoalEntry,
+    });
+
+    render(<GoalsPage />);
+
+    fireEvent.click(screen.getByRole("button", { name: /formular ausklappen/i }));
+    fireEvent.click(
+      within(screen.getByTestId("goal-form-Hinzufügen")).getByRole("button", {
+        name: /^Hinzufügen$/,
+      })
+    );
+
+    await waitFor(() => {
+      expect(toastMock).toHaveBeenCalledWith(
+        expect.objectContaining({
+          title: "Fehler",
+          description: "Create kaputt",
+          variant: "destructive",
+        })
+      );
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: "Bearbeitung starten" }));
+    fireEvent.click(screen.getByRole("button", { name: "Speichern" }));
+
+    await waitFor(() => {
+      expect(toastMock).toHaveBeenCalledWith(
+        expect.objectContaining({
+          title: "Fehler",
+          description: "Update kaputt",
+          variant: "destructive",
+        })
+      );
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: /L.schen/i }));
+
+    await waitFor(() => {
+      expect(toastMock).toHaveBeenCalledWith(
+        expect.objectContaining({
+          title: "Fehler",
+          description: "Delete kaputt",
+          variant: "destructive",
+        })
+      );
+    });
   });
 });

@@ -114,7 +114,7 @@ describe("GoalForm", () => {
     );
   });
 
-  test("renders no keyword picker when no keywords are available", () => {
+  test("renders the shared empty keyword state when no keywords are available", () => {
     render(
       <GoalForm
         values={{ ...baseValues, label: "Klausur" }}
@@ -125,7 +125,9 @@ describe("GoalForm", () => {
       />
     );
 
-    expect(screen.queryByText("Keywords (optional)")).not.toBeInTheDocument();
+    expect(screen.getByText("Keywords (optional)")).toBeInTheDocument();
+    expect(screen.getByText(/Keine Keywords verf/i)).toBeInTheDocument();
+    expect(screen.getByText(/Erstelle zuerst/i)).toBeInTheDocument();
   });
 
   test("renders selected and unselected keyword styles and toggles selection", () => {

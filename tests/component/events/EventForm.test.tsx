@@ -1,11 +1,7 @@
 import { beforeEach, describe, expect, test, vi } from "vitest";
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { EventForm } from "@/components/events/EventForm";
-import {
-  createEvent,
-  fetchEvents,
-  updateEvent,
-} from "@/lib/services/event.service";
+import { createEvent, fetchEvents, updateEvent } from "@/lib/services/event.service";
 import { buildEventWithKeywords } from "../../factories/events";
 import { buildKeyword } from "../../factories/keywords";
 
@@ -50,33 +46,6 @@ vi.mock("@/components/events/TimeRangePicker", () => ({
         onChange={(event) => onEndChange(event.target.value)}
       />
       <div data-testid="time-error">{error ?? ""}</div>
-    </div>
-  ),
-}));
-
-vi.mock("@/components/events/KeywordSelector", () => ({
-  KeywordSelector: ({
-    selectedIds,
-    onSelectionChange,
-    error,
-    isLoading,
-  }: {
-    selectedIds: string[];
-    onSelectionChange: (value: string[]) => void;
-    error?: string;
-    isLoading?: boolean;
-  }) => (
-    <div>
-      <div data-testid="keyword-loading">{String(Boolean(isLoading))}</div>
-      <button
-        type="button"
-        onClick={() =>
-          onSelectionChange(selectedIds.length > 0 ? [] : ["keyword-1"])
-        }
-      >
-        Keywords toggeln
-      </button>
-      <div data-testid="keyword-error">{error ?? ""}</div>
     </div>
   ),
 }));
@@ -126,7 +95,7 @@ describe("EventForm", () => {
     fireEvent.click(screen.getByRole("button", { name: "Speichern" }));
 
     await waitFor(() => {
-      expect(screen.getByTestId("keyword-error")).toHaveTextContent(
+      expect(screen.getByRole("alert")).toHaveTextContent(
         "mindestens ein Keyword"
       );
     });
@@ -152,12 +121,12 @@ describe("EventForm", () => {
       expect(toastMock).toHaveBeenCalledWith(
         expect.objectContaining({
           title: "Fehler",
-          description: "Keywords konnten nicht geladen werden.",
+          description: "Tags konnten nicht geladen werden.",
           variant: "destructive",
         })
       );
     });
-    expect(screen.getByTestId("keyword-loading")).toHaveTextContent("false");
+    expect(screen.getByText(/Keine Keywords verf/i)).toBeInTheDocument();
   });
 
   test("shows a destructive toast when keyword loading throws", async () => {
@@ -220,7 +189,7 @@ describe("EventForm", () => {
     fireEvent.change(screen.getByLabelText("Titel (optional)"), {
       target: { value: "Matheblock" },
     });
-    fireEvent.click(screen.getByRole("button", { name: "Keywords toggeln" }));
+    fireEvent.click(screen.getByRole("button", { name: "Mathe" }));
     fireEvent.click(screen.getByRole("button", { name: "Speichern" }));
 
     await waitFor(() => {
@@ -305,7 +274,7 @@ describe("EventForm", () => {
       expect(screen.getByRole("button", { name: "Speichern" })).toBeEnabled()
     );
 
-    fireEvent.click(screen.getByRole("button", { name: "Keywords toggeln" }));
+    fireEvent.click(screen.getByRole("button", { name: "Mathe" }));
     fireEvent.click(screen.getByRole("button", { name: "Speichern" }));
 
     await waitFor(() => {
@@ -335,7 +304,7 @@ describe("EventForm", () => {
       expect(screen.getByRole("button", { name: "Speichern" })).toBeEnabled()
     );
 
-    fireEvent.click(screen.getByRole("button", { name: "Keywords toggeln" }));
+    fireEvent.click(screen.getByRole("button", { name: "Mathe" }));
     fireEvent.click(screen.getByRole("button", { name: "Speichern" }));
 
     await waitFor(() => {

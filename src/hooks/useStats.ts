@@ -320,7 +320,7 @@ export function useStats({
             } else {
                 // Für Tagesansicht wird die Timeline nicht benötigt,
                 // da DayTimeline direkt mit Events arbeitet
-                timeline = [];
+                timeline = buildDayTimeline(events);
             }
 
             setTimelineData(timeline);

@@ -17,7 +17,7 @@ describe("useStats", () => {
     vi.unstubAllGlobals();
   });
 
-  test("loads aggregate data and keeps the raw events for the selected day", async () => {
+  test("loads aggregate data and builds an hourly day timeline", async () => {
     const dayEvents = [
       buildEventWithKeywords({
         start_time: "2026-04-10T09:00:00",
@@ -84,7 +84,13 @@ describe("useStats", () => {
         by_keyword: [],
       },
     ]);
-    expect(result.current.timelineData).toEqual([]);
+    expect(result.current.timelineData).toHaveLength(24);
+    expect(result.current.timelineData[0]).toEqual({ period: "0:00", total: 0, Mathe: 0 });
+    expect(result.current.timelineData[9]).toEqual({
+      period: "9:00",
+      total: 60,
+      Mathe: 60,
+    });
     expect(result.current.events).toEqual(dayEvents);
     expect(result.current.error).toBeNull();
   });
@@ -204,6 +210,48 @@ describe("useStats", () => {
     expect(result.current.events).toHaveLength(2);
   });
 
+  test("builds a month timeline from sunday boundaries and keeps empty weeks stable", async () => {
+    const math = buildKeyword();
+
+    fetchMock
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({
+          data: [{ period: "03.2026", total_minutes: 30, by_keyword: [] }],
+          error: null,
+        }),
+      })
+      .mockResolvedValueOnce({
+        json: async () => ({
+          data: [
+            buildEventWithKeywords({
+              start_time: "2026-03-01T09:00:00",
+              end_time: "2026-03-01T09:30:00",
+              duration_minutes: 30,
+              keywords: [math],
+            }),
+          ],
+          error: null,
+        }),
+      });
+
+    const { result } = renderHook(() =>
+      useStats({
+        startDate: "2026-03-01",
+        endDate: "2026-03-01",
+        granularity: "month",
+      })
+    );
+
+    await waitFor(() => {
+      expect(result.current.loading).toBe(false);
+    });
+
+    expect(result.current.timelineData).toEqual([
+      { period: "KW 9", total: 30, Mathe: 30 },
+    ]);
+  });
+
   test("keeps a stable empty week timeline when the event response is empty", async () => {
     fetchMock
       .mockResolvedValueOnce({
@@ -269,6 +317,29 @@ describe("useStats", () => {
     expect(result.current.timelineData).toEqual([]);
     expect(result.current.events).toEqual([]);
     expect(result.current.error).toBe("Ung\u00fcltige Serverantwort.");
+  });
+
+  test("falls back to an unknown error message when a non-error value is thrown", async () => {
+    fetchMock.mockRejectedValueOnce("kaputt");
+
+    const { result } = renderHook(() =>
+      useStats({
+        startDate: "2026-04-10",
+        endDate: "2026-04-10",
+        granularity: "week",
+      })
+    );
+
+    await waitFor(() => {
+      expect(result.current.loading).toBe(false);
+    });
+
+    expect(result.current.data).toEqual([]);
+    expect(result.current.timelineData).toEqual([]);
+    expect(result.current.events).toEqual([]);
+    expect(result.current.error).toBe(
+      "Unbekannter Fehler beim Laden der Statistiken."
+    );
   });
 
   test("surfaces event fetch failures and resets the hook state", async () => {
@@ -398,7 +469,12 @@ describe("useStats", () => {
     expect(result.current.data).toEqual([
       { period: "10.04.2026", total_minutes: 90, by_keyword: [] },
     ]);
-    expect(result.current.timelineData).toEqual([]);
+    expect(result.current.timelineData).toHaveLength(24);
+    expect(result.current.timelineData[11]).toEqual({
+      period: "11:00",
+      total: 90,
+      Mathe: 90,
+    });
     expect(result.current.events).toEqual(secondDayEvents);
   });
 });

@@ -170,6 +170,12 @@ function buildStatsState() {
   };
 }
 
+async function flushEffects() {
+  await act(async () => {
+    await Promise.resolve();
+  });
+}
+
 describe("StatsPage", () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -202,18 +208,17 @@ describe("StatsPage", () => {
 
     render(<StatsPage />);
 
-    await act(async () => {
-      await Promise.resolve();
-    });
+    await flushEffects();
 
     expect(fetchMock).toHaveBeenCalledWith("/api/keywords");
-    expect(screen.getByText("Statistiken")).toBeInTheDocument();
     expect(mockedUseStats.mock.lastCall?.[0]).toMatchObject({
       startDate: "2026-04-13",
       endDate: "2026-04-15",
       granularity: "week",
       keywordIds: [],
     });
+
+    expect(screen.getByText("Statistiken")).toBeInTheDocument();
     expect(screen.getByText("Mathe")).toBeInTheDocument();
     expect(screen.getByText("Alle Keywords ausgewählt")).toBeInTheDocument();
     expect(screen.getByTestId("keyword-bar-chart")).toHaveTextContent("1");
@@ -221,9 +226,7 @@ describe("StatsPage", () => {
 
     fireEvent.click(screen.getByRole("button", { name: "Keyword anwenden" }));
 
-    await act(async () => {
-      await Promise.resolve();
-    });
+    await flushEffects();
 
     expect(mockedUseStats.mock.lastCall?.[0]).toMatchObject({
       keywordIds: ["keyword-2"],
@@ -233,9 +236,7 @@ describe("StatsPage", () => {
 
     fireEvent.click(screen.getByRole("button", { name: "Tag setzen" }));
 
-    await act(async () => {
-      await Promise.resolve();
-    });
+    await flushEffects();
 
     expect(mockedUseStats.mock.lastCall?.[0]).toMatchObject({
       startDate: "2026-04-15",
@@ -246,9 +247,7 @@ describe("StatsPage", () => {
 
     fireEvent.click(screen.getByRole("button", { name: "Zurueck" }));
 
-    await act(async () => {
-      await Promise.resolve();
-    });
+    await flushEffects();
 
     expect(mockedUseStats.mock.lastCall?.[0]).toMatchObject({
       startDate: "2026-04-14",
@@ -258,9 +257,7 @@ describe("StatsPage", () => {
 
     fireEvent.click(screen.getByRole("button", { name: "Woche setzen" }));
 
-    await act(async () => {
-      await Promise.resolve();
-    });
+    await flushEffects();
 
     expect(mockedUseStats.mock.lastCall?.[0]).toMatchObject({
       startDate: "2026-04-13",
@@ -270,9 +267,7 @@ describe("StatsPage", () => {
 
     fireEvent.click(screen.getByRole("button", { name: "Weiter" }));
 
-    await act(async () => {
-      await Promise.resolve();
-    });
+    await flushEffects();
 
     expect(mockedUseStats.mock.lastCall?.[0]).toMatchObject({
       startDate: "2026-04-20",
@@ -282,9 +277,7 @@ describe("StatsPage", () => {
 
     fireEvent.click(screen.getByRole("button", { name: "Monat setzen" }));
 
-    await act(async () => {
-      await Promise.resolve();
-    });
+    await flushEffects();
 
     expect(mockedUseStats.mock.lastCall?.[0]).toMatchObject({
       startDate: "2026-04-01",
@@ -294,13 +287,11 @@ describe("StatsPage", () => {
 
     fireEvent.click(screen.getByRole("button", { name: "Zurueck" }));
 
-    await act(async () => {
-      await Promise.resolve();
-    });
+    await flushEffects();
 
     expect(mockedUseStats.mock.lastCall?.[0]).toMatchObject({
       startDate: "2026-03-01",
-      endDate: "2026-03-30",
+      endDate: "2026-03-31",
       granularity: "month",
     });
   });
@@ -320,9 +311,7 @@ describe("StatsPage", () => {
 
     render(<StatsPage />);
 
-    await act(async () => {
-      await Promise.resolve();
-    });
+    await flushEffects();
 
     expect(screen.getByText("Lade Daten...")).toBeInTheDocument();
   });
@@ -342,9 +331,7 @@ describe("StatsPage", () => {
 
     render(<StatsPage />);
 
-    await act(async () => {
-      await Promise.resolve();
-    });
+    await flushEffects();
 
     expect(screen.getByText("Keine Daten vorhanden")).toBeInTheDocument();
   });
@@ -357,15 +344,11 @@ describe("StatsPage", () => {
 
     render(<StatsPage />);
 
-    await act(async () => {
-      await Promise.resolve();
-    });
+    await flushEffects();
 
     fireEvent.click(screen.getByRole("button", { name: "Keyword anwenden" }));
 
-    await act(async () => {
-      await Promise.resolve();
-    });
+    await flushEffects();
 
     expect(screen.queryByText("Physik")).not.toBeInTheDocument();
     expect(screen.getByTestId("timeline-chart")).toHaveTextContent("1:");
@@ -386,9 +369,7 @@ describe("StatsPage", () => {
 
     render(<StatsPage />);
 
-    await act(async () => {
-      await Promise.resolve();
-    });
+    await flushEffects();
 
     expect(
       screen.getByText("Statistiken konnten nicht geladen werden.")

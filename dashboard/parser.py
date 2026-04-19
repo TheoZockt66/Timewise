@@ -6,8 +6,20 @@ import subprocess
 from pathlib import Path
 from typing import Any
 
-from schema import Coverage, Failure, RunRecord, Suite, Summary, coerce_float, coerce_int, coerce_str
+from schema import (
+  Coverage,
+  CoverageFile,
+  Failure,
+  RunRecord,
+  Suite,
+  Summary,
+  coerce_float,
+  coerce_int,
+  coerce_str,
+)
 from storage import append_history, ensure_paths, write_latest, write_snapshot
+
+REPO_ROOT = Path(__file__).resolve().parent.parent
 
 
 def read_json(path: Path | None) -> dict[str, Any] | None:
@@ -122,6 +134,205 @@ def parse_vitest_suite(payload: dict[str, Any]) -> tuple[Suite, list[Failure]]:
   return suite, failures
 
 
+def normalize_coverage_path(value: Any) -> str:
+  raw = coerce_str(value)
+  if not raw:
+    return ""
+
+  normalized = raw.replace("\\", "/")
+  repo_root = REPO_ROOT.as_posix()
+
+  if normalized.lower().startswith(repo_root.lower() + "/"):
+    return normalized[len(repo_root) + 1 :]
+
+  return normalized
+
+
+def count_hits(counter_map: Any) -> tuple[int, int]:
+  if not isinstance(counter_map, dict):
+    return 0, 0
+
+  covered = 0
+  total = 0
+  for value in counter_map.values():
+    total += 1
+    if coerce_int(value) > 0:
+      covered += 1
+
+  return covered, total
+
+
+def count_branch_hits(counter_map: Any) -> tuple[int, int]:
+  if not isinstance(counter_map, dict):
+    return 0, 0
+
+  covered = 0
+  total = 0
+  for values in counter_map.values():
+    if not isinstance(values, list):
+      continue
+
+    total += len(values)
+    covered += sum(1 for value in values if coerce_int(value) > 0)
+
+  return covered, total
+
+
+def collect_line_hits(statement_map: Any, statement_counts: Any) -> tuple[int, int]:
+  if not isinstance(statement_map, dict) or not isinstance(statement_counts, dict):
+    return 0, 0
+
+  total_lines: set[int] = set()
+  covered_lines: set[int] = set()
+
+  for key, location in statement_map.items():
+    if not isinstance(location, dict):
+      continue
+
+    start = location.get("start")
+    end = location.get("end")
+    if not isinstance(start, dict) or not isinstance(end, dict):
+      continue
+
+    start_line = coerce_int(start.get("line"))
+    end_line = coerce_int(end.get("line"), start_line)
+    if start_line <= 0:
+      continue
+
+    if end_line < start_line:
+      end_line = start_line
+
+    line_numbers = range(start_line, end_line + 1)
+    total_lines.update(line_numbers)
+
+    if coerce_int(statement_counts.get(key)) > 0:
+      covered_lines.update(line_numbers)
+
+  return len(covered_lines), len(total_lines)
+
+
+def percent(covered: int, total: int) -> float:
+  if total <= 0:
+    return 0.0
+  return round((covered / total) * 100, 2)
+
+
+def build_coverage_from_map(coverage_map: Any) -> tuple[Coverage, list[CoverageFile]]:
+  if not isinstance(coverage_map, dict):
+    return Coverage(), []
+
+  coverage_files: list[CoverageFile] = []
+  total_line_covered = 0
+  total_line_count = 0
+  total_function_covered = 0
+  total_function_count = 0
+  total_branch_covered = 0
+  total_branch_count = 0
+  total_statement_covered = 0
+  total_statement_count = 0
+
+  for path, payload in coverage_map.items():
+    if not isinstance(payload, dict):
+      continue
+
+    normalized_path = normalize_coverage_path(path)
+    if not normalized_path.startswith("src/"):
+      continue
+
+    line_covered, line_count = collect_line_hits(payload.get("statementMap"), payload.get("s"))
+    function_covered, function_count = count_hits(payload.get("f"))
+    branch_covered, branch_count = count_branch_hits(payload.get("b"))
+    statement_covered, statement_count = count_hits(payload.get("s"))
+
+    if max(line_count, function_count, branch_count, statement_count) == 0:
+      continue
+
+    coverage_files.append(
+      CoverageFile(
+        file=normalized_path,
+        lines=percent(line_covered, line_count),
+        functions=percent(function_covered, function_count),
+        branches=percent(branch_covered, branch_count),
+        statements=percent(statement_covered, statement_count),
+        uncovered_lines=max(line_count - line_covered, 0),
+        uncovered_functions=max(function_count - function_covered, 0),
+        uncovered_branches=max(branch_count - branch_covered, 0),
+        uncovered_statements=max(statement_count - statement_covered, 0),
+      )
+    )
+
+    total_line_covered += line_covered
+    total_line_count += line_count
+    total_function_covered += function_covered
+    total_function_count += function_count
+    total_branch_covered += branch_covered
+    total_branch_count += branch_count
+    total_statement_covered += statement_covered
+    total_statement_count += statement_count
+
+  coverage_files.sort(
+    key=lambda item: (
+      item.branches,
+      item.statements,
+      item.functions,
+      item.lines,
+      item.file,
+    )
+  )
+
+  return (
+    Coverage(
+      lines=percent(total_line_covered, total_line_count) if total_line_count else percent(total_statement_covered, total_statement_count),
+      functions=percent(total_function_covered, total_function_count),
+      branches=percent(total_branch_covered, total_branch_count),
+      statements=percent(total_statement_covered, total_statement_count),
+    ),
+    coverage_files,
+  )
+
+
+def parse_coverage_summary_files(payload: dict[str, Any]) -> list[CoverageFile]:
+  coverage_files: list[CoverageFile] = []
+
+  for path, metrics in payload.items():
+    if path == "total" or not isinstance(metrics, dict):
+      continue
+
+    normalized_path = normalize_coverage_path(path)
+    if not normalized_path.startswith("src/"):
+      continue
+
+    lines = metrics.get("lines", {}) if isinstance(metrics.get("lines"), dict) else {}
+    functions = metrics.get("functions", {}) if isinstance(metrics.get("functions"), dict) else {}
+    branches = metrics.get("branches", {}) if isinstance(metrics.get("branches"), dict) else {}
+    statements = metrics.get("statements", {}) if isinstance(metrics.get("statements"), dict) else {}
+
+    coverage_files.append(
+      CoverageFile(
+        file=normalized_path,
+        lines=coerce_float(lines.get("pct")),
+        functions=coerce_float(functions.get("pct")),
+        branches=coerce_float(branches.get("pct")),
+        statements=coerce_float(statements.get("pct")),
+        uncovered_lines=max(coerce_int(lines.get("total")) - coerce_int(lines.get("covered")), 0),
+        uncovered_functions=max(coerce_int(functions.get("total")) - coerce_int(functions.get("covered")), 0),
+        uncovered_branches=max(coerce_int(branches.get("total")) - coerce_int(branches.get("covered")), 0),
+        uncovered_statements=max(coerce_int(statements.get("total")) - coerce_int(statements.get("covered")), 0),
+      )
+    )
+
+  coverage_files.sort(
+    key=lambda item: (
+      item.branches,
+      item.statements,
+      item.functions,
+      item.lines,
+      item.file,
+    )
+  )
+  return coverage_files
+
+
 def parse_vitest_report(payload: dict[str, Any]) -> RunRecord:
   suite_payloads = payload.get("testResults")
   if not isinstance(suite_payloads, list):
@@ -154,6 +365,7 @@ def parse_vitest_report(payload: dict[str, Any]) -> RunRecord:
     duration_seconds = round(sum(suite.duration_seconds for suite in suites), 2)
 
   status = "passed" if payload.get("success", failed == 0) else "failed"
+  coverage, coverage_files = build_coverage_from_map(payload.get("coverageMap"))
 
   return RunRecord.from_dict(
     {
@@ -161,6 +373,8 @@ def parse_vitest_report(payload: dict[str, Any]) -> RunRecord:
       "timestamp": payload.get("startTime"),
       "workflow": "local-vitest",
       "run_id": payload.get("startTime"),
+      "branch": "unknown",
+      "commit": "unknown",
       "status": status,
       "summary": Summary(
         total=total,
@@ -169,7 +383,8 @@ def parse_vitest_report(payload: dict[str, Any]) -> RunRecord:
         skipped=skipped,
         duration_seconds=duration_seconds,
       ).to_dict(),
-      "coverage": Coverage().to_dict(),
+      "coverage": coverage.to_dict(),
+      "coverage_files": [coverage_file.to_dict() for coverage_file in coverage_files],
       "suites": [suite.to_dict() for suite in suites],
       "failures": [failure.to_dict() for failure in failures],
     }
@@ -201,7 +416,12 @@ def infer_git_value(*args: str, default: str = "unknown") -> str:
 def merge_coverage(record: RunRecord, coverage_payload: dict[str, Any] | None) -> RunRecord:
   if coverage_payload is None:
     return record
+
   record.coverage = Coverage.from_dict(coverage_payload)
+  summary_files = parse_coverage_summary_files(coverage_payload)
+  if summary_files:
+    record.coverage_files = summary_files
+
   return record
 
 
