@@ -2,6 +2,111 @@
 
 ---
 
+Eintrag Nr.: 38
+Datum: 2026-04-19
+Prompt: ergnaze das einklappen wieder und pushe es dann das mit dem header ist in ordnung
+Aktion: GEÄNDERT
+Datei / Komponente: |
+  Einklappbarer Create-Bereich auf der Goals-Seite
+  - src/app/(dashboard)/goals/page.tsx
+  - tests/component/goals/GoalsPage.test.tsx
+  - docs/prompt-log.md
+Schnittstelle: |
+  GoalsPage:
+  - neuer Toggle-Button mit `aria-expanded` und `aria-controls`
+  - Create-Form startet eingeklappt
+Beschreibung: |
+  Der Stand aus `main` mit `HeaderWithBack` wurde beibehalten, aber der Bereich
+  `Neues Ziel erstellen` wurde wieder einklappbar gemacht.
+
+  Geändert wurde:
+  - Toggle im Card-Header zum Aus- und Einklappen des Create-Formulars
+  - Initialzustand auf eingeklappt gesetzt
+  - GoalsPage-Test um Collapse-Verhalten und den angepassten Create-Flow erweitert
+
+---
+
+Eintrag Nr.: 40
+Datum: 2026-04-17
+Prompt: es soll standartmaßig eingeklappt sein
+Aktion: GEÄNDERT
+Datei / Komponente: |
+  Default-Zustand des Goals-Formulars
+  - src/app/(dashboard)/goals/page.tsx
+  - tests/component/goals/GoalsPage.test.tsx
+  - docs/prompt-log.md
+Schnittstelle: |
+  Angepasste UI-Interaktion:
+  - `isCreateFormOpen` startet standardmäßig auf `false`
+  - GoalsPage-Test erwartet den eingeklappten Startzustand
+Beschreibung: |
+  Der Bereich `Neues Ziel erstellen` startet jetzt standardmäßig eingeklappt.
+
+  Geändert wurde:
+  - Initialzustand des Toggle-States auf eingeklappt gesetzt
+  - Test so angepasst, dass zuerst der ausgeklappte Default-Zustand nicht mehr erwartet wird
+  - Create-Flow-Test klappt das Formular vor der Interaktion explizit auf
+
+---
+
+Eintrag Nr.: 39
+Datum: 2026-04-17
+Prompt: kannst du das modal neue goals erstellen einklappbar machen?
+Aktion: GEÄNDERT
+Datei / Komponente: |
+  Einklappbarer Bereich fuer neue Ziele
+  - src/app/(dashboard)/goals/page.tsx
+  - tests/component/goals/GoalsPage.test.tsx
+  - docs/prompt-log.md
+Schnittstelle: |
+  Neue UI-Interaktion auf der Goals-Seite:
+  - Toggle-Button mit `aria-expanded`
+  - ein- und ausklappbarer Bereich `Neues Ziel erstellen`
+Beschreibung: |
+  Die Karte zum Erstellen neuer Ziele wurde einklappbar gemacht.
+
+  Geaendert wurde:
+  - auf der Goals-Seite ein Toggle-Button im Header der Karte `Neues Ziel erstellen`
+  - das Formular wird nur noch gerendert, wenn der Bereich ausgeklappt ist
+  - der Toggle ist mit `aria-expanded` und `aria-controls` zugaenglich markiert
+  - der Page-Test prueft jetzt zusaetzlich das Ein- und Ausklappen des Formulars
+
+---
+
+Eintrag Nr.: 38
+Datum: 2026-04-17
+Prompt: ergänze diese und überarbeite die fehlerhaften zusätzlich hätte ich gerne das die couverige aufgeschlüsselt im dashboard ist
+Aktion: GEÄNDERT
+Datei / Komponente: |
+  Stats-Tests und Dashboard-Coverage
+  - tests/component/stats/KeywordSelect.test.tsx
+  - tests/component/stats/StatsPage.test.tsx
+  - tests/component/stats/KeywordBarChart.test.tsx
+  - tests/component/stats/DayTimeline.test.tsx
+  - dashboard/schema.py
+  - dashboard/parser.py
+  - dashboard/app.py
+  - docs/prompt-log.md
+Schnittstelle: |
+  Geaenderte Test- und Dashboard-Schnittstellen:
+  - KeywordSelect: bestaetigen, abbrechen, gefiltert auswaehlen, Outside-Click
+  - StatsPage: stabilere Filter- und Navigations-Assertions unter Coverage
+  - DayTimeline: neue Komponententests fuer Stundenraster, Positionierung und Fallback-Farbe
+  - Dashboard RunRecord: neues Feld `coverage_files` mit per-Datei-Coveragewerten
+Beschreibung: |
+  Die fehlerhaften Stats-Tests wurden stabilisiert und gleichzeitig inhaltlich erweitert.
+
+  Geaendert wurde:
+  - KeywordSelect-Test so umgebaut, dass er nicht mehr an mehrdeutigen Checkbox-Queries scheitert
+  - zusaetzliche KeywordSelect-Tests fuer Cancel-Reset, gefiltertes Select-All und Outside-Click
+  - StatsPage-Test auf aktuelle Monatsnavigation angepasst und mit `waitFor` robuster gemacht
+  - neue DayTimeline-Tests fuer Stundenmarker, Event-Block-Positionierung und Fallback-Styling
+  - KeywordBarChart-Test erweitert, damit auch die Tick-Formatter-Branches abgedeckt werden
+  - Dashboard-Datenmodell und Parser erweitert, damit Coverage pro Datei aus dem Vitest-Report gelesen wird
+  - Streamlit-Dashboard um eine aufgeschluesselte Coverage-Ansicht mit Worst-First-Tabelle erweitert
+
+---
+
 Eintrag Nr.: 53
 Datum: 2026-04-17
 Prompt: kannst du es wieder rechts orientieren das logo

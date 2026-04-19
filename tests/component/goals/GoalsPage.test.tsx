@@ -58,8 +58,7 @@ vi.mock("@/components/goals/GoalForm", () => ({
         onClick={() =>
           onChange({
             ...values,
-            label:
-              submitLabel === "Hinzufügen" ? "Neues Ziel" : "Bearbeitetes Ziel",
+            label: /Hinzuf/i.test(submitLabel) ? "Neues Ziel" : "Bearbeitetes Ziel",
           })
         }
       >
@@ -129,6 +128,36 @@ describe("GoalsPage", () => {
     vi.clearAllMocks();
   });
 
+  test("starts collapsed and can expand the create-goal form", () => {
+    mockedUseGoals.mockReturnValue({
+      goals: [],
+      availableKeywords: [buildKeyword()],
+      loading: false,
+      saving: false,
+      deletingId: null,
+      error: null,
+      refetch: vi.fn(),
+      createGoalEntry: vi.fn(),
+      updateGoalEntry: vi.fn(),
+      deleteGoalEntry: vi.fn(),
+    });
+
+    render(<GoalsPage />);
+
+    expect(screen.queryByTestId(/goal-form-/)).not.toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: /formular ausklappen/i })
+    ).toHaveAttribute("aria-expanded", "false");
+
+    fireEvent.click(screen.getByRole("button", { name: /formular ausklappen/i }));
+
+    expect(screen.getByTestId(/goal-form-/)).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: /formular einklappen/i }));
+
+    expect(screen.queryByTestId(/goal-form-/)).not.toBeInTheDocument();
+  });
+
   test("creates, edits and deletes goals through the page callbacks", async () => {
     const goal = buildGoalWithProgress({ id: "goal-1", label: "Matheplan" });
     const createGoalEntry = vi.fn().mockResolvedValue({ data: goal, error: null });
@@ -153,10 +182,9 @@ describe("GoalsPage", () => {
 
     render(<GoalsPage />);
 
-    fireEvent.click(
-      screen.getByRole("button", { name: "Wert setzen Hinzufügen" })
-    );
-    fireEvent.click(screen.getByRole("button", { name: "Hinzufügen" }));
+    fireEvent.click(screen.getByRole("button", { name: /formular ausklappen/i }));
+    fireEvent.click(screen.getByRole("button", { name: /wert setzen hinzuf/i }));
+    fireEvent.click(screen.getByRole("button", { name: /^hinzuf/i }));
 
     await waitFor(() => {
       expect(createGoalEntry).toHaveBeenCalledWith(
