@@ -2,6 +2,26 @@
 
 ---
 
+Eintrag Nr.: 41
+Datum: 2026-04-19
+Prompt: Kannst du hier den Punkte entfernen vor den keywords
+Aktion: GEÄNDERT
+Datei / Komponente: |
+  Keyword-Badges
+  - src/components/ui/KeywordBadges.tsx
+  - docs/prompt-log.md
+Schnittstelle: |
+  `KeywordBadges({ keywords })`
+  - rendert die Badge-Liste jetzt ohne vorangestellten Farbpunkt
+Beschreibung: |
+  Der visuelle Punkt vor den Keyword-Labels wurde aus der gemeinsamen Badge-Komponente entfernt.
+
+  Geändert wurde:
+  - der kleine runde Farbindikator innerhalb der Badge entfernt
+  - der Badge-Stil und die farbige Hintergrund-/Textdarstellung bleiben bestehen
+
+---
+
 Eintrag Nr.: 38
 Datum: 2026-04-19
 Prompt: ergnaze das einklappen wieder und pushe es dann das mit dem header ist in ordnung
