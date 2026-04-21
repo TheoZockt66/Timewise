@@ -155,6 +155,60 @@ describe("events aggregate route", () => {
     });
   });
 
+  test("splits multi-day events proportionally across daily periods", async () => {
+    const math = buildKeyword();
+
+    mockedFetchEvents.mockResolvedValue({
+      data: [
+        buildEventWithKeywords({
+          id: "event-1",
+          start_time: "2026-04-10T23:00:00",
+          end_time: "2026-04-11T01:30:00",
+          duration_minutes: 150,
+          keywords: [math],
+        }),
+      ],
+      error: null,
+    });
+
+    const response = await GET(
+      new Request(
+        "http://localhost/api/events/aggregate?start_date=2026-04-10&end_date=2026-04-11&granularity=day"
+      )
+    );
+
+    expect(response.status).toBe(200);
+    await expect(response.json()).resolves.toEqual({
+      data: [
+        {
+          period: "10.04.2026",
+          total_minutes: 60,
+          by_keyword: [
+            {
+              keyword_id: "keyword-1",
+              keyword_label: "Mathe",
+              keyword_color: "#7700F4",
+              minutes: 60,
+            },
+          ],
+        },
+        {
+          period: "11.04.2026",
+          total_minutes: 90,
+          by_keyword: [
+            {
+              keyword_id: "keyword-1",
+              keyword_label: "Mathe",
+              keyword_color: "#7700F4",
+              minutes: 90,
+            },
+          ],
+        },
+      ],
+      error: null,
+    });
+  });
+
   test("aggregates returned events by month", async () => {
     const math = buildKeyword();
     const physics = buildKeyword({

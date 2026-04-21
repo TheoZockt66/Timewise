@@ -143,8 +143,8 @@ export function EventForm({
 
     // Hole bestehende Events für Overlap-Check
     const eventsResponse = await fetchEvents({
-      start_date: formData.start_time.split("T")[0],
-      end_date: formData.end_time.split("T")[0],
+      start_date: formData.start_time,
+      end_date: formData.end_time,
     });
 
     const existingEvents: Event[] = eventsResponse.data || [];

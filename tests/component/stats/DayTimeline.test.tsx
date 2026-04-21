@@ -6,7 +6,13 @@ import { buildKeyword } from "../../factories/keywords";
 
 describe("DayTimeline", () => {
   test("renders all 24 hourly markers", () => {
-    render(<DayTimeline events={[]} />);
+    render(
+      <DayTimeline
+        events={[]}
+        startDate="2026-04-10"
+        endDate="2026-04-10"
+      />
+    );
 
     expect(screen.getByText("00:00")).toBeInTheDocument();
     expect(screen.getByText("23:00")).toBeInTheDocument();
@@ -20,6 +26,7 @@ describe("DayTimeline", () => {
           buildEventWithKeywords({
             start_time: "2026-04-10T09:00:00",
             duration_minutes: 90,
+            end_time: "2026-04-10T10:30:00",
             keywords: [
               buildKeyword({
                 label: "Physik",
@@ -28,6 +35,8 @@ describe("DayTimeline", () => {
             ],
           }),
         ]}
+        startDate="2026-04-10"
+        endDate="2026-04-10"
       />
     );
 
@@ -45,10 +54,17 @@ describe("DayTimeline", () => {
       <DayTimeline
         events={[
           {
+            id: "event-1",
+            user_id: "user-1",
             start_time: "2026-04-10T00:30:00",
+            end_time: "2026-04-10T01:00:00",
+            created_at: "2026-04-10T01:00:00",
             duration_minutes: 30,
+            keywords: [],
           },
         ]}
+        startDate="2026-04-10"
+        endDate="2026-04-10"
       />
     );
 
@@ -61,5 +77,36 @@ describe("DayTimeline", () => {
       backgroundColor: "rgb(119, 0, 244)",
     });
     expect(blocks[0]).toHaveTextContent("");
+  });
+
+  test("clips a multi-day event to the selected day", () => {
+    const { container } = render(
+      <DayTimeline
+        events={[
+          buildEventWithKeywords({
+            start_time: "2026-04-09T23:00:00",
+            end_time: "2026-04-10T01:30:00",
+            duration_minutes: 150,
+            keywords: [
+              buildKeyword({
+                label: "Mathe",
+                color: "#7700F4",
+              }),
+            ],
+          }),
+        ]}
+        startDate="2026-04-10"
+        endDate="2026-04-10"
+      />
+    );
+
+    const blocks = container.querySelectorAll(".left-16");
+
+    expect(blocks).toHaveLength(1);
+    expect(blocks[0]).toHaveStyle({
+      top: "0%",
+      height: "6.25%",
+    });
+    expect(blocks[0]).toHaveTextContent("Mathe");
   });
 });

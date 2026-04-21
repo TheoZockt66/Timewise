@@ -255,6 +255,16 @@ describe("StatsPage", () => {
       granularity: "day",
     });
 
+    fireEvent.click(screen.getByRole("button", { name: "Weiter" }));
+
+    await flushEffects();
+
+    expect(mockedUseStats.mock.lastCall?.[0]).toMatchObject({
+      startDate: "2026-04-15",
+      endDate: "2026-04-15",
+      granularity: "day",
+    });
+
     fireEvent.click(screen.getByRole("button", { name: "Woche setzen" }));
 
     await flushEffects();

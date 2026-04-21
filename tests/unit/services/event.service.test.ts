@@ -65,7 +65,7 @@ describe("event.service", () => {
     });
   });
 
-  test("filters fetched events by keyword ids after loading their relations", async () => {
+  test("filters overlapping fetched events by keyword ids after loading their relations", async () => {
     const keyword = buildKeyword();
     const firstEvent = buildEvent({
       id: "event-1",
@@ -117,8 +117,8 @@ describe("event.service", () => {
       keywords: [keyword],
     });
     expect(getTableCalls("events")[0]?.eq).toHaveBeenCalledWith("user_id", "user-1");
-    expect(getTableCalls("events")[0]?.gte).toHaveBeenCalledWith("start_time", "2026-04-10");
-    expect(getTableCalls("events")[0]?.lte).toHaveBeenCalledWith("end_time", "2026-04-11");
+    expect(getTableCalls("events")[0]?.gte).toHaveBeenCalledWith("end_time", "2026-04-10");
+    expect(getTableCalls("events")[0]?.lte).toHaveBeenCalledWith("start_time", "2026-04-11");
   });
 
   test("returns a validation error when createEvent is called without keywords", async () => {

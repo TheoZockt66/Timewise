@@ -53,7 +53,10 @@ export async function createEvent(
     startTime: data.start_time,
     endTime: data.end_time,
     keywordIds: data.keyword_ids,
-    existingEvents: await fetchEvents().then(res => res.data || []),
+    existingEvents: await fetchEvents({
+      start_date: data.start_time,
+      end_date: data.end_time,
+    }).then(res => res.data || []),
     excludeEventId: undefined, // Bei Erstellung gibt es noch kein Event, das ausgeschlossen werden muss
   });
 
@@ -179,14 +182,14 @@ export async function fetchEvents(
     `)
     .eq("user_id", user.id);
 
-  // Filter nach start_date
+  // Überlappende Events ab dem gewünschten Start berücksichtigen
   if (params?.start_date) {
-    query = query.gte("start_time", params.start_date);
+    query = query.gte("end_time", params.start_date);
   }
 
-  // Filter nach end_date
+  // Überlappende Events bis zum gewünschten Ende berücksichtigen
   if (params?.end_date) {
-    query = query.lte("end_time", params.end_date);
+    query = query.lte("start_time", params.end_date);
   }
 
   const { data, error } = await query;
@@ -285,20 +288,17 @@ export async function updateEvent(
       data.end_time !== undefined && data.end_time !== currentEvent.end_time;
 
     if (timeChanged) {
-      // Hole Events für Overlap-Check nur im gleichen Zeitraum
-      const startDate = data.start_time ? new Date(data.start_time).toISOString().split('T')[0] :
-        new Date(currentEvent.start_time).toISOString().split('T')[0];
-      const endDate = data.end_time ? new Date(data.end_time).toISOString().split('T')[0] :
-        new Date(currentEvent.end_time).toISOString().split('T')[0];
+      const nextStartTime = data.start_time || currentEvent.start_time;
+      const nextEndTime = data.end_time || currentEvent.end_time;
 
       const existingEvents = await fetchEvents({
-        start_date: startDate,
-        end_date: endDate,
+        start_date: nextStartTime,
+        end_date: nextEndTime,
       });
 
       const validation = validateEvent({
-        startTime: data.start_time || currentEvent.start_time,
-        endTime: data.end_time || currentEvent.end_time,
+        startTime: nextStartTime,
+        endTime: nextEndTime,
         keywordIds: data.keyword_ids || [], // Keywords werden separat behandelt
         existingEvents: existingEvents.data || [],
         excludeEventId: id, // Das aktuelle Event beim Overlap-Check ausschließen

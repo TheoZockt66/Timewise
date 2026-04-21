@@ -12,6 +12,7 @@ import { formatDate } from "@/lib/utils";
 import DateNavigation from "@/components/ui/DateNavigation";
 import DayTimeline from "@/components/stats/DayTimeline";
 import { isColorTooLight } from "@/lib/color.utils";
+import { parseDateInput } from "@/lib/stats";
 
 /**
  * StatsPage
@@ -64,37 +65,36 @@ export default function StatsPage() {
     * Navigiert im Zeitraum vor/zurück (← →)
     */
     const shiftPeriod = (direction: "prev" | "next") => {
-        const factor = direction === "next" ? 1 : -1;
+        setFilters((currentFilters) => {
+            const factor = direction === "next" ? 1 : -1;
+            const start = parseDateInput(currentFilters.startDate);
+            const end = parseDateInput(currentFilters.endDate);
 
-        const start = new Date(filters.startDate);
-        const end = new Date(filters.endDate);
+            if (currentFilters.granularity === "week") {
+                start.setDate(start.getDate() + factor * 7);
+                end.setDate(end.getDate() + factor * 7);
+            } else if (currentFilters.granularity === "month") {
+                const newDate = new Date(start);
+                newDate.setMonth(newDate.getMonth() + factor);
 
-        if (filters.granularity === "week") {
-            start.setDate(start.getDate() + factor * 7);
-            end.setDate(end.getDate() + factor * 7);
-        } else if (filters.granularity === "month") {
-            const newDate = new Date(start);
-            newDate.setMonth(newDate.getMonth() + factor);
+                const startOfMonth = new Date(newDate.getFullYear(), newDate.getMonth(), 1);
+                const endOfMonth = new Date(newDate.getFullYear(), newDate.getMonth() + 1, 0);
 
-            const startOfMonth = new Date(newDate.getFullYear(), newDate.getMonth(), 1);
-            const endOfMonth = new Date(newDate.getFullYear(), newDate.getMonth() + 1, 0);
+                return {
+                    ...currentFilters,
+                    startDate: formatDate(startOfMonth),
+                    endDate: formatDate(endOfMonth),
+                };
+            } else {
+                start.setDate(start.getDate() + factor);
+                end.setDate(end.getDate() + factor);
+            }
 
-            setFilters({
-                ...filters,
-                startDate: formatDate(startOfMonth),
-                endDate: formatDate(endOfMonth),
-            });
-
-            return;
-        } else {
-            start.setDate(start.getDate() + factor);
-            end.setDate(end.getDate() + factor);
-        }
-
-        setFilters({
-            ...filters,
-            startDate: formatDate(start),
-            endDate: formatDate(end),
+            return {
+                ...currentFilters,
+                startDate: formatDate(start),
+                endDate: formatDate(end),
+            };
         });
     };
 
@@ -121,7 +121,7 @@ export default function StatsPage() {
     * Zeitraumtext für das Liniendiagramm
     */
     const formatGermanDate = (dateString: string) =>
-        new Date(dateString).toLocaleDateString("de-DE", {
+        parseDateInput(dateString).toLocaleDateString("de-DE", {
             day: "2-digit",
             month: "2-digit",
             year: "numeric",
@@ -129,7 +129,7 @@ export default function StatsPage() {
 
     const timelinePeriodLabel =
         filters.granularity === "month"
-            ? new Date(filters.startDate).toLocaleDateString("de-DE", {
+            ? parseDateInput(filters.startDate).toLocaleDateString("de-DE", {
                 month: "long",
                 year: "numeric",
             })
@@ -200,7 +200,7 @@ export default function StatsPage() {
                             onChange={(newFilters) => {
 
                                 if (newFilters.granularity === "week") {
-                                    const selectedDate = new Date(newFilters.startDate);
+                                    const selectedDate = parseDateInput(newFilters.startDate);
                                     const day = selectedDate.getDay();
                                     const diffToMonday = day === 0 ? -6 : 1 - day;
 
@@ -217,7 +217,7 @@ export default function StatsPage() {
                                     });
 
                                 } else if (newFilters.granularity === "month") {
-                                    const selectedDate = new Date(newFilters.startDate);
+                                    const selectedDate = parseDateInput(newFilters.startDate);
 
                                     const start = new Date(selectedDate.getFullYear(), selectedDate.getMonth(), 1);
                                     const end = new Date(selectedDate.getFullYear(), selectedDate.getMonth() + 1, 0);
@@ -229,7 +229,7 @@ export default function StatsPage() {
                                     });
 
                                 } else {
-                                    const selectedDate = new Date(newFilters.startDate);
+                                    const selectedDate = parseDateInput(newFilters.startDate);
 
                                     setFilters({
                                         ...newFilters,
@@ -363,7 +363,11 @@ export default function StatsPage() {
                                             Lernzeit im Zeitverlauf
                                         </h2>
 
-                                        <DayTimeline events={events} />
+                                        <DayTimeline
+                                            events={events}
+                                            startDate={filters.startDate}
+                                            endDate={filters.endDate}
+                                        />
                                     </div>
                                 ) : (
                                     <div className="rounded-xl border bg-white p-6 shadow-sm">
