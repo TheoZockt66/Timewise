@@ -9,6 +9,8 @@
 !/coverage/.gitkeep
 /reports/*
 !/reports/.gitkeep
+/playwright-report/
+/test-results/
 /dashboard/data/snapshots/*
 !/dashboard/data/snapshots/.gitkeep
 
@@ -22,6 +24,9 @@
 # Misc
 .DS_Store
 *.pem
+docs/prompt-log.md
+/tmp/
+/outputs/
 
 # Debug
 npm-debug.log*
