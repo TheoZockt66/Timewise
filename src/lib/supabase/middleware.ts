@@ -25,6 +25,10 @@ const API_PREFIX = "/api/";
  * Randfall: Läuft auf der Edge Runtime – keine Node.js-APIs verfügbar.
  */
 export async function updateSession(request: NextRequest) {
+  // Test-only bypass for Playwright browser smoke tests.
+  if (process.env.E2E_BYPASS_AUTH === "1") {
+    return NextResponse.next({ request });
+  }
   // Erstelle eine Antwort, die wir anschließend modifizieren können
   let supabaseResponse = NextResponse.next({ request });
   const { url, anonKey } = getPublicSupabaseEnv();

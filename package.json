@@ -18,6 +18,7 @@
     "test:api": "vitest run tests/api",
     "test:component": "vitest run tests/component",
     "test:integration": "vitest run tests/integration",
+    "test:e2e": "playwright test",
     "test:coverage": "vitest run --coverage --reporter=json --outputFile=reports/vitest-report.json",
     "dashboard:prepare": "python dashboard/parser.py --vitest-report reports/vitest-report.json --coverage-report coverage/coverage-summary.json --latest dashboard/data/latest.json --history dashboard/data/history.jsonl --snapshots dashboard/data/snapshots --sample dashboard/sample_data/sample-run.json",
     "dashboard:run": "python dashboard/run_dashboard.py",
@@ -49,6 +50,7 @@
     "tailwindcss-animate": "^1.0.7"
   },
   "devDependencies": {
+    "@playwright/test": "^1.59.1",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.2",
     "@types/node": "^20",
