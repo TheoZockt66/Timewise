@@ -7,7 +7,7 @@
       "esnext"
     ],
     "allowJs": true,
-    "outDir": "dist"
+    "outDir": "dist",
     "skipLibCheck": true,
     "strict": true,
     "noEmit": true,
