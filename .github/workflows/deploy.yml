@@ -4,7 +4,10 @@ on:
   workflow_dispatch:
 
 jobs:
-  post-request:
+  build-and-test:
+    uses: ./.github/workflows/webpack.yml
+  
+  deploy:
     runs-on: ubuntu-latest
 
     steps:
