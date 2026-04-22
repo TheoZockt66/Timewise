@@ -26,7 +26,10 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: dist
-          path: dist/dist
+          path: |
+            ${{ github.workspace }}/.next
+            ${{ github.workspace }}/.next/standalone
+            ${{ github.workspace }}/.env.local
           if-no-files-found: error
           include-hidden-files: true
 
@@ -47,6 +50,5 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: dist
-          path: dist/
 
       - run: npm test
