@@ -28,7 +28,7 @@ jobs:
           name: dist
           path: dist/
           if-no-files-found: error
-          include-hidde-files: true
+          include-hidden-files: true
 
   test:
     runs-on: ubuntu-latest
