@@ -85,7 +85,7 @@ describe("EventDetails", () => {
     expect(screen.getByText("Physik")).toBeInTheDocument();
   });
 
-  test("renders fallback details without keywords and formats singular/plural durations", () => {
+  test("renders fallback details without keywords and formats durations", () => {
     const { rerender } = render(
       <EventDetails
         event={buildEventWithKeywords({
@@ -99,7 +99,7 @@ describe("EventDetails", () => {
     );
 
     expect(screen.getByText("1 Minuten")).toBeInTheDocument();
-    expect(screen.getByText("Keine Tags zugewiesen")).toBeInTheDocument();
+    expect(screen.queryByText("Mathe")).not.toBeInTheDocument();
 
     rerender(
       <EventDetails

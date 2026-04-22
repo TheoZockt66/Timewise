@@ -52,7 +52,7 @@ def load_history(path: Path) -> tuple[list[RunRecord], list[str]]:
     try:
       payload = json.loads(line)
     except json.JSONDecodeError:
-      warnings.append(f"Ungueltige History-Zeile wurde uebersprungen: {index}")
+      warnings.append(f"Ungültige History-Zeile wurde übersprungen: {index}")
       continue
 
     records.append(RunRecord.from_dict(payload))

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { ChevronDown, ChevronUp } from "lucide-react";
 import HeaderWithBack from "@/components/layout/HeaderWithBack";
 import { GoalForm } from "@/components/goals/GoalForm";
 import { GoalList } from "@/components/goals/GoalList";
@@ -14,6 +15,7 @@ export default function GoalsPage() {
   const [newGoalValues, setNewGoalValues] = useState(createEmptyGoalFormValues());
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editValues, setEditValues] = useState(createEmptyGoalFormValues());
+  const [isCreateFormOpen, setIsCreateFormOpen] = useState(false);
 
   const {
     goals,
@@ -92,19 +94,45 @@ export default function GoalsPage() {
         </div>
 
         <Card>
-          <CardHeader>
+          <CardHeader className="flex-row items-center justify-between space-y-0">
             <CardTitle>Neues Ziel erstellen</CardTitle>
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              className="min-h-11"
+              aria-expanded={isCreateFormOpen}
+              aria-controls="new-goal-form-panel"
+              aria-label={
+                isCreateFormOpen ? "Formular einklappen" : "Formular ausklappen"
+              }
+              onClick={() => setIsCreateFormOpen((current) => !current)}
+            >
+              {isCreateFormOpen ? (
+                <>
+                  Einklappen
+                  <ChevronUp className="h-4 w-4" />
+                </>
+              ) : (
+                <>
+                  Ausklappen
+                  <ChevronDown className="h-4 w-4" />
+                </>
+              )}
+            </Button>
           </CardHeader>
-          <CardContent>
-            <GoalForm
-              values={newGoalValues}
-              availableKeywords={availableKeywords}
-              submitLabel="Hinzufügen"
-              disabled={saving}
-              onChange={setNewGoalValues}
-              onSubmit={handleCreate}
-            />
-          </CardContent>
+          {isCreateFormOpen ? (
+            <CardContent id="new-goal-form-panel">
+              <GoalForm
+                values={newGoalValues}
+                availableKeywords={availableKeywords}
+                submitLabel="Hinzufügen"
+                disabled={saving}
+                onChange={setNewGoalValues}
+                onSubmit={handleCreate}
+              />
+            </CardContent>
+          ) : null}
         </Card>
 
         <Card>

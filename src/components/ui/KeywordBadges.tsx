@@ -1,4 +1,4 @@
-import { getKeywordBadgeStyles, getKeywordDotStyles } from "@/lib/utils";
+import { getKeywordBadgeStyles } from "@/lib/utils";
 import type { Keyword } from "@/types";
 
 /*
@@ -21,10 +21,6 @@ export function KeywordBadges({ keywords }: KeywordBadgesProps) {
           className="inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-xs font-medium"
           style={getKeywordBadgeStyles(keyword.color)}
         >
-          <span
-            className="h-2 w-2 flex-shrink-0 rounded-full"
-            style={getKeywordDotStyles(keyword.color)}
-          />
           {keyword.label}
         </span>
       ))}

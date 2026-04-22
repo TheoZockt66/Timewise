@@ -947,6 +947,90 @@ def build_run_option(record: RunRecord) -> str:
   )
 
 
+def build_coverage_rows(record: RunRecord) -> list[dict[str, object]]:
+  rows: list[dict[str, object]] = []
+
+  for coverage_file in record.coverage_files:
+    rows.append(
+      {
+        "Datei": normalize_repo_path(coverage_file.file),
+        "Statements": format_coverage(coverage_file.statements),
+        "Branches": format_coverage(coverage_file.branches),
+        "Funktionen": format_coverage(coverage_file.functions),
+        "Zeilen": format_coverage(coverage_file.lines),
+        "Offene Statements": coverage_file.uncovered_statements,
+        "Offene Branches": coverage_file.uncovered_branches,
+        "Offene Funktionen": coverage_file.uncovered_functions,
+        "Offene Zeilen": coverage_file.uncovered_lines,
+      }
+    )
+
+  return rows
+
+
+def render_coverage_breakdown(record: RunRecord, heading: str) -> None:
+  st.markdown(f"#### {heading}")
+
+  if not record.coverage_files:
+    render_notice(
+      "warning",
+      "Keine aufgeschlüsselte Coverage vorhanden",
+      "Für diesen Lauf wurden keine per-Datei-Coverage-Daten gespeichert.",
+    )
+    return
+
+  files_below_full = [
+    coverage_file
+    for coverage_file in record.coverage_files
+    if min(
+      coverage_file.statements,
+      coverage_file.branches,
+      coverage_file.functions,
+      coverage_file.lines,
+    ) < 100
+  ]
+  weakest_file = min(
+    record.coverage_files,
+    key=lambda item: (
+      item.branches,
+      item.statements,
+      item.functions,
+      item.lines,
+      item.file,
+    ),
+  )
+
+  summary_columns = st.columns(3)
+  render_status_card(
+    summary_columns[0],
+    "Dateien",
+    str(len(record.coverage_files)),
+    "neutral",
+    "instrumentiert",
+  )
+  render_status_card(
+    summary_columns[1],
+    "Unter 100%",
+    str(len(files_below_full)),
+    "failed" if files_below_full else "passed",
+    "mindestens eine Lücke",
+  )
+  render_status_card(
+    summary_columns[2],
+    "Schwächste Branch-Coverage",
+    format_coverage(weakest_file.branches),
+    "failed" if weakest_file.branches < 100 else "passed",
+    normalize_repo_path(weakest_file.file),
+  )
+
+  rows = build_coverage_rows(record)
+  st.markdown("**Größte Lücken zuerst**")
+  st.dataframe(rows[:15], width="stretch", hide_index=True)
+
+  with st.expander("Alle instrumentierten Dateien anzeigen"):
+    st.dataframe(rows, width="stretch", hide_index=True)
+
+
 def render_run_snapshot(record: RunRecord, heading: str) -> None:
   st.markdown(f"#### {heading}")
   columns = st.columns(4)
@@ -970,6 +1054,8 @@ def render_run_snapshot(record: RunRecord, heading: str) -> None:
     format_duration(record.summary.duration_seconds),
     "neutral",
   )
+
+  render_coverage_breakdown(record, "Coverage im Detail")
 
 
 def render_suites_table(record: RunRecord) -> None:
@@ -1112,6 +1198,8 @@ def render_overview(latest: RunRecord, records: list[RunRecord]) -> None:
       "Keine bekannten Fehler",
       "Im letzten Lauf sind keine aktiven Fehler aufgetreten. Frühere Fehler findest du nur noch auf der Seite „Historie“.",
     )
+
+  render_coverage_breakdown(latest, "Coverage im Detail")
 
 
 def render_test_controls() -> None:

@@ -1,9 +1,16 @@
 "use client";
 
-type Event = {
-  start_time: string;
-  duration_minutes: number;
-  keywords?: { label: string; color: string }[];
+import type { EventWithKeywords } from "@/types";
+import {
+  buildTimeRange,
+  clampEventToRange,
+  type EventSlice,
+} from "@/lib/stats";
+
+type Props = {
+  events: EventWithKeywords[];
+  startDate: string;
+  endDate: string;
 };
 
 /**
@@ -13,10 +20,14 @@ type Event = {
  * - professionelle Tagesansicht (wie Kalender)
  * - zeigt Events als Blöcke statt Linien
  */
-export default function DayTimeline({ events }: { events: Event[] }) {
+export default function DayTimeline({ events, startDate, endDate }: Props) {
+  const dayRange = buildTimeRange(startDate, endDate);
+  const visibleEvents = events
+    .map((event) => clampEventToRange(event, dayRange))
+    .filter((event): event is EventSlice => event !== null);
+
   return (
     <div className="relative h-[600px] border rounded bg-white overflow-hidden">
-
       {/* Stundenlinien */}
       {Array.from({ length: 24 }).map((_, i) => (
         <div
@@ -29,28 +40,28 @@ export default function DayTimeline({ events }: { events: Event[] }) {
       ))}
 
       {/* Events */}
-      {events.map((event, idx) => {
-        const start = new Date(event.start_time);
+      {visibleEvents.map((eventSlice, idx) => {
+        const start = eventSlice.start;
 
         const minutesFromStart =
           start.getHours() * 60 + start.getMinutes();
 
         const top = (minutesFromStart / (24 * 60)) * 100;
         const height =
-          (event.duration_minutes / (24 * 60)) * 100;
+          (eventSlice.minutes / (24 * 60)) * 100;
 
         return (
           <div
-            key={idx}
+            key={`${eventSlice.event.id}-${idx}`}
             className="absolute left-16 right-2 rounded text-white text-xs p-1 shadow"
             style={{
               top: `${top}%`,
               height: `${height}%`,
               backgroundColor:
-                event.keywords?.[0]?.color || "#7700F4",
+                eventSlice.event.keywords?.[0]?.color || "#7700F4",
             }}
           >
-            {event.keywords?.[0]?.label}
+            {eventSlice.event.keywords?.[0]?.label}
           </div>
         );
       })}

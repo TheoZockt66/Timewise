@@ -37,6 +37,27 @@ describe("events route", () => {
     });
   });
 
+  test("POST returns 401 when no user is logged in", async () => {
+    const { client } = createSupabaseClientMock({ user: null });
+    mockedCreateClient.mockResolvedValue(client as never);
+
+    const response = await POST(
+      new Request("http://localhost/api/events", {
+        method: "POST",
+        body: JSON.stringify({}),
+      })
+    );
+
+    expect(response.status).toBe(401);
+    await expect(response.json()).resolves.toMatchObject({
+      data: null,
+      error: {
+        code: "UNAUTHORIZED",
+      },
+    });
+    expect(mockedCreateEvent).not.toHaveBeenCalled();
+  });
+
   test("GET forwards query params to fetchEvents", async () => {
     const { client } = createSupabaseClientMock({ user: { id: "user-1" } });
     mockedCreateClient.mockResolvedValue(client as never);

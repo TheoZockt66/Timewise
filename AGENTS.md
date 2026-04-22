@@ -169,7 +169,7 @@ timewise/
 │   │   └── index.ts                    ✅
 │   └── proxy.ts                        ✅ Next.js Proxy Entry
 ├── docs/
-│   ├── prompt-log.md                   ✅
+│   ├── prompt-log.md                   lokal, nicht committen
 │   └── vercel-deployment.md            ✅
 ├── public/
 │   └── timewise-logo.svg               ✅
@@ -490,7 +490,7 @@ Bei kleinen, klaren Änderungen reicht eine knappe, direkte Antwort.
 
 ## Prompt-Log Dokumentation
 
-Nach jeder Antwort mit tatsächlichen Dateiänderungen wird `docs/prompt-log.md` ergänzt. Die Datei wird nie gekürzt oder überschrieben, sondern nur erweitert.
+Nach jeder Antwort mit tatsächlichen Dateiänderungen wird `docs/prompt-log.md` lokal ergänzt. Die Datei dient nur der lokalen Nachvollziehbarkeit, ist per Git ignoriert und wird nicht committed oder gepusht.
 
 Format:
 

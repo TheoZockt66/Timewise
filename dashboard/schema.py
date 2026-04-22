@@ -135,6 +135,49 @@ class Coverage:
 
 
 @dataclass
+class CoverageFile:
+  file: str = ""
+  lines: float = 0.0
+  functions: float = 0.0
+  branches: float = 0.0
+  statements: float = 0.0
+  uncovered_lines: int = 0
+  uncovered_functions: int = 0
+  uncovered_branches: int = 0
+  uncovered_statements: int = 0
+
+  @classmethod
+  def from_dict(cls, payload: Any) -> "CoverageFile":
+    if not isinstance(payload, dict):
+      return cls()
+
+    return cls(
+      file=coerce_str(payload.get("file")),
+      lines=coerce_float(payload.get("lines")),
+      functions=coerce_float(payload.get("functions")),
+      branches=coerce_float(payload.get("branches")),
+      statements=coerce_float(payload.get("statements")),
+      uncovered_lines=coerce_int(payload.get("uncovered_lines")),
+      uncovered_functions=coerce_int(payload.get("uncovered_functions")),
+      uncovered_branches=coerce_int(payload.get("uncovered_branches")),
+      uncovered_statements=coerce_int(payload.get("uncovered_statements")),
+    )
+
+  def to_dict(self) -> dict[str, Any]:
+    return {
+      "file": self.file,
+      "lines": self.lines,
+      "functions": self.functions,
+      "branches": self.branches,
+      "statements": self.statements,
+      "uncovered_lines": self.uncovered_lines,
+      "uncovered_functions": self.uncovered_functions,
+      "uncovered_branches": self.uncovered_branches,
+      "uncovered_statements": self.uncovered_statements,
+    }
+
+
+@dataclass
 class Suite:
   name: str = ""
   file: str = ""
@@ -221,6 +264,7 @@ class RunRecord:
   status: str = "unknown"
   summary: Summary = field(default_factory=Summary)
   coverage: Coverage = field(default_factory=Coverage)
+  coverage_files: list[CoverageFile] = field(default_factory=list)
   suites: list[Suite] = field(default_factory=list)
   failures: list[Failure] = field(default_factory=list)
 
@@ -231,6 +275,11 @@ class RunRecord:
 
     summary = Summary.from_dict(payload.get("summary"))
     failures = [Failure.from_dict(item) for item in payload.get("failures", []) if isinstance(item, dict)]
+    coverage_files = [
+      CoverageFile.from_dict(item)
+      for item in payload.get("coverage_files", [])
+      if isinstance(item, dict)
+    ]
     suites = [Suite.from_dict(item) for item in payload.get("suites", []) if isinstance(item, dict)]
 
     status = normalize_status(payload.get("status"))
@@ -255,6 +304,7 @@ class RunRecord:
       status=status,
       summary=summary,
       coverage=Coverage.from_dict(payload.get("coverage")),
+      coverage_files=coverage_files,
       suites=suites,
       failures=failures,
     )
@@ -270,6 +320,7 @@ class RunRecord:
       "status": self.status,
       "summary": self.summary.to_dict(),
       "coverage": self.coverage.to_dict(),
+      "coverage_files": [coverage_file.to_dict() for coverage_file in self.coverage_files],
       "suites": [suite.to_dict() for suite in self.suites],
       "failures": [failure.to_dict() for failure in self.failures],
     }
