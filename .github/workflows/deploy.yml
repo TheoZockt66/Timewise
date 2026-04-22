@@ -5,7 +5,7 @@ on:
 
 jobs:
   build-and-test:
-    uses: ./.github/workflows/webpack.yml
+    uses: ./.github/workflows/build.yml
   
   deploy:
     runs-on: ubuntu-latest
