@@ -1,0 +1,14 @@
+name: Deploy
+
+on:
+  workflow_dispatch:
+
+jobs:
+  post-request:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Send HTTP POST
+        run: |
+          curl -X POST "https://api.vercel.com/v1/integrations/deploy/prj_5b9LqgP0wJXdZiwkXAYYk5Th0FXa/4e1Es26Gae" \
+            -H "Content-Type: application/json" \'
