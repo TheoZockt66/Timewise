@@ -4,9 +4,12 @@ on:
   workflow_dispatch:
 
 jobs:
+  build-and-test:
+    uses: ./.github/workflows/build.yml
   
   deploy:
     runs-on: ubuntu-latest
+    needs: build-and-test
     steps:
       - name: Send HTTP POST
         run: curl POST "https://api.vercel.com/v1/integrations/deploy/prj_Ic8EhIc5lfr50oq647xh7eH5hxvI/OK24kzIw1K"
