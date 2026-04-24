@@ -72,18 +72,4 @@ describe("KeywordSelector", () => {
     expect(screen.queryByText("missing-keyword")).not.toBeInTheDocument();
   });
 
-  test("renders the error alert when a validation error exists", () => {
-    render(
-      <KeywordSelector
-        keywords={[buildKeyword()]}
-        selectedIds={[]}
-        onSelectionChange={vi.fn()}
-        error="Bitte waehle mindestens ein Keyword."
-      />
-    );
-
-    expect(screen.getByRole("alert")).toHaveTextContent(
-      "Bitte waehle mindestens ein Keyword."
-    );
-  });
 });

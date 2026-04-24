@@ -30,22 +30,6 @@ describe("event.validator", () => {
     });
   });
 
-  test("rejects events without keywords", () => {
-    const result = validateEvent({
-      startTime: "2026-04-10T09:00:00.000Z",
-      endTime: "2026-04-10T10:00:00.000Z",
-      keywordIds: [],
-      existingEvents: [],
-    });
-
-    expect(result.isValid).toBe(false);
-    expect(result.errors).toContainEqual({
-      field: "keyword_ids",
-      message: "Bitte waehle mindestens ein Keyword aus.",
-      code: "KEYWORD_REQUIRED",
-    });
-  });
-
   test("detects overlaps but ignores the currently edited event", () => {
     const existingEvent = buildEvent({
       id: "event-1",

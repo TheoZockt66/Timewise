@@ -36,17 +36,6 @@ export function validateTimeRange(
   return null;
 }
 
-export function validateKeywordSelection(keywordIds: string[]): ValidationError | null {
-  if (keywordIds.length === 0) {
-    return {
-      field: "keyword_ids",
-      message: "Bitte waehle mindestens ein Keyword aus.",
-      code: "KEYWORD_REQUIRED",
-    };
-  }
-
-  return null;
-}
 
 export function validateNotInFuture(endTime: string): ValidationError | null {
   if (!isValidDate(endTime)) {
@@ -144,11 +133,6 @@ export function validateEvent(data: {
       isValid: false,
       errors: [timeRangeError],
     };
-  }
-
-  const keywordError = validateKeywordSelection(data.keywordIds);
-  if (keywordError) {
-    errors.push(keywordError);
   }
 
   const futureError = validateNotInFuture(data.endTime);
