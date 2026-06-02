@@ -18,7 +18,7 @@ describe("GoalForm", () => {
       <GoalForm
         values={baseValues}
         availableKeywords={[]}
-        submitLabel="Hinzufuegen"
+        submitLabel="Hinzufügen"
         onChange={vi.fn()}
         onSubmit={vi.fn()}
       />
@@ -26,7 +26,7 @@ describe("GoalForm", () => {
 
     expect(screen.getByText("Bezeichnung ist erforderlich.")).toBeInTheDocument();
     expect(
-      screen.getByRole("button", { name: "Hinzufuegen" })
+      screen.getByRole("button", { name: "Hinzufügen" })
     ).toBeDisabled();
   });
 

@@ -30,7 +30,7 @@ describe("GET /api/auth/callback", () => {
       data: null,
       error: {
         code: "CODE_EXCHANGE_FAILED",
-        message: "Der Bestaetigungslink ist ungueltig oder abgelaufen.",
+        message: "Der Bestätigungslink ist ungültig oder abgelaufen.",
       },
     });
 

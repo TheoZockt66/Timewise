@@ -23,9 +23,9 @@ describe("event.validator", () => {
   });
 
   test("rejects invalid timestamps before running later checks", () => {
-    expect(validateTimeRange("ungueltig", "2026-04-10T10:00:00.000Z")).toEqual({
+    expect(validateTimeRange("ungültig", "2026-04-10T10:00:00.000Z")).toEqual({
       field: "time_range",
-      message: "Ungueltiges Zeitformat.",
+      message: "Ungültiges Zeitformat.",
       code: "INVALID_TIME_RANGE",
     });
   });
@@ -41,7 +41,7 @@ describe("event.validator", () => {
     expect(result.isValid).toBe(false);
     expect(result.errors).toContainEqual({
       field: "keyword_ids",
-      message: "Bitte waehle mindestens ein Keyword aus.",
+      message: "Bitte wähle mindestens ein Keyword aus.",
       code: "KEYWORD_REQUIRED",
     });
   });
@@ -80,7 +80,7 @@ describe("event.validator", () => {
         "2026-04-10T10:45:00.000Z"
       )
     ).toBe(105);
-    expect(calculateDurationMinutes("ungueltig", "2026-04-10T10:45:00.000Z")).toBeNull();
+    expect(calculateDurationMinutes("ungültig", "2026-04-10T10:45:00.000Z")).toBeNull();
     expect(
       calculateDurationMinutes(
         "2026-04-10T10:45:00.000Z",

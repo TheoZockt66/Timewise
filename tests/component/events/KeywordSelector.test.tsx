@@ -78,12 +78,12 @@ describe("KeywordSelector", () => {
         keywords={[buildKeyword()]}
         selectedIds={[]}
         onSelectionChange={vi.fn()}
-        error="Bitte waehle mindestens ein Keyword."
+        error="Bitte wähle mindestens ein Keyword."
       />
     );
 
     expect(screen.getByRole("alert")).toHaveTextContent(
-      "Bitte waehle mindestens ein Keyword."
+      "Bitte wähle mindestens ein Keyword."
     );
   });
 });

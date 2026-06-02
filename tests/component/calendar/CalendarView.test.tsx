@@ -57,7 +57,7 @@ vi.mock("@fullcalendar/react", () => ({
           })
         }
       >
-        Zeitraum auswaehlen
+        Zeitraum auswählen
       </button>
       <button
         type="button"
@@ -69,7 +69,7 @@ vi.mock("@fullcalendar/react", () => ({
           })
         }
       >
-        Termin oeffnen
+        Termin öffnen
       </button>
       <button
         type="button"
@@ -81,7 +81,7 @@ vi.mock("@fullcalendar/react", () => ({
           })
         }
       >
-        Unbekannten Termin oeffnen
+        Unbekannten Termin öffnen
       </button>
     </div>
   ),
@@ -166,7 +166,7 @@ describe("CalendarView", () => {
     expect(mockFetchEvents).toHaveBeenCalledWith(expectedStart, expectedEnd);
     expect(screen.getByText("Physikblock")).toBeInTheDocument();
 
-    fireEvent.click(screen.getByRole("button", { name: "Zeitraum auswaehlen" }));
+    fireEvent.click(screen.getByRole("button", { name: "Zeitraum auswählen" }));
 
     expect(screen.getByTestId("event-form")).toHaveTextContent(
       "2026-04-20T09:00:00.000Z__2026-04-20T10:00:00.000Z"
@@ -190,7 +190,7 @@ describe("CalendarView", () => {
   test("closes the create modal through the dedicated close button", async () => {
     render(<CalendarView />);
 
-    fireEvent.click(screen.getByRole("button", { name: "Zeitraum auswaehlen" }));
+    fireEvent.click(screen.getByRole("button", { name: "Zeitraum auswählen" }));
     expect(screen.getByTestId("event-form")).toBeInTheDocument();
 
     fireEvent.click(screen.getByRole("button", { name: /Modal/i }));
@@ -203,7 +203,7 @@ describe("CalendarView", () => {
   test("closes the create modal through the form cancel callback", async () => {
     render(<CalendarView />);
 
-    fireEvent.click(screen.getByRole("button", { name: "Zeitraum auswaehlen" }));
+    fireEvent.click(screen.getByRole("button", { name: "Zeitraum auswählen" }));
     expect(screen.getByTestId("event-form")).toBeInTheDocument();
 
     fireEvent.click(screen.getByRole("button", { name: "Form abbrechen" }));
@@ -230,7 +230,7 @@ describe("CalendarView", () => {
 
     await waitFor(() => expect(mockFetchEvents).toHaveBeenCalledTimes(1));
 
-    fireEvent.click(screen.getByRole("button", { name: "Zeitraum auswaehlen" }));
+    fireEvent.click(screen.getByRole("button", { name: "Zeitraum auswählen" }));
     fireEvent.click(screen.getByRole("button", { name: "Form speichern" }));
 
     await waitFor(() => expect(mockFetchEvents).toHaveBeenCalledTimes(2));
@@ -241,7 +241,7 @@ describe("CalendarView", () => {
   test("opens the details modal for an existing event", () => {
     render(<CalendarView />);
 
-    fireEvent.click(screen.getByRole("button", { name: "Termin oeffnen" }));
+    fireEvent.click(screen.getByRole("button", { name: "Termin öffnen" }));
 
     expect(screen.getByTestId("event-details")).toHaveTextContent(
       calendarEventFixture.id
@@ -251,7 +251,7 @@ describe("CalendarView", () => {
   test("closes the details modal through the details component", async () => {
     render(<CalendarView />);
 
-    fireEvent.click(screen.getByRole("button", { name: "Termin oeffnen" }));
+    fireEvent.click(screen.getByRole("button", { name: "Termin öffnen" }));
     expect(screen.getByTestId("event-details")).toBeInTheDocument();
 
     fireEvent.click(screen.getByRole("button", { name: "Details schliessen" }));
@@ -278,7 +278,7 @@ describe("CalendarView", () => {
 
     await waitFor(() => expect(mockFetchEvents).toHaveBeenCalledTimes(1));
 
-    fireEvent.click(screen.getByRole("button", { name: "Termin oeffnen" }));
+    fireEvent.click(screen.getByRole("button", { name: "Termin öffnen" }));
     fireEvent.click(
       screen.getByRole("button", { name: "Details aktualisieren" })
     );
@@ -292,7 +292,7 @@ describe("CalendarView", () => {
     render(<CalendarView />);
 
     fireEvent.click(
-      screen.getByRole("button", { name: "Unbekannten Termin oeffnen" })
+      screen.getByRole("button", { name: "Unbekannten Termin öffnen" })
     );
 
     expect(screen.queryByTestId("event-details")).not.toBeInTheDocument();

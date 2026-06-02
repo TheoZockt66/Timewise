@@ -17,7 +17,7 @@ export function validateTimeRange(
   if (!isValidDate(startTime) || !isValidDate(endTime)) {
     return {
       field: "time_range",
-      message: "Ungueltiges Zeitformat.",
+      message: "Ungültiges Zeitformat.",
       code: "INVALID_TIME_RANGE",
     };
   }
@@ -40,7 +40,7 @@ export function validateNotInFuture(endTime: string): ValidationError | null {
   if (!isValidDate(endTime)) {
     return {
       field: "end_time",
-      message: "Ungueltiges Zeitformat.",
+      message: "Ungültiges Zeitformat.",
       code: "FUTURE_NOT_ALLOWED",
     };
   }
@@ -51,7 +51,7 @@ export function validateNotInFuture(endTime: string): ValidationError | null {
   if (end.getTime() > Date.now() + tolerance) {
     return {
       field: "end_time",
-      message: "Lernzeiten koennen nur fuer die Vergangenheit erfasst werden.",
+      message: "Lernzeiten können nur für die Vergangenheit erfasst werden.",
       code: "FUTURE_NOT_ALLOWED",
     };
   }
@@ -68,7 +68,7 @@ export function validateNoOverlap(
   if (!isValidDate(startTime) || !isValidDate(endTime)) {
     return {
       field: "overlap",
-      message: "Fehler bei der Ueberschneidungspruefung.",
+      message: "Fehler bei der Überschneidungsprüfung.",
       code: "OVERLAP",
     };
   }
@@ -91,7 +91,7 @@ export function validateNoOverlap(
     if (newStart < existingEnd && newEnd > existingStart) {
       return {
         field: "overlap",
-        message: "Zeitliche Ueberschneidung mit bestehender Lernzeit erkannt.",
+        message: "Zeitliche Überschneidung mit bestehender Lernzeit erkannt.",
         code: "OVERLAP",
       };
     }

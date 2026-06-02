@@ -23,7 +23,7 @@ describe("goal creation flow", () => {
     const keyword = buildKeyword();
     const newGoal = buildGoal({
       id: "goal-2",
-      label: "Pruefungsvorbereitung",
+      label: "Prüfungsvorbereitung",
       target_study_time: "05:00:00",
     });
 
@@ -62,7 +62,7 @@ describe("goal creation flow", () => {
       new Request("http://localhost/api/goals", {
         method: "POST",
         body: JSON.stringify({
-          label: "Pruefungsvorbereitung",
+          label: "Prüfungsvorbereitung",
           target_study_time: "05:00:00",
           keyword_ids: [keyword.id],
         }),
@@ -73,7 +73,7 @@ describe("goal creation flow", () => {
     await expect(response.json()).resolves.toMatchObject({
       data: {
         id: "goal-2",
-        label: "Pruefungsvorbereitung",
+        label: "Prüfungsvorbereitung",
         keywords: [keyword],
         logged_minutes: 0,
         percentage: 0,
