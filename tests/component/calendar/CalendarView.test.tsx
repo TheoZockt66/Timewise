@@ -151,12 +151,12 @@ describe("CalendarView", () => {
     const now = new Date();
     const expectedStart = new Date(
       now.getFullYear(),
-      now.getMonth(),
+      now.getMonth() - 1,
       1
     ).toISOString();
     const expectedEnd = new Date(
       now.getFullYear(),
-      now.getMonth() + 1,
+      now.getMonth() + 2,
       0
     ).toISOString();
 
@@ -217,12 +217,12 @@ describe("CalendarView", () => {
     const now = new Date();
     const expectedStart = new Date(
       now.getFullYear(),
-      now.getMonth(),
+      now.getMonth() - 1,
       1
     ).toISOString();
     const expectedEnd = new Date(
       now.getFullYear(),
-      now.getMonth() + 1,
+      now.getMonth() + 2,
       0
     ).toISOString();
 
@@ -265,12 +265,12 @@ describe("CalendarView", () => {
     const now = new Date();
     const expectedStart = new Date(
       now.getFullYear(),
-      now.getMonth(),
+      now.getMonth() - 1,
       1
     ).toISOString();
     const expectedEnd = new Date(
       now.getFullYear(),
-      now.getMonth() + 1,
+      now.getMonth() + 2,
       0
     ).toISOString();
 

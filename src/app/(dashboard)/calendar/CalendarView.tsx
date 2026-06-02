@@ -1,7 +1,7 @@
 'use client';
 
 // 1. Standard React-Funktionen importieren (für den internen Speicher und automatische Ladevorgänge)
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 
 // 2. FullCalendar und seine benötigten Ansichts-Plugins laden
 import FullCalendar from '@fullcalendar/react';
@@ -31,13 +31,75 @@ export default function CalendarView() {
   // Speichert die Uhrzeiten, die der Nutzer mit der Maus markiert
   const [selectedDates, setSelectedDates] = useState<{ start: string, end: string } | null>(null);
 
-  // Wird einmalig beim Laden der Seite ausgeführt, um die aktuellen Termine zu holen
+  // 
+  const initialLoadRef = useRef(false);
+  const [loadedRange, setLoadedRange] = useState<{ start: string; end: string } | null>(null);
+
+  // Aktueller sichtbarer Kalenderbereich für das Nachladen der Events
+  const [visibleRange, setVisibleRange] = useState<{ start: string; end: string } | null>(null);
+
+  const buildThreeMonthWindow = (range: { start: string; end: string }) => {
+    const visibleStart = new Date(range.start);
+    const visibleEnd = new Date(range.end);
+    const centerTime = (visibleStart.getTime() + visibleEnd.getTime()) / 2;
+    const center = new Date(centerTime);
+
+    const start = new Date(center.getFullYear(), center.getMonth() - 1, 1);
+    const end = new Date(center.getFullYear(), center.getMonth() + 2, 0);
+
+    return {
+      start: start.toISOString(),
+      end: end.toISOString(),
+    };
+  };
+
+  const shouldLoadNewRange = (range: { start: string; end: string }) => {
+    if (!loadedRange) {
+      return true;
+    }
+
+    const visibleStart = new Date(range.start);
+    const visibleEnd = new Date(range.end);
+    const loadedStart = new Date(loadedRange.start);
+    const loadedEnd = new Date(loadedRange.end);
+
+    return visibleEnd > loadedEnd || visibleStart < loadedStart;
+  };
+
+  // Lädt initial ein 3-Monatsfenster, damit die aktuell sichtbare Periode in der Mitte liegt.
   useEffect(() => {
+    if (initialLoadRef.current) {
+      return;
+    }
+
     const now = new Date();
-    const start = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
-    const end = new Date(now.getFullYear(), now.getMonth() + 1, 0).toISOString();
-    fetchEvents(start, end);
-  }, []);
+    const range = {
+      start: new Date(now.getFullYear(), now.getMonth() - 1, 1).toISOString(),
+      end: new Date(now.getFullYear(), now.getMonth() + 2, 0).toISOString(),
+    };
+
+    initialLoadRef.current = true;
+    setVisibleRange(range);
+    setLoadedRange(range);
+    fetchEvents(range.start, range.end);
+  }, [fetchEvents]);
+
+  // Wird aufgerufen, wenn die sichtbare Kalenderperiode gewechselt wird
+  const handleDatesSet = (rangeInfo: any) => {
+    const range = { start: rangeInfo.startStr, end: rangeInfo.endStr };
+    setVisibleRange(range);
+
+    if (!shouldLoadNewRange(range)) {
+      return;
+    }
+
+    const nextLoadRange = buildThreeMonthWindow(range);
+    setLoadedRange(nextLoadRange);
+    if (!initialLoadRef.current) {
+      initialLoadRef.current = true;
+    }
+    fetchEvents(nextLoadRange.start, nextLoadRange.end);
+  };
 
   // Wird aufgerufen, wenn jemand einen Zeitraum im Kalender markiert
   const handleSelect = (selectInfo: any) => {
@@ -56,10 +118,17 @@ export default function CalendarView() {
 
   // Hilfsfunktion zum Aktualisieren der Events nach Änderungen
   const refreshEvents = () => {
+    if (loadedRange) {
+      fetchEvents(loadedRange.start, loadedRange.end);
+      return;
+    }
+
     const now = new Date();
-    const start = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
-    const end = new Date(now.getFullYear(), now.getMonth() + 1, 0).toISOString();
-    fetchEvents(start, end);
+    const range = {
+      start: new Date(now.getFullYear(), now.getMonth() - 1, 1).toISOString(),
+      end: new Date(now.getFullYear(), now.getMonth() + 2, 0).toISOString(),
+    };
+    fetchEvents(range.start, range.end);
   };
 
   return (
@@ -121,6 +190,7 @@ export default function CalendarView() {
             center: 'title',
             right: 'dayGridMonth,timeGridWeek,timeGridDay'
           }}
+          datesSet={handleDatesSet}
           // Hier werden die Termine an den Kalender übergeben und mit der Primärfarbe versehen
           events={events.map((event: EventWithKeywords) => ({
             id: event.id,
@@ -155,10 +225,17 @@ export default function CalendarView() {
                 selectedRange={selectedDates ?? undefined}
                 onSuccess={() => {
                   setIsModalOpen(false);
+                  if (loadedRange) {
+                    fetchEvents(loadedRange.start, loadedRange.end);
+                    return;
+                  }
+
                   const now = new Date();
-                  const start = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
-                  const end = new Date(now.getFullYear(), now.getMonth() + 1, 0).toISOString();
-                  fetchEvents(start, end);
+                  const fallbackRange = {
+                    start: new Date(now.getFullYear(), now.getMonth() - 1, 1).toISOString(),
+                    end: new Date(now.getFullYear(), now.getMonth() + 2, 0).toISOString(),
+                  };
+                  fetchEvents(fallbackRange.start, fallbackRange.end);
                 }}
                 onCancel={() => setIsModalOpen(false)}
               />

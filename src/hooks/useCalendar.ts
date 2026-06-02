@@ -13,8 +13,13 @@ export function useCalendar() {
     setError(null);     // Alte Fehler löschen
 
     try {
-      // Aufruf API von Modul 3 
-      const response = await fetch(`/api/events?start_date=${startDate}&end_date=${endDate}`);
+      // Aufruf API von Modul 3
+      const queryParams = new URLSearchParams({
+        start_date: startDate,
+        end_date: endDate,
+      });
+
+      const response = await fetch(`/api/events?${queryParams.toString()}`);
       const result = await response.json();
 
       // Gab es einen Fehler von der API?
