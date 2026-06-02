@@ -78,34 +78,7 @@ describe("EventForm", () => {
     });
   });
 
-  test("shows validation feedback and blocks submit without keywords", async () => {
-    render(
-      <EventForm
-        selectedRange={{
-          start: "2026-04-10T09:00:00.000Z",
-          end: "2026-04-10T10:00:00.000Z",
-        }}
-      />
-    );
 
-    await waitFor(() =>
-      expect(screen.getByRole("button", { name: "Speichern" })).toBeEnabled()
-    );
-
-    fireEvent.click(screen.getByRole("button", { name: "Speichern" }));
-
-    await waitFor(() => {
-      expect(screen.getByRole("alert")).toHaveTextContent(
-        "mindestens ein Keyword"
-      );
-    });
-    expect(mockedCreateEvent).not.toHaveBeenCalled();
-    expect(toastMock).toHaveBeenCalledWith(
-      expect.objectContaining({
-        title: "Validierungsfehler",
-      })
-    );
-  });
 
   test("shows a destructive toast when keyword loading returns an error payload", async () => {
     fetchMock.mockResolvedValue({

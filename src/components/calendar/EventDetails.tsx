@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { EventWithKeywords } from '@/types';
 import { EventForm } from '@/components/events/EventForm';
+import { DeleteEventDialog } from '@/components/events/DeleteEventDialog';
 import { deleteEvent } from '@/lib/services/event.service';
 import { useToast } from '@/hooks/use-toast';
 import { useCalendar } from '@/hooks/useCalendar';
@@ -19,14 +20,15 @@ interface EventDetailsProps {
 export function EventDetails({ event, onClose, onUpdate }: EventDetailsProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const { toast } = useToast();
   const { fetchEvents } = useCalendar();
 
-  const handleDelete = async () => {
-    if (!confirm('Möchtest du diesen Termin wirklich löschen?')) {
-      return;
-    }
+  const handleDeleteClick = () => {
+    setShowDeleteDialog(true);
+  };
 
+  const handleDeleteConfirm = async () => {
     setIsDeleting(true);
     try {
       const result = await deleteEvent(event.id);
@@ -37,6 +39,8 @@ export function EventDetails({ event, onClose, onUpdate }: EventDetailsProps) {
           description: result.error.message,
           variant: 'destructive',
         });
+        setIsDeleting(false);
+        setShowDeleteDialog(false);
       } else {
         toast({
           title: 'Erfolgreich',
@@ -44,6 +48,7 @@ export function EventDetails({ event, onClose, onUpdate }: EventDetailsProps) {
         });
         onUpdate();
         onClose();
+        setShowDeleteDialog(false);
       }
     } catch (error) {
       toast({
@@ -51,8 +56,8 @@ export function EventDetails({ event, onClose, onUpdate }: EventDetailsProps) {
         description: 'Termin konnte nicht gelöscht werden.',
         variant: 'destructive',
       });
-    } finally {
       setIsDeleting(false);
+      setShowDeleteDialog(false);
     }
   };
 
@@ -168,7 +173,7 @@ export function EventDetails({ event, onClose, onUpdate }: EventDetailsProps) {
           Bearbeiten
         </Button>
         <Button
-          onClick={handleDelete}
+          onClick={handleDeleteClick}
           disabled={isDeleting}
           variant="destructive"
           className="flex-1"
@@ -176,6 +181,16 @@ export function EventDetails({ event, onClose, onUpdate }: EventDetailsProps) {
           {isDeleting ? 'Löschen...' : 'Löschen'}
         </Button>
       </div>
+
+      {/* Delete Confirmation Dialog */}
+      {showDeleteDialog && (
+        <DeleteEventDialog
+          eventLabel={event.label}
+          onConfirm={handleDeleteConfirm}
+          onCancel={() => setShowDeleteDialog(false)}
+          isLoading={isDeleting}
+        />
+      )}
     </div>
   );
 }
