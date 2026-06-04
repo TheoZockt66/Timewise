@@ -147,7 +147,7 @@ async function ensureOwnedKeywords(
 
   if ((data ?? []).length !== keywordIds.length) {
     throw createFailure(
-      "INVALID_KEYWORDS",
+      "KEYWORD_VALIDATION_FAILED",
       "Mindestens ein ausgewähltes Keyword ist ungültig oder gehört dir nicht."
     );
   }

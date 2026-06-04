@@ -10,7 +10,6 @@ function getStatusCode(errorCode?: string, successStatus = 200): number {
     case "UNAUTHORIZED":
       return 401;
     case "VALIDATION_ERROR":
-    case "INVALID_KEYWORDS":
     case "KEYWORD_VALIDATION_FAILED":
       return 400;
     case "NOT_FOUND":

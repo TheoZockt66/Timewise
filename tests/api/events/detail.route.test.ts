@@ -89,7 +89,8 @@ describe("events detail route", () => {
       context
     );
 
-    expect(response.status).toBe(200);
+    // 204 No Content: kein Body bei erfolgreichem DELETE (TC_ER_10)
+    expect(response.status).toBe(204);
     expect(mockedDeleteEvent).toHaveBeenCalledWith("event-1");
   });
 });

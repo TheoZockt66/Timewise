@@ -13,7 +13,7 @@ describe("POST /api/auth/logout", () => {
     vi.clearAllMocks();
   });
 
-  test("returns 200 when the session is closed successfully", async () => {
+  test("returns 204 No Content when the session is closed successfully", async () => {
     mockedLogout.mockResolvedValue({
       data: { success: true },
       error: null,
@@ -21,11 +21,9 @@ describe("POST /api/auth/logout", () => {
 
     const response = await POST();
 
-    expect(response.status).toBe(200);
-    await expect(response.json()).resolves.toEqual({
-      data: { success: true },
-      error: null,
-    });
+    // 204 No Content: kein Response-Body (TC_AU_RT_03)
+    expect(response.status).toBe(204);
+    expect(response.body).toBeNull();
   });
 
   test("returns 500 when the auth service reports a logout failure", async () => {

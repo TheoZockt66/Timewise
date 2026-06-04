@@ -54,8 +54,12 @@ export async function POST(request: Request) {
     user_id: user.id,
   });
 
-  // Schritt 5: Ergebnis zurückgeben (inkl. Fehlerhandling aus dem Service)
-  return NextResponse.json(result);
+  // Schritt 5: Ergebnis zurückgeben – 201 Created bei Erfolg, 400/500 bei Fehler
+  if (result.error) {
+    const status = result.error.code === "VALIDATION_ERROR" ? 400 : 500;
+    return NextResponse.json(result, { status });
+  }
+  return NextResponse.json(result, { status: 201 });
 }
 
 /**

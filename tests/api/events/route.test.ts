@@ -102,7 +102,7 @@ describe("events route", () => {
       })
     );
 
-    expect(response.status).toBe(200);
+    expect(response.status).toBe(201);
     expect(mockedCreateEvent).toHaveBeenCalledWith(body);
   });
 });

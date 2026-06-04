@@ -121,13 +121,24 @@ describe("event.service", () => {
     expect(getTableCalls("events")[0]?.lte).toHaveBeenCalledWith("start_time", "2026-04-11");
   });
 
-  test("returns a validation error when createEvent is called without keywords", async () => {
+  test("creates an event without keywords when keyword_ids is empty (EQ_06, TC_ER_07)", async () => {
+    const newEvent = buildEvent({
+      id: "event-new",
+      label: "Lernen",
+    });
+
     const { client } = createSupabaseClientMock({
       user: { id: "user-1" },
       tables: {
         events: {
           select: {
             await: [createSupabaseResult([])],
+            single: [
+              createSupabaseResult({ ...newEvent, event_keywords: [] }),
+            ],
+          },
+          insert: {
+            single: [createSupabaseResult(newEvent)],
           },
         },
       },
@@ -136,16 +147,17 @@ describe("event.service", () => {
     mockedCreateClient.mockResolvedValue(client as never);
 
     const result = await createEvent({
-      start_time: "2026-04-10T09:00:00.000Z",
-      end_time: "2026-04-10T10:00:00.000Z",
+      start_time: newEvent.start_time,
+      end_time: newEvent.end_time,
       keyword_ids: [],
       label: "Lernen",
     });
 
-    expect(result.error).toMatchObject({
-      code: "VALIDATION_ERROR",
+    expect(result.error).toBeNull();
+    expect(result.data).toMatchObject({
+      id: "event-new",
+      keywords: [],
     });
-    expect(result.error?.message).toContain("Keyword");
   });
 
   test("returns UNAUTHORIZED when createEvent has no authenticated user", async () => {

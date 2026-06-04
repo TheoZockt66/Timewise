@@ -97,4 +97,43 @@ describe("validateKeyword", () => {
       error: null,
     });
   });
+
+  // ── Äquivalenzklassen (EQ) ──────────────────────────────────────────────────
+
+  test("accepts a color with mixed uppercase and lowercase hex letters (EQ_KW_07)", () => {
+    expect(validateKeyword({ label: "Test", color: "#aAbBcC" })).toEqual({
+      valid: true,
+      error: null,
+    });
+  });
+
+  // ── Grenzwertanalyse (BV) ───────────────────────────────────────────────────
+
+  test("accepts a label with exactly one character as the minimum (BV_KW_01)", () => {
+    expect(validateKeyword({ label: "A", color: "#123456" })).toEqual({
+      valid: true,
+      error: null,
+    });
+  });
+
+  test("accepts a label with exactly 50 characters at the upper boundary (BV_KW_02)", () => {
+    expect(validateKeyword({ label: "M".repeat(50), color: "#123456" })).toEqual({
+      valid: true,
+      error: null,
+    });
+  });
+
+  test("rejects a color with only 5 hex digits, one below the required 6 (BV_KW_05)", () => {
+    expect(validateKeyword({ label: "Test", color: "#12345" })).toEqual({
+      valid: false,
+      error: "Farbe muss ein gültiger Hex-Code sein (#RRGGBB)",
+    });
+  });
+
+  test("rejects a color with 7 hex digits, one above the required 6 (BV_KW_06)", () => {
+    expect(validateKeyword({ label: "Test", color: "#1234567" })).toEqual({
+      valid: false,
+      error: "Farbe muss ein gültiger Hex-Code sein (#RRGGBB)",
+    });
+  });
 });

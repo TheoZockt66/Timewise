@@ -85,7 +85,7 @@ describe("keywords detail route", () => {
       context
     );
 
-    expect(response.status).toBe(200);
+    expect(response.status).toBe(204);
     expect(mockedDeleteKeyword).toHaveBeenCalledWith("keyword-1");
   });
 });

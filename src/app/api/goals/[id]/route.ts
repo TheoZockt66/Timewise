@@ -10,7 +10,6 @@ function getStatusCode(errorCode?: string, successStatus = 200): number {
     case "UNAUTHORIZED":
       return 401;
     case "VALIDATION_ERROR":
-    case "INVALID_KEYWORDS":
     case "KEYWORD_VALIDATION_FAILED":
       return 400;
     case "NOT_FOUND":
@@ -84,5 +83,9 @@ export async function DELETE(
   const { id } = await context.params;
   const result = await deleteGoal(id, user.id);
 
-  return NextResponse.json(result, { status: getStatusCode(result.error?.code) });
+  // 204 No Content bei Erfolg (RFC 9110); Fehler als JSON mit Statuscode
+  if (!result.error) {
+    return new NextResponse(null, { status: 204 });
+  }
+  return NextResponse.json(result, { status: getStatusCode(result.error.code) });
 }

@@ -148,4 +148,47 @@ describe("validateGoal", () => {
       error: null,
     });
   });
+
+  // ── Äquivalenzklassen (EQ) ──────────────────────────────────────────────────
+
+  test("accepts a goal with overlapping time periods since the validator does not enforce uniqueness (EQ_GO_08)", () => {
+    // Der Validator prüft keine zeitlichen Überlappungen zwischen verschiedenen Zielen.
+    // Überlappende Zielzeiträume sind laut Projektanforderung erlaubt.
+    expect(
+      validateGoal({
+        label: "Zweites Ziel im selben Zeitraum",
+        start_time: "2026-06-01T00:00:00.000Z",
+        end_time: "2026-06-30T23:59:59.999Z",
+      })
+    ).toEqual({ valid: true, error: null });
+  });
+
+  // ── Grenzwertanalyse (BV) ───────────────────────────────────────────────────
+
+  test("accepts a label with exactly one character as the minimum (BV_GO_01)", () => {
+    expect(validateGoal({ label: "X" })).toEqual({ valid: true, error: null });
+  });
+
+  test("accepts a label with exactly 100 characters at the upper boundary (BV_GO_02)", () => {
+    expect(validateGoal({ label: "A".repeat(100) })).toEqual({
+      valid: true,
+      error: null,
+    });
+  });
+
+  test("accepts a target study time of 0:01:00 as the minimum value above zero (BV_GO_04)", () => {
+    expect(
+      validateGoal({ label: "Test", target_study_time: "0:01:00" })
+    ).toEqual({ valid: true, error: null });
+  });
+
+  test("accepts a goal where end date equals start date since the validator uses strict less-than (BV_GO_06)", () => {
+    expect(
+      validateGoal({
+        label: "Test",
+        start_time: "2026-06-01T00:00:00.000Z",
+        end_time: "2026-06-01T00:00:00.000Z",
+      })
+    ).toEqual({ valid: true, error: null });
+  });
 });

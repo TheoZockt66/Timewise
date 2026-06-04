@@ -51,8 +51,18 @@ export async function POST(request: Request) {
   // user_id wird automatisch im Service gesetzt
   const result = await createEvent(body);
 
-  // Schritt 5: Ergebnis zurückgeben (inkl. Fehlerhandling aus dem Service)
-  return NextResponse.json(result);
+  // Schritt 5: Ergebnis zurückgeben – 201 Created bei Erfolg, Fehlercode bei Misserfolg
+  if (result.error) {
+    const statusMap: Record<string, number> = {
+      VALIDATION_ERROR: 400,
+      OVERLAP: 409,
+      UNAUTHORIZED: 401,
+    };
+    return NextResponse.json(result, {
+      status: statusMap[result.error.code] ?? 500,
+    });
+  }
+  return NextResponse.json(result, { status: 201 });
 }
 
 /**

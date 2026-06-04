@@ -324,4 +324,122 @@ describe("auth.service", () => {
       },
     });
   });
+
+  // ── Äquivalenzklassen (EQ) ──────────────────────────────────────────────────
+
+  test("accepts a valid email address with subdomains and plus addressing (EQ_AU_07)", async () => {
+    const { client } = createSupabaseClientMock({
+      auth: {
+        signInWithPassword: vi.fn().mockResolvedValue({
+          data: {
+            user: {
+              id: "user-1",
+              email: "a.b+c@sub.domain.org",
+              created_at: "2026-04-13T10:00:00.000Z",
+            },
+            session: {
+              access_token: "token",
+              refresh_token: "refresh",
+              expires_at: 12345,
+            },
+          },
+          error: null,
+        }),
+      },
+    });
+
+    mockedCreateClient.mockResolvedValue(client as never);
+
+    const result = await login({
+      email: "a.b+c@sub.domain.org",
+      password: "Passwort12",
+    });
+
+    expect(result.error).toBeNull();
+    expect(mockedCreateClient).toHaveBeenCalled();
+  });
+
+  test("accepts a password of eight spaces because the validator checks only length not content (EQ_AU_08)", async () => {
+    const { client } = createSupabaseClientMock({
+      auth: {
+        signInWithPassword: vi.fn().mockResolvedValue({
+          data: {
+            user: {
+              id: "user-1",
+              email: "test@example.com",
+              created_at: "2026-04-13T10:00:00.000Z",
+            },
+            session: {
+              access_token: "token",
+              refresh_token: "refresh",
+              expires_at: 12345,
+            },
+          },
+          error: null,
+        }),
+      },
+    });
+
+    mockedCreateClient.mockResolvedValue(client as never);
+
+    const result = await login({
+      email: "test@example.com",
+      password: "        ", // 8 Leerzeichen
+    });
+
+    expect(result.error).toBeNull();
+    expect(mockedCreateClient).toHaveBeenCalled();
+  });
+
+  // ── Grenzwertanalyse (BV) ───────────────────────────────────────────────────
+
+  test("accepts an email address with exactly 254 characters at the RFC 5321 maximum (BV_AU_03)", async () => {
+    // 242 Zeichen vor @ + "@example.com" (12 Zeichen) = 254 Zeichen
+    const email254 = "a".repeat(242) + "@example.com";
+    expect(email254.length).toBe(254);
+
+    const { client } = createSupabaseClientMock({
+      auth: {
+        signInWithPassword: vi.fn().mockResolvedValue({
+          data: {
+            user: {
+              id: "user-1",
+              email: email254,
+              created_at: "2026-04-13T10:00:00.000Z",
+            },
+            session: {
+              access_token: "token",
+              refresh_token: "refresh",
+              expires_at: 12345,
+            },
+          },
+          error: null,
+        }),
+      },
+    });
+
+    mockedCreateClient.mockResolvedValue(client as never);
+
+    const result = await login({ email: email254, password: "12345678" });
+
+    expect(result.error).toBeNull();
+    expect(mockedCreateClient).toHaveBeenCalled();
+  });
+
+  test("rejects an email address with 255 characters, one above the RFC 5321 maximum (BV_AU_04)", async () => {
+    // 243 Zeichen vor @ + "@example.com" (12 Zeichen) = 255 Zeichen
+    const email255 = "a".repeat(243) + "@example.com";
+    expect(email255.length).toBe(255);
+
+    const result = await login({ email: email255, password: "12345678" });
+
+    expect(result).toEqual({
+      data: null,
+      error: {
+        code: "VALIDATION_ERROR",
+        message: "Ungültiges E-Mail-Format. Bitte eine gültige E-Mail-Adresse eingeben.",
+      },
+    });
+    expect(mockedCreateClient).not.toHaveBeenCalled();
+  });
 });

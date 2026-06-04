@@ -61,7 +61,7 @@ describe("event creation flow", () => {
       })
     );
 
-    expect(response.status).toBe(200);
+    expect(response.status).toBe(201);
     await expect(response.json()).resolves.toMatchObject({
       data: {
         id: createdEventRecord.id,

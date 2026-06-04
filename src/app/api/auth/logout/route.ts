@@ -27,8 +27,8 @@ export async function POST(): Promise<
       return NextResponse.json(result, { status: 500 });
     }
 
-    // Erfolg → 200 OK
-    return NextResponse.json(result, { status: 200 });
+    // Erfolg → 204 No Content (RFC 9110: DELETE und Logout geben keinen Body zurück)
+    return new NextResponse(null, { status: 204 });
   } catch {
     // Unerwarteter Fehler
     return NextResponse.json(

@@ -49,7 +49,11 @@ export async function DELETE(
   // Schritt 3: Keyword löschen (Business Logic im Service)
   const result = await deleteKeyword(id);
 
-  return NextResponse.json(result);
+  // 204 No Content bei Erfolg (RFC 9110), JSON-Fehler bei Misserfolg
+  if (result.error) {
+    return NextResponse.json(result, { status: 500 });
+  }
+  return new NextResponse(null, { status: 204 });
 }
 
 /**

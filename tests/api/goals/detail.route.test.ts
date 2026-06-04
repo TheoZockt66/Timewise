@@ -194,4 +194,25 @@ describe("goals detail route", () => {
 
     expect(response.status).toBe(500);
   });
+
+  test("DELETE returns 204 No Content when a goal is successfully deleted", async () => {
+    const { client } = createSupabaseClientMock({ user: { id: "user-1" } });
+    mockedCreateClient.mockResolvedValue(client as never);
+    mockedDeleteGoal.mockResolvedValue({
+      data: { success: true },
+      error: null,
+    });
+
+    const response = await DELETE(
+      new Request("http://localhost/api/goals/goal-1", {
+        method: "DELETE",
+      }),
+      createContext()
+    );
+
+    // 204 No Content: kein Body bei erfolgreichem DELETE (TC_GO_14)
+    expect(response.status).toBe(204);
+    expect(response.body).toBeNull();
+    expect(mockedDeleteGoal).toHaveBeenCalledWith("goal-1", "user-1");
+  });
 });

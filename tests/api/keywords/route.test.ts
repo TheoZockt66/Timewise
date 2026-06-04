@@ -78,7 +78,7 @@ describe("keywords route", () => {
       })
     );
 
-    expect(response.status).toBe(200);
+    expect(response.status).toBe(201);
     expect(mockedCreateKeyword).toHaveBeenCalledWith({
       label: "Mathe",
       color: "#7700F4",

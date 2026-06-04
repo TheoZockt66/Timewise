@@ -61,7 +61,7 @@ describe("goal.service", () => {
     });
 
     expect(result.error).toMatchObject({
-      code: "INVALID_KEYWORDS",
+      code: "KEYWORD_VALIDATION_FAILED",
     });
   });
 

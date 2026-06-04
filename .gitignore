@@ -44,3 +44,5 @@ __pycache__/
 # TypeScript
 *.tsbuildinfo
 next-env.d.ts
+
+tests/playwright/.auth/

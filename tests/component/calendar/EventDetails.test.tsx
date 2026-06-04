@@ -150,8 +150,6 @@ describe("EventDetails", () => {
   });
 
   test("does not delete when the confirmation dialog is cancelled", async () => {
-    vi.stubGlobal("confirm", vi.fn(() => false));
-
     render(
       <EventDetails
         event={buildEventWithKeywords({ id: "event-1" })}
@@ -160,7 +158,12 @@ describe("EventDetails", () => {
       />
     );
 
-    fireEvent.click(screen.getByRole("button", { name: /L.schen/i }));
+    fireEvent.click(screen.getByRole("button", { name: /^Löschen$/i }));
+
+    const cancelButton = await screen.findByRole("button", {
+      name: /Löschen abbrechen/i,
+    });
+    fireEvent.click(cancelButton);
 
     await waitFor(() => {
       expect(mockedDeleteEvent).not.toHaveBeenCalled();
@@ -184,7 +187,12 @@ describe("EventDetails", () => {
       />
     );
 
-    fireEvent.click(screen.getByRole("button", { name: /L.schen/i }));
+    fireEvent.click(screen.getByRole("button", { name: /^Löschen$/i }));
+
+    const confirmButton = await screen.findByRole("button", {
+      name: /Termin endgültig löschen/i,
+    });
+    fireEvent.click(confirmButton);
 
     await waitFor(() => {
       expect(toastMock).toHaveBeenCalledWith(
@@ -208,7 +216,12 @@ describe("EventDetails", () => {
       />
     );
 
-    fireEvent.click(screen.getByRole("button", { name: /L.schen/i }));
+    fireEvent.click(screen.getByRole("button", { name: /^Löschen$/i }));
+
+    const confirmButton = await screen.findByRole("button", {
+      name: /Termin endgültig löschen/i,
+    });
+    fireEvent.click(confirmButton);
 
     await waitFor(() => {
       expect(toastMock).toHaveBeenCalledWith(
@@ -237,7 +250,12 @@ describe("EventDetails", () => {
       />
     );
 
-    fireEvent.click(screen.getByRole("button", { name: /L.schen/i }));
+    fireEvent.click(screen.getByRole("button", { name: /^Löschen$/i }));
+
+    const confirmButton = await screen.findByRole("button", {
+      name: /Termin endgültig löschen/i,
+    });
+    fireEvent.click(confirmButton);
 
     await waitFor(() => {
       expect(mockedDeleteEvent).toHaveBeenCalledWith("event-1");
