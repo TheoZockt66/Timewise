@@ -57,6 +57,7 @@ export async function POST(request: Request) {
       VALIDATION_ERROR: 400,
       OVERLAP: 409,
       UNAUTHORIZED: 401,
+      CREATE_FAILED: 500,
     };
     return NextResponse.json(result, {
       status: statusMap[result.error.code] ?? 500,

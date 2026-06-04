@@ -7,7 +7,6 @@ import { Eye, EyeOff, Mail, Lock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Checkbox } from "@/components/ui/checkbox";
 import { AuthLogo } from "@/components/auth/AuthLogo";
 import type { ApiResponse, AuthResponse } from "@/types";
 
@@ -33,8 +32,6 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   // Toggle für Passwort-Sichtbarkeit
   const [showPassword, setShowPassword] = useState(false);
-  // "Angemeldet bleiben"-Status
-  const [rememberMe, setRememberMe] = useState(false);
   // Fehlermeldung vom Server oder Netzwerkfehler
   const [error, setError] = useState("");
   // Ladezustand – verhindert doppeltes Absenden
@@ -163,18 +160,6 @@ export default function LoginPage() {
               )}
             </button>
           </div>
-        </div>
-
-        {/* Angemeldet bleiben – Checkbox */}
-        <div className="flex items-center gap-2">
-          <Checkbox
-            id="remember"
-            checked={rememberMe}
-            onCheckedChange={(checked) => setRememberMe(checked === true)}
-          />
-          <Label htmlFor="remember" className="text-sm font-normal cursor-pointer">
-            Angemeldet bleiben
-          </Label>
         </div>
 
         {/* Login-Button – min. 44x44px gemäß UI-Anforderungen */}

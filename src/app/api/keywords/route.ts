@@ -2,6 +2,13 @@ import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { createKeyword } from "@/lib/services/keyword.service";
 
+function buildUnauthorizedResponse() {
+  return NextResponse.json(
+    { data: null, error: { code: "UNAUTHORIZED", message: "Nicht eingeloggt" } },
+    { status: 401 }
+  );
+}
+
 // ─── API-Endpunkte für Keywords ───
 
 /**
@@ -30,19 +37,7 @@ export async function POST(request: Request) {
     data: { user },
   } = await supabase.auth.getUser();
 
-  // Wenn kein User vorhanden ist → Zugriff verweigern
-  if (!user) {
-    return NextResponse.json(
-      {
-        data: null,
-        error: {
-          code: "UNAUTHORIZED",
-          message: "Nicht eingeloggt",
-        },
-      },
-      { status: 401 }
-    );
-  }
+  if (!user) return buildUnauthorizedResponse();
 
   // Schritt 3: Daten aus dem Request (Frontend) lesen
   const body = await request.json();
@@ -87,19 +82,7 @@ export async function GET() {
     data: { user },
   } = await supabase.auth.getUser();
 
-  // Kein User → Zugriff verweigert (401), damit das Frontend den Zustand unterscheiden kann
-  if (!user) {
-    return NextResponse.json(
-      {
-        data: null,
-        error: {
-          code: "UNAUTHORIZED",
-          message: "Nicht eingeloggt",
-        },
-      },
-      { status: 401 }
-    );
-  }
+  if (!user) return buildUnauthorizedResponse();
 
   // Schritt 3: Alle Keywords des Users alphabetisch sortiert laden
   const { data, error } = await supabase

@@ -2,6 +2,13 @@ import { NextResponse } from "next/server";
 import { deleteKeyword, updateKeyword } from "@/lib/services/keyword.service";
 import { createClient } from "@/lib/supabase/server";
 
+function buildUnauthorizedResponse() {
+  return NextResponse.json(
+    { data: null, error: { code: "UNAUTHORIZED", message: "Nicht eingeloggt" } },
+    { status: 401 }
+  );
+}
+
 // ─── API-Endpunkte für einzelne Keywords ───
 
 /**
@@ -30,18 +37,7 @@ export async function DELETE(
     data: { user },
   } = await supabase.auth.getUser();
 
-  if (!user) {
-    return NextResponse.json(
-      {
-        data: null,
-        error: {
-          code: "UNAUTHORIZED",
-          message: "Nicht eingeloggt",
-        },
-      },
-      { status: 401 }
-    );
-  }
+  if (!user) return buildUnauthorizedResponse();
 
   // Schritt 2: ID aus der URL extrahieren
   const { id } = await context.params;
@@ -83,18 +79,7 @@ export async function PUT(
     data: { user },
   } = await supabase.auth.getUser();
 
-  if (!user) {
-    return NextResponse.json(
-      {
-        data: null,
-        error: {
-          code: "UNAUTHORIZED",
-          message: "Nicht eingeloggt",
-        },
-      },
-      { status: 401 }
-    );
-  }
+  if (!user) return buildUnauthorizedResponse();
 
   // Schritt 2: ID und neue Daten auslesen
   const { id } = await context.params;

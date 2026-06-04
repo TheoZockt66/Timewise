@@ -7,16 +7,10 @@ import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import HeaderWithBack from "@/components/layout/HeaderWithBack";
 import type { Keyword } from "@/types";
+import { isColorTooLight } from "@/lib/color.utils";
 
-const isColorTooLight = (hex: string) => {
-  const r = parseInt(hex.slice(1, 3), 16);
-  const g = parseInt(hex.slice(3, 5), 16);
-  const b = parseInt(hex.slice(5, 7), 16);
-
-  const brightness = (r * 299 + g * 587 + b * 114) / 1000;
-
-  return brightness > 200;
-};
+// Maximale Label-Länge gemäß Validierungsregel AK30
+const MAX_LABEL_LENGTH = 50;
 
 export default function KeywordsPage() {
   // State für alle Keywords (Anzeige im UI)
@@ -208,12 +202,12 @@ export default function KeywordsPage() {
                 onChange={(e) => {
                   const value = e.target.value;
 
-                  if (value.length <= 50) {
+                  if (value.length <= MAX_LABEL_LENGTH) {
                     setNewLabel(value);
                   }
 
-                  if (value.length >= 50) {
-                    setCreateError("Maximale Länge erreicht (50 Zeichen)");
+                  if (value.length >= MAX_LABEL_LENGTH) {
+                    setCreateError(`Maximale Länge erreicht (${MAX_LABEL_LENGTH} Zeichen)`);
                   } else {
                     setCreateError("");
                   }
@@ -292,12 +286,12 @@ export default function KeywordsPage() {
                               onChange={(e) => {
                                 const value = e.target.value;
 
-                                if (value.length <= 50) {
+                                if (value.length <= MAX_LABEL_LENGTH) {
                                   setEditLabel(value);
                                 }
 
-                                if (value.length >= 50) {
-                                  setEditError("Maximale Länge erreicht (50 Zeichen)");
+                                if (value.length >= MAX_LABEL_LENGTH) {
+                                  setEditError(`Maximale Länge erreicht (${MAX_LABEL_LENGTH} Zeichen)`);
                                 } else {
                                   setEditError("");
                                 }
