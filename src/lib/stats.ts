@@ -203,11 +203,12 @@ export function getWeekStartDate(dateInput: Date) {
 }
 
 export function formatDayPeriod(date: Date) {
-  return date.toLocaleDateString("de-DE", {
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric",
-  });
+  // Manuell formatieren statt toLocaleDateString – ICU-Daten variieren je nach
+  // Node.js-Build und CI-Umgebung, was zu "/" statt "." führen kann.
+  const day = String(date.getDate()).padStart(2, "0");
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const year = date.getFullYear();
+  return `${day}.${month}.${year}`;
 }
 
 export function formatWeekPeriod(date: Date) {
@@ -219,10 +220,10 @@ export function formatWeekPeriod(date: Date) {
 }
 
 export function formatMonthPeriod(date: Date) {
-  return date.toLocaleDateString("de-DE", {
-    month: "2-digit",
-    year: "numeric",
-  });
+  // Manuell formatieren statt toLocaleDateString – siehe formatDayPeriod.
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const year = date.getFullYear();
+  return `${month}.${year}`;
 }
 
 export function getAggregatePeriodLabel(
